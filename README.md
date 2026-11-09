@@ -1,3 +1,47 @@
+# Student Information System
+
+## Run locally with Laragon
+
+The project is configured for SQLite, so you do not need to configure a separate database server.
+
+1. In PowerShell, open the project folder:
+
+   ```powershell
+   cd C:\laragon\www\student-information-system
+   ```
+
+2. Install PHP dependencies if they are not already installed:
+
+   ```powershell
+   composer install
+   ```
+
+3. For a fresh copy, create the environment file and app key:
+
+   ```powershell
+   Copy-Item .env.example .env
+   php artisan key:generate
+   ```
+
+4. Create the SQLite file if needed, then apply migrations:
+
+   ```powershell
+   if (-not (Test-Path database\database.sqlite)) { New-Item database\database.sqlite -ItemType File }
+   php artisan migrate
+   ```
+
+5. Start the server and open the local address:
+
+   ```powershell
+   php artisan serve --host=127.0.0.1 --port=8000
+   ```
+
+   Visit [http://127.0.0.1:8000](http://127.0.0.1:8000). Register an account to sign in and open the dashboard. Stop the server with `Ctrl+C`.
+
+Run the test suite with `php artisan test`. Tests use an in-memory SQLite database and do not alter the local app database.
+
+---
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
