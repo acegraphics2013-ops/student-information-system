@@ -7,19 +7,6 @@
                 {{ __('Dashboard') }}
             </h1>
         </div>
-        
-        <div class="mt-6">
-    <a href="{{ route('students.index') }}"
-       class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg">
-        Manage Students
-    </a>
-    
-    <a href="{{ route('subjects.index') }}"
-        class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-lg">
-        Manage Subjects
-    </a>
-
-</div>
     </x-slot>
 
 
