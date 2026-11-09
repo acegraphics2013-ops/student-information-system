@@ -8,6 +8,7 @@ test results. Status describes repository evidence, not a predicted grade.
 |---|---:|---|---|
 | A1 Authentication | 5% | Implemented / tested | Existing Breeze registration, login, logout, session and protected routes; registration test verifies public role input cannot grant admin. |
 | A2 Authorization | 5% | Implemented / tested | Existing role middleware protects web writes; API reads require Sanctum and writes require admin; Student web/API tests cover staff restrictions. |
+| Administration | Included in application / authorization criteria | Implemented / tested | Admin-only database-driven dashboard and user directory; server-validated role-only updates; self-demotion blocked; transaction rollback protects the last-admin invariant; profile role-tampering regression test. |
 | A3 CRUD implementation | 10% | Implemented / tested | Student, Subject, and Enrollment web CRUD are present. Student create/edit now select a catalog program through College → Department → Program selectors; catalog selection does not modify subject enrollments. Operation and authorization tests pass for each module. |
 | A4 Database design and Eloquent | 10% | Implemented / verified | Existing migrations, constraints, and Student → Enrollment → Subject relationships are retained. Three additive catalog migrations create 7 colleges, 13 departments, and 22 programs; the idempotent seeder ran without changing existing Student, Subject, and Enrollment counts (one each). |
 | A5 REST API implementation | 10% | Implemented / tested | Five required Student API endpoints, JSON resource, validation, token authentication, role checks, and response codes are implemented. New API writes validate catalog program names while unchanged legacy courses remain update-compatible. |
@@ -49,8 +50,16 @@ requires actual handoffs.
 - User registration is not allowed to assign a role; the application assigns
   its default staff role. Promote admin accounts explicitly through a trusted
   local administrative workflow.
-- Final validation passed: 62 tests / 324 assertions, production asset build,
-  Composer validation, Pint on changed PHP files, and migration status. The
+- Administration routes require authentication and the `admin` role. User
+  detail pages expose only name, email, role, registration time, and
+  verification state. The user-management resource has no delete action.
+  Recent dashboard records are database timestamps, not a fabricated audit
+  trail.
+- Final validation after the Administration upgrade passed: 70 tests / 374
+  assertions, production asset build, Composer validation from the preceding
+  catalog phase, Pint on changed PHP files, and migration status from the
+  preceding catalog phase. No migration or destructive database command was
+  run during the Administration upgrade. The
   schema-only SQL export imported successfully into a fresh in-memory SQLite
   database and contains no row inserts. Student-provided screenshots,
   personal reflection, PDF exports, and any deployment evidence remain

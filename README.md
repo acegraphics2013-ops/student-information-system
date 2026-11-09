@@ -7,6 +7,10 @@ Alpine.js, Eloquent, SQLite, and a Sanctum-protected Student REST API.
 
 - Breeze registration, login, logout, profile, and password flows
 - Role-based admin writes and staff read access
+- Administrator-only system dashboard with database-backed user, student,
+  subject, enrollment, and academic catalog statistics
+- Administrator-only account directory with name/email search, role filtering,
+  account details, and protected Staff/Administrator role management
 - Student, subject, and enrollment CRUD with server-side validation
 - Dashboard counts sourced from the current database
 - NEMSU Tandag academic catalog for School Year 2026–2027 (7 colleges,
@@ -88,12 +92,27 @@ Use the email address of the account you registered. Stop the local server with
 
 ## Roles
 
-- **Admin:** read and manage students, subjects, and enrollments.
+- **Administrator:** manage users' Staff/Administrator roles, and read/manage
+  students, subjects, and enrollments. The Administration dashboard and user
+  management routes are protected by server-side role middleware.
 - **Staff:** read students, subjects, and enrollments; management writes are
   denied by server-side middleware.
 
-The role is enforced on web and API routes. Hiding a button in a view is not
-the authorization boundary.
+Public registration assigns Staff regardless of submitted role fields. An
+administrator cannot change their own role, and role updates are validated
+server-side so manually crafted requests cannot bypass the UI. A transaction
+prevents demoting the last administrator. User-management pages expose no
+password hashes, reset credentials, sessions, or access tokens. Administrator
+account deletion/suspension is not provided; it would need a separate policy
+and approval. Existing self-service Breeze profile/account features remain
+unchanged.
+
+The Administration dashboard links to the existing Student, Subject,
+Enrollment, User, and Academic Programs routes rather than duplicating CRUD.
+Recent panels report records ordered by their creation timestamps; they are
+not an audit trail. The student program report matches stored course names to
+one catalog program exactly and flags unmatched legacy values rather than
+misclassifying them.
 
 ## Student API
 

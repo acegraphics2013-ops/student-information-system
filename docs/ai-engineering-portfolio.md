@@ -208,6 +208,55 @@ import also passed. The schema import contained no catalog rows.
 and describe whether keeping a string-valued Student `course` field is an
 appropriate compatibility choice for the final project.
 
+## Prompt 7 — upgrading the administration dashboard and role management
+
+**Original prompt evidence:** The user supplied a detailed Administration
+upgrade brief in this conversation. Its explicit requirements included:
+
+> Transform it into a useful system management dashboard.
+
+> Only Administrators can change account roles.
+
+> Prevent: Unauthorized privilege escalation; Users changing their own role
+> through profile requests; Accidental self-demotion by an Administrator;
+> Demoting the last remaining Administrator.
+
+> Never fabricate historical activity.
+
+**Inspection findings:** The prior Administration page was a static welcome
+view. `/admin` already required `role:admin` and was linked by the existing
+dashboard and navigation. Registration already assigned `staff`, and
+`ProfileUpdateRequest` accepted only name/email while `User::$fillable`
+excluded role. Breeze profile/account flows, Student/Subject/Enrollment CRUD,
+the API, and the academic catalog were preserved.
+
+**Implementation result:** Replaced the static page with an invokable admin
+dashboard controller and live totals; added summaries, management shortcuts,
+catalog/program details, recent records, and data-backed program/year/status
+reports. Added an administrator-only searchable and filterable user directory,
+safe account detail pages, and role-only updates. No admin account deletion,
+suspension, or historical audit log was added. Recent records are labeled by
+their creation timestamp, not presented as action history.
+
+**Security review and correction:** The user-edit screen is not the security
+boundary: the role update is restricted by authenticated admin middleware and
+server-side validation. A role-only endpoint avoids mass-assigning user
+attributes; self-role changes are rejected, and the update is transactional
+with a post-change check that rolls back any change leaving no administrator.
+The existing profile update already ignored a crafted `role` field, and a
+regression test now verifies this.
+
+**Verification evidence:** The new dashboard/user-management tests cover
+database totals, reports, catalog counts, route access for staff/guests,
+search/filtering, role validation, promotion/demotion of another account,
+self-demotion protection, and profile role tampering. The complete PHPUnit
+suite passed **70 tests / 374 assertions**; `npm run build` passed; Pint passed
+for the changed admin PHP files. No migrations or destructive DB commands were
+run for the Administration changes.
+
+**Workflow note:** This was completed in the current assistant session. No
+independent specialist agent handoffs or screenshots are claimed.
+
 ## Token and context management — 5-point rubric evidence
 
 The actual workflow used progressively broader context rather than copying the

@@ -43,6 +43,26 @@ class ProfileTest extends TestCase
         $this->assertNull($user->email_verified_at);
     }
 
+    public function test_profile_update_cannot_change_the_users_role(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($user)
+            ->patch('/profile', [
+                'name' => 'Updated Admin',
+                'email' => $user->email,
+                'role' => 'staff',
+            ])
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/profile');
+
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'role' => 'admin',
+            'name' => 'Updated Admin',
+        ]);
+    }
+
     public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
     {
         $user = User::factory()->create();
