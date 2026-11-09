@@ -1,11 +1,12 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\SubjectController;
 use App\Models\Enrollment;
 use App\Models\Student;
 use App\Models\Subject;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\StudentController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -22,6 +23,12 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     Route::resource('students', StudentController::class)
         ->middleware('auth')
+        ->middlewareFor(
+            ['create', 'store', 'edit', 'update', 'destroy'],
+            'role:admin'
+        );
+
+    Route::resource('subjects', SubjectController::class)
         ->middlewareFor(
             ['create', 'store', 'edit', 'update', 'destroy'],
             'role:admin'
