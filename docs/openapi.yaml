@@ -1,0 +1,278 @@
+openapi: 3.0.3
+info:
+  title: SIMS Student API
+  version: 1.0.0
+  description: >
+    Student management endpoints for the Laravel SIMS application. All paths
+    require a Sanctum personal access token. Staff may read; administrators
+    may create, update, and delete.
+servers:
+  - url: http://127.0.0.1:8000
+    description: Local Laravel development server
+security:
+  - sanctumBearer: []
+paths:
+  /api/students:
+    get:
+      operationId: listStudents
+      summary: List students
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Paginated student collection
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, links, meta]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Student"
+                  links:
+                    type: object
+                  meta:
+                    type: object
+              example:
+                data:
+                  - id: 1
+                    student_number: SIMS-2001
+                    first_name: Jordan
+                    last_name: Lee
+                    email: jordan.lee@example.com
+                    course: Information Technology
+                    year_level: 1
+                links: {}
+                meta: {}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createStudent
+      summary: Create a student (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentInput"
+            example:
+              student_number: SIMS-2001
+              first_name: Jordan
+              last_name: Lee
+              email: jordan.lee@example.com
+              course: Information Technology
+              year_level: 1
+      responses:
+        "201":
+          description: Student created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+  /api/students/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getStudent
+      summary: Get a student
+      responses:
+        "200":
+          description: Student record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      operationId: updateStudent
+      summary: Replace a student (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentInput"
+      responses:
+        "200":
+          description: Updated student
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    patch:
+      operationId: partiallyUpdateStudent
+      summary: Partially update a student (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentPatch"
+      responses:
+        "200":
+          description: Updated student
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    delete:
+      operationId: deleteStudent
+      summary: Delete a student (admin only)
+      responses:
+        "204":
+          description: Student deleted; response has no body
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+components:
+  securitySchemes:
+    sanctumBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: Personal Access Token
+      description: Create locally using User::createToken() in Tinker.
+  schemas:
+    Student:
+      allOf:
+        - $ref: "#/components/schemas/StudentInput"
+        - type: object
+          required: [id]
+          properties:
+            id:
+              type: integer
+              example: 1
+    StudentInput:
+      type: object
+      required:
+        - student_number
+        - first_name
+        - last_name
+        - email
+        - course
+        - year_level
+      properties:
+        student_number:
+          type: string
+          maxLength: 30
+        first_name:
+          type: string
+          maxLength: 100
+        last_name:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        course:
+          type: string
+          maxLength: 150
+        year_level:
+          type: integer
+          minimum: 1
+          maximum: 6
+    StudentPatch:
+      type: object
+      description: Send one or more valid fields; omitted fields are unchanged.
+      minProperties: 1
+      properties:
+        student_number:
+          type: string
+          maxLength: 30
+        first_name:
+          type: string
+          maxLength: 100
+        last_name:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        course:
+          type: string
+          maxLength: 150
+        year_level:
+          type: integer
+          minimum: 1
+          maximum: 6
+    StudentResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/Student"
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+  responses:
+    Unauthorized:
+      description: Missing or invalid Sanctum token
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Forbidden:
+      description: Staff token cannot perform an admin-only write
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Student does not exist
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ValidationError:
+      description: Request fields did not pass validation
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
