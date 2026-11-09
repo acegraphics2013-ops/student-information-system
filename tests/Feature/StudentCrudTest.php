@@ -44,7 +44,10 @@ class StudentCrudTest extends TestCase
 
     public function test_staff_can_read_students_but_cannot_modify_them(): void
     {
-        $student = Student::factory()->create();
+        $student = Student::create($this->studentData([
+            'student_number' => 'SIMS-1002',
+            'email' => 'staff.read@example.com',
+        ]));
 
         $this->actingAs(User::factory()->create(['role' => 'staff']));
 
@@ -63,7 +66,10 @@ class StudentCrudTest extends TestCase
     public function test_student_creation_validates_required_unique_and_bounded_fields(): void
     {
         $this->actingAs(User::factory()->create(['role' => 'admin']));
-        $existing = Student::factory()->create();
+        $existing = Student::create($this->studentData([
+            'student_number' => 'SIMS-1002',
+            'email' => 'existing@example.com',
+        ]));
 
         $this->from(route('students.create'))
             ->post(route('students.store'), [

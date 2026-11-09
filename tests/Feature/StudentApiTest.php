@@ -14,7 +14,10 @@ class StudentApiTest extends TestCase
     public function test_admin_can_use_all_student_api_endpoints(): void
     {
         $this->withApiToken(User::factory()->create(['role' => 'admin']));
-        $student = Student::factory()->create();
+        $student = Student::create($this->studentData([
+            'student_number' => 'SIMS-2002',
+            'email' => 'existing.api@example.com',
+        ]));
 
         $this->getJson('/api/students')
             ->assertOk()
@@ -63,7 +66,10 @@ class StudentApiTest extends TestCase
     public function test_staff_can_read_but_cannot_modify_students_via_api(): void
     {
         $this->withApiToken(User::factory()->create(['role' => 'staff']));
-        $student = Student::factory()->create();
+        $student = Student::create($this->studentData([
+            'student_number' => 'SIMS-2002',
+            'email' => 'staff.api@example.com',
+        ]));
 
         $this->getJson('/api/students')->assertOk();
         $this->getJson("/api/students/{$student->id}")->assertOk();
