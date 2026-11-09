@@ -141,6 +141,7 @@ are included.
 | `database\migrations` | Schema and migration history |
 | `tests\Feature` | End-to-end feature and authorization tests |
 | `docs` | API, rubric, AI workflow, and reflection source documents |
+| `database\export` | Schema-only SQLite SQL export; no local rows |
 
 ## Project and assessment documents
 
@@ -149,6 +150,8 @@ are included.
 - [Agent design / AGENT_DESIGN Markdown source](docs/ai-agent-design.md)
 - [Reflection / REFLECTION evidence-based draft](docs/reflection-template.md)
 - [Git and AI reflection](docs/git-ai-reflection.md)
+- [Final submission checklist](docs/submission-checklist.md)
+- [Oral-defense notes](docs/oral-defense.md)
 - [OpenAPI specification](docs/openapi.yaml)
 
 The handbook and rubric supplied for the assessment are not redistributed in

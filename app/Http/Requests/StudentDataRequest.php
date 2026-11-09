@@ -20,25 +20,27 @@ class StudentDataRequest extends FormRequest
     public function rules(): array
     {
         $student = $this->route('student');
-        $required = $this->isMethod('PATCH') ? 'sometimes|required' : 'required';
+        $required = $this->isMethod('PATCH')
+            ? ['sometimes', 'required']
+            : ['required'];
 
         return [
             'student_number' => [
-                $required,
+                ...$required,
                 'string',
                 'max:30',
                 $this->uniqueRule('student_number', $student),
             ],
-            'first_name' => [$required, 'string', 'max:100'],
-            'last_name' => [$required, 'string', 'max:100'],
+            'first_name' => [...$required, 'string', 'max:100'],
+            'last_name' => [...$required, 'string', 'max:100'],
             'email' => [
-                $required,
+                ...$required,
                 'email',
                 'max:255',
                 $this->uniqueRule('email', $student),
             ],
-            'course' => [$required, 'string', 'max:150'],
-            'year_level' => [$required, 'integer', 'between:1,6'],
+            'course' => [...$required, 'string', 'max:150'],
+            'year_level' => [...$required, 'integer', 'between:1,6'],
         ];
     }
 

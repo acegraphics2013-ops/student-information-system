@@ -2,30 +2,6 @@
 -- No user, student, subject, enrollment, token, or other row data is included.
 PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
-CREATE UNIQUE INDEX "enrollments_student_id_subject_id_unique" on "enrollments" ("student_id", "subject_id");
-
-CREATE UNIQUE INDEX "failed_jobs_uuid_unique" on "failed_jobs" ("uuid");
-
-CREATE INDEX "jobs_queue_index" on "jobs" ("queue");
-
-CREATE INDEX "personal_access_tokens_expires_at_index" on "personal_access_tokens" ("expires_at");
-
-CREATE UNIQUE INDEX "personal_access_tokens_token_unique" on "personal_access_tokens" ("token");
-
-CREATE INDEX "personal_access_tokens_tokenable_type_tokenable_id_index" on "personal_access_tokens" ("tokenable_type", "tokenable_id");
-
-CREATE INDEX "sessions_last_activity_index" on "sessions" ("last_activity");
-
-CREATE INDEX "sessions_user_id_index" on "sessions" ("user_id");
-
-CREATE UNIQUE INDEX "students_email_unique" on "students" ("email");
-
-CREATE UNIQUE INDEX "students_student_number_unique" on "students" ("student_number");
-
-CREATE UNIQUE INDEX "subjects_subject_code_unique" on "subjects" ("subject_code");
-
-CREATE UNIQUE INDEX "users_email_unique" on "users" ("email");
-
 CREATE TABLE "cache" ("key" varchar not null, "value" text not null, "expiration" integer not null, primary key ("key"));
 
 CREATE TABLE "cache_locks" ("key" varchar not null, "owner" varchar not null, "expiration" integer not null, primary key ("key"));
@@ -53,6 +29,30 @@ CREATE TABLE "students" ("id" integer primary key autoincrement not null, "stude
 CREATE TABLE "subjects" ("id" integer primary key autoincrement not null, "subject_code" varchar not null, "subject_name" varchar not null, "units" integer not null, "created_at" datetime, "updated_at" datetime);
 
 CREATE TABLE "users" ("id" integer primary key autoincrement not null, "name" varchar not null, "email" varchar not null, "email_verified_at" datetime, "password" varchar not null, "remember_token" varchar, "created_at" datetime, "updated_at" datetime, "role" varchar not null default 'staff');
+
+CREATE UNIQUE INDEX "enrollments_student_id_subject_id_unique" on "enrollments" ("student_id", "subject_id");
+
+CREATE UNIQUE INDEX "failed_jobs_uuid_unique" on "failed_jobs" ("uuid");
+
+CREATE INDEX "jobs_queue_index" on "jobs" ("queue");
+
+CREATE INDEX "personal_access_tokens_expires_at_index" on "personal_access_tokens" ("expires_at");
+
+CREATE UNIQUE INDEX "personal_access_tokens_token_unique" on "personal_access_tokens" ("token");
+
+CREATE INDEX "personal_access_tokens_tokenable_type_tokenable_id_index" on "personal_access_tokens" ("tokenable_type", "tokenable_id");
+
+CREATE INDEX "sessions_last_activity_index" on "sessions" ("last_activity");
+
+CREATE INDEX "sessions_user_id_index" on "sessions" ("user_id");
+
+CREATE UNIQUE INDEX "students_email_unique" on "students" ("email");
+
+CREATE UNIQUE INDEX "students_student_number_unique" on "students" ("student_number");
+
+CREATE UNIQUE INDEX "subjects_subject_code_unique" on "subjects" ("subject_code");
+
+CREATE UNIQUE INDEX "users_email_unique" on "users" ("email");
 
 COMMIT;
 PRAGMA foreign_keys=ON;
