@@ -90,9 +90,11 @@ no Student factory; test data was changed to explicit model creation rather
 than adding an unnecessary factory.
 
 **Verification result:** `StudentApiTest`, `StudentCrudTest`, and
-`RegistrationTest` passed: 9 tests and 73 assertions. A full test run and local
-migration verification are still required before this draft can claim full
-project validation.
+`RegistrationTest` passed: 9 tests and 73 assertions. The subsequent full
+suite passed with 49 tests and 212 assertions. Composer validation, Pint on
+changed PHP files, and the production asset build passed. The additive token
+migration applied; local student, subject, and enrollment counts remained
+unchanged at one each.
 
 **Student evaluation:** Review the authorization policy, payload validation,
 and response codes; document any changes you personally made or rejected.

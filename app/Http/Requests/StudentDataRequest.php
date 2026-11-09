@@ -42,7 +42,7 @@ class StudentDataRequest extends FormRequest
         ];
     }
 
-    private function uniqueRule(string $column, mixed $student): Unique
+    private function uniqueRule(string $column, ?Student $student): Unique
     {
         $rule = Rule::unique('students', $column);
 
