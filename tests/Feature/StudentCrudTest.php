@@ -91,6 +91,29 @@ class StudentCrudTest extends TestCase
             ]);
 
         $this->assertDatabaseCount('students', 1);
+
+        $this->from(route('students.create'))
+            ->post(route('students.store'), $this->studentData([
+                'student_number' => 'SIMS-1003',
+                'email' => $existing->email,
+            ]))
+            ->assertRedirect(route('students.create'))
+            ->assertSessionHasErrors('email');
+
+        $this->from(route('students.create'))
+            ->post(route('students.store'), $this->studentData([
+                'student_number' => str_repeat('S', 31),
+                'email' => 'too.long.number@example.com',
+            ]))
+            ->assertRedirect(route('students.create'))
+            ->assertSessionHasErrors('student_number');
+
+        $this->from(route('students.create'))
+            ->post(route('students.store'), $this->studentData([
+                'student_number' => '',
+            ]))
+            ->assertRedirect(route('students.create'))
+            ->assertSessionHasErrors('student_number');
     }
 
     public function test_student_updates_cannot_reuse_another_records_number_or_email(): void
@@ -119,28 +142,6 @@ class StudentCrudTest extends TestCase
             'email' => 'second.student@example.com',
         ]);
 
-        $this->from(route('students.create'))
-            ->post(route('students.store'), $this->studentData([
-                'student_number' => 'SIMS-1003',
-                'email' => $existing->email,
-            ]))
-            ->assertRedirect(route('students.create'))
-            ->assertSessionHasErrors('email');
-
-        $this->from(route('students.create'))
-            ->post(route('students.store'), $this->studentData([
-                'student_number' => str_repeat('S', 31),
-                'email' => 'too.long.number@example.com',
-            ]))
-            ->assertRedirect(route('students.create'))
-            ->assertSessionHasErrors('student_number');
-
-        $this->from(route('students.create'))
-            ->post(route('students.store'), $this->studentData([
-                'student_number' => '',
-            ]))
-            ->assertRedirect(route('students.create'))
-            ->assertSessionHasErrors('student_number');
     }
 
     public function test_missing_student_pages_return_not_found(): void
