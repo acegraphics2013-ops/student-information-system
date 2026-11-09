@@ -12,10 +12,13 @@ class EnsureRole
     public function handle(
         Request $request,
         Closure $next,
-        string $role
+        string ...$roles
     ): Response {
-        if ($request->user()?->role !== $role) {
-            abort(403, 'Unauthorized access.');
+        if (
+            !$request->user() ||
+            !in_array($request->user()->role, $roles, true)
+        ) {
+            abort(403, 'Access denied.');
         }
 
         return $next($request);
