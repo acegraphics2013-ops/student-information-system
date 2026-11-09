@@ -61,6 +61,10 @@ class StudentApiTest extends TestCase
         $this->getJson('/api/students')->assertUnauthorized();
         $this->postJson('/api/students', $this->studentData())
             ->assertUnauthorized();
+
+        $this->withToken('invalid-token')
+            ->getJson('/api/students')
+            ->assertUnauthorized();
     }
 
     public function test_staff_can_read_but_cannot_modify_students_via_api(): void
@@ -107,7 +111,32 @@ class StudentApiTest extends TestCase
             ]);
 
         $this->getJson('/api/students/999999')->assertNotFound();
+        $this->putJson('/api/students/999999', $this->studentData())
+            ->assertNotFound();
+        $this->deleteJson('/api/students/999999')->assertNotFound();
         $this->assertDatabaseCount('students', 0);
+    }
+
+    public function test_student_api_rejects_duplicate_and_overlong_student_numbers(): void
+    {
+        $this->withApiToken(User::factory()->create(['role' => 'admin']));
+        Student::create($this->studentData());
+
+        $this->postJson('/api/students', $this->studentData([
+            'email' => 'duplicate.number@example.com',
+        ]))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('student_number')
+            ->assertJsonStructure(['message', 'errors' => ['student_number']]);
+
+        $this->postJson('/api/students', $this->studentData([
+            'student_number' => str_repeat('S', 31),
+            'email' => 'overlong.number@example.com',
+        ]))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('student_number');
+
+        $this->assertDatabaseCount('students', 1);
     }
 
     /**

@@ -52,6 +52,7 @@ class EnrollmentCrudTest extends TestCase
         $student = $this->sampleStudent();
         $subject = $this->sampleSubject();
         $this->actingAs($admin);
+        $this->get(route('enrollments.index'))->assertOk();
 
         $this->post(route('enrollments.store'), [
             'student_id' => $student->id,
@@ -61,6 +62,7 @@ class EnrollmentCrudTest extends TestCase
 
         $enrollment = Enrollment::firstOrFail();
         $this->get(route('enrollments.show', $enrollment))->assertOk();
+        $this->get(route('enrollments.edit', $enrollment))->assertOk();
 
         $this->put(route('enrollments.update', $enrollment), [
             'student_id' => $student->id,
@@ -100,6 +102,11 @@ class EnrollmentCrudTest extends TestCase
             'subject_id' => $subject->id,
             'status' => 'enrolled',
         ])->assertForbidden();
+        $this->put(route('enrollments.update', $enrollment), [
+            'student_id' => $student->id,
+            'subject_id' => $subject->id,
+            'status' => 'completed',
+        ])->assertForbidden();
         $this->delete(route('enrollments.destroy', $enrollment))->assertForbidden();
     }
 
@@ -123,6 +130,43 @@ class EnrollmentCrudTest extends TestCase
         $this->assertDatabaseCount('enrollments', 1);
     }
 
+    public function test_duplicate_student_subject_pair_is_rejected_on_update(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $student = $this->sampleStudent();
+        $firstSubject = $this->sampleSubject();
+        $secondSubject = Subject::create([
+            'subject_code' => 'IT102',
+            'subject_name' => 'Programming',
+            'units' => 3,
+        ]);
+        Enrollment::create([
+            'student_id' => $student->id,
+            'subject_id' => $firstSubject->id,
+            'status' => 'enrolled',
+        ]);
+        $enrollmentToUpdate = Enrollment::create([
+            'student_id' => $student->id,
+            'subject_id' => $secondSubject->id,
+            'status' => 'enrolled',
+        ]);
+
+        $this->actingAs($admin)->put(
+            route('enrollments.update', $enrollmentToUpdate),
+            [
+                'student_id' => $student->id,
+                'subject_id' => $firstSubject->id,
+                'status' => 'completed',
+            ]
+        )->assertSessionHasErrors('subject_id');
+
+        $this->assertDatabaseHas('enrollments', [
+            'id' => $enrollmentToUpdate->id,
+            'subject_id' => $secondSubject->id,
+            'status' => 'enrolled',
+        ]);
+    }
+
     public function test_invalid_foreign_keys_and_status_are_rejected(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -132,5 +176,19 @@ class EnrollmentCrudTest extends TestCase
             'subject_id' => 999999,
             'status' => 'invalid',
         ])->assertSessionHasErrors(['student_id', 'subject_id', 'status']);
+    }
+
+    public function test_missing_enrollment_pages_return_not_found(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
+
+        $this->get('/enrollments/999999')->assertNotFound();
+        $this->get('/enrollments/999999/edit')->assertNotFound();
+        $this->put('/enrollments/999999', [
+            'student_id' => 1,
+            'subject_id' => 1,
+            'status' => 'enrolled',
+        ])->assertNotFound();
+        $this->delete('/enrollments/999999')->assertNotFound();
     }
 }

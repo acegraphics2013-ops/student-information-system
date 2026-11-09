@@ -91,6 +91,32 @@ class StudentCrudTest extends TestCase
             ]);
 
         $this->assertDatabaseCount('students', 1);
+
+        $this->from(route('students.create'))
+            ->post(route('students.store'), $this->studentData([
+                'student_number' => str_repeat('S', 31),
+                'email' => 'too.long.number@example.com',
+            ]))
+            ->assertRedirect(route('students.create'))
+            ->assertSessionHasErrors('student_number');
+
+        $this->from(route('students.create'))
+            ->post(route('students.store'), $this->studentData([
+                'student_number' => '',
+            ]))
+            ->assertRedirect(route('students.create'))
+            ->assertSessionHasErrors('student_number');
+    }
+
+    public function test_missing_student_pages_return_not_found(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
+
+        $this->get('/students/999999')->assertNotFound();
+        $this->get('/students/999999/edit')->assertNotFound();
+        $this->put('/students/999999', $this->studentData())
+            ->assertNotFound();
+        $this->delete('/students/999999')->assertNotFound();
     }
 
     /**
