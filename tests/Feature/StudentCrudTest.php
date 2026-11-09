@@ -94,6 +94,14 @@ class StudentCrudTest extends TestCase
 
         $this->from(route('students.create'))
             ->post(route('students.store'), $this->studentData([
+                'student_number' => 'SIMS-1003',
+                'email' => $existing->email,
+            ]))
+            ->assertRedirect(route('students.create'))
+            ->assertSessionHasErrors('email');
+
+        $this->from(route('students.create'))
+            ->post(route('students.store'), $this->studentData([
                 'student_number' => str_repeat('S', 31),
                 'email' => 'too.long.number@example.com',
             ]))

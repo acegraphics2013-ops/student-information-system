@@ -102,19 +102,39 @@ class SubjectCrudTest extends TestCase
             'role' => 'admin',
         ]);
 
-        Subject::create([
+        $existing = Subject::create([
             'subject_code' => 'IT101',
             'subject_name' => 'Introduction to Computing',
             'units' => 3,
         ]);
 
         $this->actingAs($admin)
+            ->put(route('subjects.update', $existing), [
+                'subject_code' => 'IT102',
+                'subject_name' => 'Another Subject',
+                'units' => 3,
+            ])
+            ->assertSessionHasNoErrors();
+
+        $other = Subject::create([
+            'subject_code' => 'IT103',
+            'subject_name' => 'Database Systems',
+            'units' => 3,
+        ]);
+
+        $this->actingAs($admin)
             ->post(route('subjects.store'), [
-                'subject_code' => 'IT101',
+                'subject_code' => 'IT102',
                 'subject_name' => 'Another Subject',
                 'units' => 3,
             ])
             ->assertSessionHasErrors('subject_code');
+
+        $this->put(route('subjects.update', $other), [
+            'subject_code' => 'IT102',
+            'subject_name' => 'Duplicate Code',
+            'units' => 3,
+        ])->assertSessionHasErrors('subject_code');
     }
 
     public function test_invalid_subject_data_is_rejected(): void

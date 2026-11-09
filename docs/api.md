@@ -33,6 +33,49 @@ it in Tinker:
 $admin->tokens()->where('name', 'local-sims-client')->delete();
 ```
 
+## Local testing
+
+Start the application with `php artisan serve --host=127.0.0.1 --port=8000`.
+Set a local shell variable to the token you just created; do not save a real
+token in this repository:
+
+```powershell
+$token = '<paste-local-token>'
+$headers = @{
+    Authorization = "Bearer $token"
+    Accept = 'application/json'
+}
+```
+
+List students:
+
+```powershell
+Invoke-RestMethod -Method Get `
+  -Uri 'http://127.0.0.1:8000/api/students' `
+  -Headers $headers
+```
+
+Create a student as admin:
+
+```powershell
+$student = @{
+    student_number = 'SIMS-2001'
+    first_name = 'Jordan'
+    last_name = 'Lee'
+    email = 'jordan.lee@example.com'
+    course = 'Information Technology'
+    year_level = 1
+} | ConvertTo-Json
+
+Invoke-RestMethod -Method Post `
+  -Uri 'http://127.0.0.1:8000/api/students' `
+  -Headers $headers -ContentType 'application/json' -Body $student
+```
+
+The interactive OpenAPI description is available as
+[`openapi.yaml`](openapi.yaml). It can be imported into an OpenAPI-compatible
+client for request construction.
+
 ## Endpoints
 
 | Method | Path | Access | Success |
@@ -99,6 +142,19 @@ The collection response uses Laravel's resource pagination shape with `data`,
 
 Validation errors and unknown students are returned as JSON by Laravel's API
 exception handling.
+
+Example validation error:
+
+```json
+{
+  "message": "The student number field is required.",
+  "errors": {
+    "student_number": [
+      "The student number field is required."
+    ]
+  }
+}
+```
 
 ## Schema and migration
 

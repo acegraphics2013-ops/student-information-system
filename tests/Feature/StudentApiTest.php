@@ -50,6 +50,13 @@ class StudentApiTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.first_name', 'Updated');
 
+        $this->patchJson("/api/students/{$studentId}", [
+            'course' => 'Computer Science',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.course', 'Computer Science')
+            ->assertJsonPath('data.first_name', 'Updated');
+
         $this->deleteJson("/api/students/{$studentId}")
             ->assertNoContent();
 
