@@ -25,6 +25,11 @@
                         :active="request()->routeIs('subjects.*')">
                         {{ __('Subjects') }}
                     </x-nav-link>
+                    <x-nav-link
+                        :href="route('enrollments.index')"
+                        :active="request()->routeIs('enrollments.*')">
+                        {{ __('Enrollments') }}
+                    </x-nav-link>
                     @if (Auth::user()->role === 'admin')
                         <x-nav-link :href="route('admin.index')" :active="request()->routeIs('admin.*')">
                             {{ __('Administration') }}
@@ -94,6 +99,11 @@
                 :href="route('subjects.index')"
                 :active="request()->routeIs('subjects.*')">
                 {{ __('Subjects') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link
+                :href="route('enrollments.index')"
+                :active="request()->routeIs('enrollments.*')">
+                {{ __('Enrollments') }}
             </x-responsive-nav-link>
             @if (Auth::user()->role === 'admin')
                 <x-responsive-nav-link :href="route('admin.index')" :active="request()->routeIs('admin.*')">

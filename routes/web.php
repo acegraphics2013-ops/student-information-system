@@ -3,10 +3,12 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\EnrollmentController;
 use App\Models\Enrollment;
 use App\Models\Student;
 use App\Models\Subject;
 use Illuminate\Support\Facades\Route;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -29,6 +31,12 @@ Route::middleware('auth')->group(function () {
         );
 
     Route::resource('subjects', SubjectController::class)
+        ->middlewareFor(
+            ['create', 'store', 'edit', 'update', 'destroy'],
+            'role:admin'
+        );
+
+    Route::resource('enrollments', EnrollmentController::class)
         ->middlewareFor(
             ['create', 'store', 'edit', 'update', 'destroy'],
             'role:admin'
