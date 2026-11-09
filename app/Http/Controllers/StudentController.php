@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StudentDataRequest;
 use App\Models\Student;
 use Illuminate\Http\RedirectResponse;
-use App\Http\Requests\StudentDataRequest;
 use Illuminate\View\View;
 
 class StudentController extends Controller

@@ -1,110 +1,105 @@
-# Student Information System
+# Student Information Management System (SIMS)
+
+Laravel 12 student information system using Breeze authentication, Blade, Tailwind,
+Alpine.js, Eloquent, SQLite, and a Sanctum-protected Student REST API.
+
+## Requirements
+
+- PHP 8.2 or newer with the SQLite PDO extension enabled
+- Composer
+- Node.js and npm
+- Laragon on Windows, or another PHP-compatible local environment
 
 ## Run locally with Laragon
 
-The project is configured for SQLite, so you do not need to configure a separate database server.
+Open PowerShell in the project directory:
 
-1. In PowerShell, open the project folder:
+```powershell
+cd C:\laragon\www\student-information-system
+```
 
-   ```powershell
-   cd C:\laragon\www\student-information-system
-   ```
+Install dependencies and build the frontend:
 
-2. Install PHP dependencies if they are not already installed:
+```powershell
+composer install
+npm ci
+npm run build
+```
 
-   ```powershell
-   composer install
-   ```
+For a new checkout only, copy `.env.example` to `.env` and generate an
+application key. Do not replace an existing `.env` or application key:
 
-3. For a fresh copy, create the environment file and app key:
+```powershell
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+if (-not (Select-String -Path .env -Pattern '^APP_KEY=base64:' -Quiet)) { php artisan key:generate }
+```
 
-   ```powershell
-   Copy-Item .env.example .env
-   php artisan key:generate
-   ```
+The application is configured for SQLite. Create the database file only if it
+does not already exist, then apply outstanding migrations:
 
-4. Create the SQLite file if needed, then apply migrations:
+```powershell
+if (-not (Test-Path database\database.sqlite)) { New-Item database\database.sqlite -ItemType File }
+php artisan migrate
+```
 
-   ```powershell
-   if (-not (Test-Path database\database.sqlite)) { New-Item database\database.sqlite -ItemType File }
-   php artisan migrate
-   ```
+Migrations update the existing schema and do not reset records. Back up the
+SQLite file before applying migrations to an existing installation. Never use
+`migrate:fresh` or `db:wipe` on data you want to keep.
 
-5. Start the server and open the local address:
+Start the local server:
 
-   ```powershell
-   php artisan serve --host=127.0.0.1 --port=8000
-   ```
+```powershell
+php artisan serve --host=127.0.0.1 --port=8000
+```
 
-   Visit [http://127.0.0.1:8000](http://127.0.0.1:8000). Register an account to sign in and open the dashboard. Stop the server with `Ctrl+C`.
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000), register, and sign in.
+New public registrations receive the `staff` role. Promote a trusted account
+to administrator explicitly in local Tinker when needed:
 
-Run the test suite with `php artisan test`. Tests use an in-memory SQLite database and do not alter the local app database.
+```powershell
+php artisan tinker
+```
 
----
+```php
+App\Models\User::where('email', 'admin@example.com')->update(['role' => 'admin']);
+```
 
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Use the email address of the account you registered. Stop the local server with
+`Ctrl+C`.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Roles
 
-## About Laravel
+- **Admin:** read and manage students, subjects, and enrollments.
+- **Staff:** read students, subjects, and enrollments; management writes are
+  denied by server-side middleware.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+The role is enforced on web and API routes. Hiding a button in a view is not
+the authorization boundary.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Student API
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+All endpoints require a Sanctum personal access token in the
+`Authorization: Bearer <token>` header. Read [docs/api.md](docs/api.md) for
+endpoints, response shapes, status codes, and local token provisioning.
 
-## Learning Laravel
+## Tests and checks
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```powershell
+php artisan test
+composer validate --no-check-publish
+npm run build
+```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+The test configuration uses in-memory SQLite. Running tests does not reset or
+modify the local application database.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Project and assessment documents
 
-## Laravel Sponsors
+- [Rubric compliance audit](docs/compliance-audit.md)
+- [AI engineering portfolio (evidence-backed draft)](docs/ai-engineering-portfolio.md)
+- [Agent design and actual workflow](docs/ai-agent-design.md)
+- [Reflection template](docs/reflection-template.md)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+The handbook and rubric supplied for the assessment are not redistributed in
+this repository. Screenshots, personal reflection, and deployment evidence
+must be supplied by the student; none are fabricated here.
