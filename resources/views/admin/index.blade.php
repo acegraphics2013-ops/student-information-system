@@ -1,34 +1,60 @@
 
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-wrap items-end justify-between gap-3">
+        <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <p class="text-sm font-medium text-indigo-600">{{ $campus }} · School Year {{ $schoolYear }}</p>
-                <h1 class="mt-1 text-2xl font-semibold text-gray-800">Administration Dashboard</h1>
+                <p class="text-sm font-semibold uppercase tracking-wide text-indigo-600">{{ $campus }} · School Year {{ $schoolYear }}</p>
+                <h1 class="mt-1 text-2xl font-semibold tracking-tight text-gray-900">Administration dashboard</h1>
+                <p class="mt-1 text-sm text-gray-500">Manage system access and monitor academic records.</p>
             </div>
-            <a href="{{ route('admin.users.index') }}" class="inline-flex items-center rounded-md bg-indigo-700 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Manage user accounts</a>
+            <div class="flex flex-wrap gap-2">
+                <a href="{{ route('admin.users.index') }}" class="inline-flex min-h-11 items-center rounded-md bg-indigo-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Manage accounts</a>
+                <a href="{{ route('academic-programs.index') }}" class="inline-flex min-h-11 items-center rounded-md border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">View catalog</a>
+            </div>
         </div>
     </x-slot>
 
     <main class="py-10">
         <div class="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8">
-            <section class="rounded-xl border border-indigo-100 bg-gradient-to-r from-indigo-50 to-white p-6 shadow-sm sm:p-8">
-                <p class="text-sm font-semibold uppercase tracking-wide text-indigo-700">Administrator workspace</p>
-                <h2 class="mt-2 text-2xl font-bold text-gray-900">Welcome, {{ auth()->user()->name }}</h2>
-                <p class="mt-2 max-w-3xl text-sm leading-6 text-gray-600">System summary and shortcuts for managing NEMSU Tandag Campus student, subject, enrollment, and account records.</p>
+            <section class="overflow-hidden rounded-xl border border-indigo-100 bg-gradient-to-br from-indigo-700 via-indigo-700 to-blue-800 p-6 shadow-sm sm:p-8">
+                <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+                    <div class="max-w-2xl">
+                        <p class="text-sm font-semibold uppercase tracking-wider text-indigo-100">Administrator workspace</p>
+                        <h2 class="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">Welcome, {{ auth()->user()->name }}</h2>
+                        <p class="mt-2 text-sm leading-6 text-indigo-100">A single place to manage access, review student records, and navigate the academic catalog.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="{{ route('students.create') }}" class="inline-flex min-h-10 items-center rounded-md bg-white px-3 text-sm font-semibold text-indigo-800 shadow-sm hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-700">Add student</a>
+                        <a href="{{ route('enrollments.create') }}" class="inline-flex min-h-10 items-center rounded-md border border-indigo-300 px-3 text-sm font-semibold text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-700">New enrollment</a>
+                    </div>
+                </div>
             </section>
 
             <section aria-labelledby="statistics-heading">
                 <div class="mb-4">
                     <h2 id="statistics-heading" class="text-lg font-semibold text-gray-900">System summary</h2>
-                    <p class="mt-1 text-sm text-gray-600">Live totals queried from the application database.</p>
+                    <p class="mt-1 text-sm text-gray-600">Live totals grouped by account access, academic records, and catalog data.</p>
                 </div>
-                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    @foreach ($statistics as $statistic)
-                        <article class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
-                            <p class="text-sm font-medium text-gray-500">{{ $statistic['label'] }}</p>
-                            <p class="mt-2 text-3xl font-semibold tracking-tight text-gray-900">{{ number_format($statistic['count']) }}</p>
-                        </article>
+                @php
+                    $statisticGroups = [
+                        ['title' => 'Accounts', 'labels' => ['Registered Users', 'Administrators', 'Staff Accounts'], 'accent' => 'border-indigo-500'],
+                        ['title' => 'Academic records', 'labels' => ['Students', 'Subjects', 'Enrollments'], 'accent' => 'border-blue-500'],
+                        ['title' => 'Academic catalog', 'labels' => ['Colleges', 'Departments', 'Degree Programs'], 'accent' => 'border-violet-500'],
+                    ];
+                @endphp
+                <div class="grid gap-4 xl:grid-cols-3">
+                    @foreach ($statisticGroups as $group)
+                        <section class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5" aria-label="{{ $group['title'] }} statistics">
+                            <h3 class="text-sm font-semibold text-gray-700">{{ $group['title'] }}</h3>
+                            <div class="mt-3 grid grid-cols-3 gap-2">
+                                @foreach (collect($statistics)->whereIn('label', $group['labels']) as $statistic)
+                                    <article class="min-w-0 rounded-lg border-l-2 {{ $group['accent'] }} bg-gray-50 px-3 py-3">
+                                        <p class="text-xs leading-4 text-gray-500">{{ $statistic['label'] }}</p>
+                                        <p class="mt-2 text-2xl font-bold tracking-tight text-gray-900">{{ number_format($statistic['count']) }}</p>
+                                    </article>
+                                @endforeach
+                            </div>
+                        </section>
                     @endforeach
                 </div>
             </section>
@@ -36,7 +62,7 @@
             <section aria-labelledby="management-heading">
                 <div class="mb-4">
                     <h2 id="management-heading" class="text-lg font-semibold text-gray-900">Management shortcuts</h2>
-                    <p class="mt-1 text-sm text-gray-600">These shortcuts open the existing management modules.</p>
+                    <p class="mt-1 text-sm text-gray-600">Open existing modules to review records or start common tasks.</p>
                 </div>
                 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     @foreach ([

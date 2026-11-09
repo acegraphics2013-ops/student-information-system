@@ -33,14 +33,28 @@ class AdminUserManagementTest extends TestCase
             ->assertSee('Searchable Staff')
             ->assertDontSee('Other Staff');
 
+        $this->get(route('admin.users.index'))
+            ->assertOk()
+            ->assertSee('Apply filters')
+            ->assertSee('Registered accounts')
+            ->assertSee('Manage role')
+            ->assertSee('sm:hidden', false)
+            ->assertSee('sm:block', false);
+
         $this->get(route('admin.users.show', $staff))
             ->assertOk()
             ->assertSee($staff->email)
+            ->assertSee('Account profile')
+            ->assertSee('Manage access role')
             ->assertDontSee('password')
             ->assertDontSee('remember_token')
             ->assertDontSee('personal_access_tokens');
 
-        $this->get(route('admin.users.edit', $staff))->assertOk();
+        $this->get(route('admin.users.edit', $staff))
+            ->assertOk()
+            ->assertSee('Choose an access role')
+            ->assertSee('least privileged role')
+            ->assertSee('Save role');
     }
 
     public function test_admin_can_promote_and_demote_another_account(): void
