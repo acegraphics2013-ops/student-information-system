@@ -12,6 +12,10 @@ own evaluation before submission.
 - Model/version: not recorded in the conversation evidence available for this
   draft.
 - Independent specialized agents: none were used for the work recorded here.
+- Other AI platforms tested for comparison: none documented. A comparative
+  study would be dishonest without genuine side-by-side runs.
+- PDF deliverable: this Markdown file is the source draft. It still needs
+  student review, genuine screenshots, and export as `AI_PORTFOLIO.pdf`.
 
 ## Prompt 1 — debugging PHP namespace placement
 
@@ -98,6 +102,83 @@ unchanged at one each.
 
 **Student evaluation:** Review the authorization policy, payload validation,
 and response codes; document any changes you personally made or rejected.
+
+## Token and context management — 5-point rubric evidence
+
+The actual workflow used progressively broader context rather than copying the
+entire repository into each decision. Examples below describe actions visible
+in the development session; no token totals or model-specific token prices
+were recorded.
+
+| Technique | Genuine example from this work | Quality check |
+|---|---|---|
+| Single-file context | Inspected `StudentDataRequest.php` separately when reviewing the shared validation behavior. | Compared its rules against the student web/API tests and route binding. |
+| Feature-based context | Read Student CRUD and Student API tests together while filling student validation, auth, and not-found gaps. | Ran the relevant test filter before the full suite. |
+| Module-based context | Reviewed Subject, Enrollment, Dashboard, RoleAccess, and Breeze authentication tests as separate feature modules. | Added only module-relevant assertions and preserved existing role behavior. |
+| Smaller task prompts | The actual requests “put save bbutton in enrollments” and “move the manage students to nav bar” addressed bounded UI changes; the current request separately specified validation, docs, and portfolio requirements. | Confirmed the corresponding Enrollment/navigation tests and later ran the full suite. |
+| Task decomposition | Work proceeded through inspect, focused implementation, targeted tests, documentation, and full verification rather than a single broad code-generation step. | Each stage had observable tool output; the current test additions pass their targeted run. |
+| Incremental generation | API implementation was followed by tests, then route naming was adjusted after a regression surfaced. | The route list and regression test confirmed web/API route names no longer collide. |
+| Context reuse | A carried-forward conversation summary retained project constraints, prior decisions, and test results after earlier conversation turns were summarized. | The summary was checked against current files and commands before relying on it. |
+| Agent specialization | Specialist responsibilities are documented as a proposed workflow. | No independent agents or specialist handoffs are claimed as actual work. |
+
+### Handbook questions
+
+1. **How did unnecessary AI context get reduced?** By reading likely relevant
+   files in bounded groups (for example, student request + Student tests),
+   checking the specific migration and route list rather than re-reading the
+   entire application, and using the carried-forward summary to retain prior
+   decisions. This describes context organization, not a measured token
+   reduction.
+2. **How was prompt repetition avoided?** The summarized history was reused
+   for already-set project constraints; subsequent work focused on the
+   remaining tests and documentation. Actual earlier prompts are quoted above
+   rather than reconstructed as new historical prompts.
+3. **How were AI-generated outputs verified?** With route inspection,
+   targeted feature tests, full PHPUnit runs, Pint, Composer validation,
+   production asset build, migration status, and before/after record counts.
+   The route-name collision, missing factory assumption, and formatting
+   changes are recorded with their corrections below.
+4. **How were token cost and output quality balanced?** Tests were first run
+   for affected feature modules, then the complete suite was run; this gives
+   fast feedback without treating narrow success as final proof. Existing
+   controllers, schema, and middleware were reused rather than regenerated.
+   No token cost telemetry was captured, so no numerical savings are claimed.
+
+### Critical verification examples
+
+#### API route naming
+
+- **AI-assisted implementation:** Added a resource API for the same Student
+  model and resource names used by the web UI.
+- **Problem found:** Laravel's shared route-name namespace caused
+  `students.index` to resolve to the API route, breaking the web test's
+  redirect expectation.
+- **Correction applied:** Put API resource routes under the `api.` name
+  prefix, preserving the existing web route names.
+- **Result validated:** `route:list` shows `api.students.*` and `students.*`
+  independently; the web and API tests pass.
+
+#### Test fixture assumption
+
+- **AI-generated test setup:** Initially called `Student::factory()` even
+  though this project has no Student factory.
+- **Problem found:** The test runner reported
+  `Call to undefined method App\Models\Student::factory()`.
+- **Correction applied:** Used explicit Student records in tests instead of
+  adding an unnecessary factory solely for these cases.
+- **Result validated:** Student CRUD and API tests pass using the actual
+  project setup.
+
+#### Formatting and migration safety
+
+- **AI-assisted changes:** Added API classes and a Sanctum personal-token
+  migration.
+- **Problem found:** Pint reported formatting differences; the token migration
+  was pending and needed to be checked before modifying the local DB.
+- **Correction applied:** Ran Pint on changed PHP files, reviewed the migration
+  as additive, then applied it without a reset.
+- **Result validated:** Pint passed; migration status showed the migration
+  applied; student, subject, and enrollment counts remained one each.
 
 ## Evidence still to add
 
