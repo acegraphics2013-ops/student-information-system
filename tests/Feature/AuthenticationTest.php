@@ -40,7 +40,7 @@ class AuthenticationTest extends TestCase
             ->assertSee('Jamie Student');
 
         $this->post(route('logout'))
-            ->assertRedirect(route('login'));
+            ->assertRedirect('/');
 
         $this->assertGuest();
     }
