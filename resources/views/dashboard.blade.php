@@ -1,36 +1,17 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Dashboard') }}
+        </h2>
+    </x-slot>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1">
-    <title>Dashboard | SIMS</title>
-</head>
-<body>
-    <h1>SIMS Dashboard</h1>
-
-    <h2>Welcome, {{ auth()->user()->name }}!</h2>
-
-    <p>
-        Role: {{ ucfirst(auth()->user()->role) }}
-    </p>
-
-    <h3>System Modules</h3>
-
-    <p>Student Management — Coming Soon</p>
-    <p>Subject Management — Coming Soon</p>
-    <p>Enrollment Management — Coming Soon</p>
-
-    @if(auth()->user()->role === 'admin')
-        <a href="{{ route('admin') }}">
-            Administrator Area
-        </a>
-    @endif
-
-    <form method="POST" action="{{ route('logout') }}">
-        @csrf
-        <button type="submit">Logout</button>
-    </form>
-</body>
-</html>
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    {{ __("You're logged in!") }}
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
