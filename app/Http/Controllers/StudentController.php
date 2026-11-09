@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Validation\Rule;
+use App\Http\Requests\StudentDataRequest;
 use Illuminate\View\View;
 
 class StudentController extends Controller
@@ -28,21 +26,9 @@ class StudentController extends Controller
     }
 
     // Save a new student
-    public function store(Request $request): RedirectResponse
+    public function store(StudentDataRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'student_number' => [
-                'required', 'string', 'max:30',
-                'unique:students,student_number',
-            ],
-            'first_name' => 'required|string|max:100',
-            'last_name' => 'required|string|max:100',
-            'email' => 'required|email|max:255|unique:students,email',
-            'course' => 'required|string|max:150',
-            'year_level' => 'required|integer|between:1,6',
-        ]);
-
-        Student::create($validated);
+        Student::create($request->validated());
 
         return redirect()
             ->route('students.index')
@@ -63,27 +49,10 @@ class StudentController extends Controller
 
     // Update an existing student
     public function update(
-        Request $request,
+        StudentDataRequest $request,
         Student $student
     ): RedirectResponse {
-        $validated = $request->validate([
-            'student_number' => [
-                'required', 'string', 'max:30',
-                Rule::unique('students', 'student_number')
-                    ->ignore($student->id),
-            ],
-            'first_name' => 'required|string|max:100',
-            'last_name' => 'required|string|max:100',
-            'email' => [
-                'required', 'email', 'max:255',
-                Rule::unique('students', 'email')
-                    ->ignore($student->id),
-            ],
-            'course' => 'required|string|max:150',
-            'year_level' => 'required|integer|between:1,6',
-        ]);
-
-        $student->update($validated);
+        $student->update($request->validated());
 
         return redirect()
             ->route('students.index')
