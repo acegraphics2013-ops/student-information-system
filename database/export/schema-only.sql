@@ -22,8 +22,6 @@ CREATE TABLE "personal_access_tokens" ("id" integer primary key autoincrement no
 
 CREATE TABLE "sessions" ("id" varchar not null, "user_id" integer, "ip_address" varchar, "user_agent" text, "payload" text not null, "last_activity" integer not null, primary key ("id"));
 
-CREATE TABLE sqlite_sequence(name,seq);
-
 CREATE TABLE "students" ("id" integer primary key autoincrement not null, "student_number" varchar not null, "first_name" varchar not null, "last_name" varchar not null, "email" varchar not null, "course" varchar not null, "year_level" integer not null, "created_at" datetime, "updated_at" datetime);
 
 CREATE TABLE "subjects" ("id" integer primary key autoincrement not null, "subject_code" varchar not null, "subject_name" varchar not null, "units" integer not null, "created_at" datetime, "updated_at" datetime);
