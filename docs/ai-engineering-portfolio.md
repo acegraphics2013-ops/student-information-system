@@ -117,11 +117,10 @@ web route names. Route inspection and a web CRUD test exposed that
 no Student factory; test data was changed to explicit model creation rather
 than adding an unnecessary factory.
 
-**Verification result:** `StudentApiTest`, `StudentCrudTest`, and
-`RegistrationTest` passed in the full run. Final suite result: 56 tests and
-280 assertions passed. Composer validation, Pint on changed PHP files, and
-the production asset build passed. The additive token migration applied;
-local student, subject, and enrollment counts remained unchanged at one each.
+**Verification result at that development stage:** `StudentApiTest`,
+`StudentCrudTest`, and `RegistrationTest` passed in the then-current full run
+(56 tests / 280 assertions). Later catalog work expanded the test suite; see
+Prompt 6 for final verification totals.
 
 **Student evaluation:** Review the authorization policy, payload validation,
 and response codes; document any changes you personally made or rejected.
@@ -171,6 +170,43 @@ The schema-export smoke test also caught an initial DDL ordering problem
 The export query was changed to emit table definitions before indexes and
 excluded SQLite's internal `sqlite_sequence`; the resulting schema-only SQL
 successfully imported into an in-memory SQLite database.
+
+## Prompt 6 — integrating the supplied academic catalog
+
+**Objective (carried-forward task summary; verbatim original prompt is not
+available here):** Add the supplied NEMSU Tandag Campus 2026–2027 college,
+department, and program hierarchy to the existing SIMS without creating
+subjects from degree programs, changing the existing enrollment relationship,
+or replacing legacy student course data.
+
+**Implementation result:** Added normalized College → Department → Program
+tables/models and an idempotent, non-destructive seeder; connected dependent
+student form selectors and server-side relationship validation; retained the
+Student `course` string and Student → Enrollment → Subject design; added an
+authenticated searchable directory and dashboard catalog counts.
+
+**Problem identified during review:** Simply making `course` a catalog-only
+choice would reject older student values on update. Passing selector IDs
+through mass-assignment was also unnecessary because only the selected program
+name belongs in the existing Student schema.
+
+**Correction applied:** Existing unchanged legacy course values remain valid
+on updates; web and API controllers persist only the Student's existing
+fillable fields. The seeder does not overwrite a college if an abbreviation
+conflict is found; it reports the conflict rather than silently changing
+catalog data.
+
+**Verification result:** The focused catalog, Student CRUD, Student API, and
+dashboard tests passed (16 tests, 149 assertions). The final full suite passed
+62 tests / 324 assertions. The local additive migrations and seeder completed;
+verification showed 7 colleges, 13 departments, 22 programs, and unchanged
+counts of one student, one subject, and one enrollment. The production frontend
+build, Pint on changed PHP files, Composer validation, and schema-only export
+import also passed. The schema import contained no catalog rows.
+
+**Student evaluation:** Check the supplied catalog against its original source
+and describe whether keeping a string-valued Student `course` field is an
+appropriate compatibility choice for the final project.
 
 ## Token and context management — 5-point rubric evidence
 

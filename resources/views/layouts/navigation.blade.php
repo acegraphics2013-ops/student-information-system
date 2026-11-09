@@ -30,6 +30,11 @@
                         :active="request()->routeIs('enrollments.*')">
                         {{ __('Enrollments') }}
                     </x-nav-link>
+                    <x-nav-link
+                        :href="route('academic-programs.index')"
+                        :active="request()->routeIs('academic-programs.*')">
+                        {{ __('Academic Programs') }}
+                    </x-nav-link>
                     @if (Auth::user()->role === 'admin')
                         <x-nav-link :href="route('admin.index')" :active="request()->routeIs('admin.*')">
                             {{ __('Administration') }}
@@ -104,6 +109,11 @@
                 :href="route('enrollments.index')"
                 :active="request()->routeIs('enrollments.*')">
                 {{ __('Enrollments') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link
+                :href="route('academic-programs.index')"
+                :active="request()->routeIs('academic-programs.*')">
+                {{ __('Academic Programs') }}
             </x-responsive-nav-link>
             @if (Auth::user()->role === 'admin')
                 <x-responsive-nav-link :href="route('admin.index')" :active="request()->routeIs('admin.*')">

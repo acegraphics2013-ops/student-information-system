@@ -4,12 +4,20 @@ namespace Tests\Feature;
 
 use App\Models\Student;
 use App\Models\User;
+use Database\Seeders\NemsuAcademicCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class StudentApiTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seed(NemsuAcademicCatalogSeeder::class);
+    }
 
     public function test_admin_can_use_all_student_api_endpoints(): void
     {
@@ -51,10 +59,10 @@ class StudentApiTest extends TestCase
             ->assertJsonPath('data.first_name', 'Updated');
 
         $this->patchJson("/api/students/{$studentId}", [
-            'course' => 'Computer Science',
+            'course' => 'Bachelor of Science in Computer Science',
         ])
             ->assertOk()
-            ->assertJsonPath('data.course', 'Computer Science')
+            ->assertJsonPath('data.course', 'Bachelor of Science in Computer Science')
             ->assertJsonPath('data.first_name', 'Updated');
 
         $this->deleteJson("/api/students/{$studentId}")
@@ -146,6 +154,36 @@ class StudentApiTest extends TestCase
         $this->assertDatabaseCount('students', 1);
     }
 
+    public function test_student_api_rejects_unknown_new_programs_but_preserves_legacy_values(): void
+    {
+        $this->withApiToken(User::factory()->create(['role' => 'admin']));
+
+        $this->postJson('/api/students', $this->studentData([
+            'course' => 'Unlisted degree program',
+        ]))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('course');
+
+        $legacy = Student::create([
+            'student_number' => 'SIMS-2099',
+            'first_name' => 'Legacy',
+            'last_name' => 'Student',
+            'email' => 'legacy.api@example.com',
+            'course' => 'Existing legacy program',
+            'year_level' => 1,
+        ]);
+
+        $this->putJson("/api/students/{$legacy->id}", $this->studentData([
+            'student_number' => $legacy->student_number,
+            'email' => $legacy->email,
+            'course' => $legacy->course,
+        ]))
+            ->assertOk()
+            ->assertJsonPath('data.course', 'Existing legacy program');
+
+        $this->assertDatabaseCount('students', 1);
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -156,7 +194,7 @@ class StudentApiTest extends TestCase
             'first_name' => 'Jordan',
             'last_name' => 'Lee',
             'email' => 'jordan.lee@example.com',
-            'course' => 'Information Technology',
+            'course' => 'Bachelor of Science in Computer Science',
             'year_level' => 1,
         ], $overrides);
     }

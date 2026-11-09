@@ -24,7 +24,9 @@ class StudentController extends Controller
 
     public function store(StudentDataRequest $request): JsonResponse
     {
-        $student = Student::create($request->validated());
+        $student = Student::create(
+            $request->safe()->only($this->studentFields())
+        );
 
         return (new StudentResource($student))
             ->response()
@@ -40,7 +42,9 @@ class StudentController extends Controller
         StudentDataRequest $request,
         Student $student
     ): StudentResource {
-        $student->update($request->validated());
+        $student->update(
+            $request->safe()->only($this->studentFields())
+        );
 
         return new StudentResource($student->refresh());
     }
@@ -50,5 +54,20 @@ class StudentController extends Controller
         $student->delete();
 
         return response()->noContent();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function studentFields(): array
+    {
+        return [
+            'student_number',
+            'first_name',
+            'last_name',
+            'email',
+            'course',
+            'year_level',
+        ];
     }
 }

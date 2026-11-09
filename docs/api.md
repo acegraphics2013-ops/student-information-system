@@ -63,7 +63,7 @@ $student = @{
     first_name = 'Jordan'
     last_name = 'Lee'
     email = 'jordan.lee@example.com'
-    course = 'Information Technology'
+    course = 'Bachelor of Science in Computer Science'
     year_level = 1
 } | ConvertTo-Json
 
@@ -99,16 +99,30 @@ The create and full-update payload requires all of these fields:
   "first_name": "Jordan",
   "last_name": "Lee",
   "email": "jordan.lee@example.com",
-  "course": "Information Technology",
+  "course": "Bachelor of Science in Computer Science",
   "year_level": 1
 }
 ```
 
 `student_number` is unique and limited to 30 characters. Names are required
 strings up to 100 characters; email is required, valid, unique, and up to 255
-characters; course is required and up to 150 characters; `year_level` must be
-an integer from 1 through 6. A partial `PATCH` may include only fields being
-changed, but each supplied field must be valid.
+characters; `course` must exactly match a degree program in the installed
+academic catalog and be no longer than 150 characters; `year_level` must be an
+integer from 1 through 6. A partial `PATCH` may include only fields being
+changed, but each supplied field must be valid. An unchanged legacy course is
+allowed during an existing student's update so catalog installation does not
+force old records to be renamed.
+
+Install the NEMSU Tandag catalog before creating API students:
+
+```powershell
+php artisan migrate
+php artisan db:seed --class=NemsuAcademicCatalogSeeder
+```
+
+The catalog can be browsed in the authenticated web application at
+`/academic-programs`. The degree catalog is distinct from subjects and does
+not create enrollments.
 
 ### Response envelope
 
@@ -122,7 +136,7 @@ A successful single-student response has a `data` object:
     "first_name": "Jordan",
     "last_name": "Lee",
     "email": "jordan.lee@example.com",
-    "course": "Information Technology",
+    "course": "Bachelor of Science in Computer Science",
     "year_level": 1
   }
 }
@@ -158,6 +172,6 @@ Example validation error:
 
 ## Schema and migration
 
-Sanctum adds a `personal_access_tokens` table through an additive migration.
-Apply it with `php artisan migrate`; it does not recreate or delete student,
+Sanctum and the academic catalog use additive migrations. Apply them with
+`php artisan migrate`; these migrations do not recreate or delete student,
 subject, enrollment, or user records.

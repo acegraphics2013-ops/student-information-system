@@ -9,6 +9,10 @@ Alpine.js, Eloquent, SQLite, and a Sanctum-protected Student REST API.
 - Role-based admin writes and staff read access
 - Student, subject, and enrollment CRUD with server-side validation
 - Dashboard counts sourced from the current database
+- NEMSU Tandag academic catalog for School Year 2026–2027 (7 colleges,
+  13 departments, and 22 degree programs), with searchable staff/admin access
+- Dependent College → Department → Degree Program student selectors; legacy
+  course values remain editable without being silently rewritten
 - Student REST API with bearer-token authentication and JSON validation errors
 - PHPUnit feature tests using in-memory SQLite
 
@@ -49,11 +53,17 @@ does not already exist, then apply outstanding migrations:
 ```powershell
 if (-not (Test-Path database\database.sqlite)) { New-Item database\database.sqlite -ItemType File }
 php artisan migrate
+php artisan db:seed --class=NemsuAcademicCatalogSeeder
 ```
 
 Migrations update the existing schema and do not reset records. Back up the
 SQLite file before applying migrations to an existing installation. Never use
 `migrate:fresh` or `db:wipe` on data you want to keep.
+
+The catalog seeder is safe to rerun: it adds missing catalog rows without
+deleting records. It will stop with an explicit error if a catalog abbreviation
+is already assigned to a different college name. The catalog is separate from
+`subjects`; student course/program values do not create or alter enrollments.
 
 Start the local server:
 

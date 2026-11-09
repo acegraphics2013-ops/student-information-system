@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Program;
 use App\Models\Student;
 use App\Models\User;
+use Database\Seeders\NemsuAcademicCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -11,11 +13,24 @@ class StudentCrudTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seed(NemsuAcademicCatalogSeeder::class);
+    }
+
     public function test_admin_can_create_view_update_and_delete_students(): void
     {
         $this->actingAs(User::factory()->create(['role' => 'admin']));
 
         $this->get(route('students.index'))->assertOk();
+        $this->get(route('students.create'))
+            ->assertOk()
+            ->assertSee('College')
+            ->assertSee('Department')
+            ->assertSee('Degree Program')
+            ->assertSee('College of Information Technology Education');
 
         $this->post(route('students.store'), $this->studentData())
             ->assertRedirect(route('students.index'));
@@ -44,7 +59,7 @@ class StudentCrudTest extends TestCase
 
     public function test_staff_can_read_students_but_cannot_modify_them(): void
     {
-        $student = Student::create($this->studentData([
+        $student = Student::create($this->studentRecordData([
             'student_number' => 'SIMS-1002',
             'email' => 'staff.read@example.com',
         ]));
@@ -66,7 +81,7 @@ class StudentCrudTest extends TestCase
     public function test_student_creation_validates_required_unique_and_bounded_fields(): void
     {
         $this->actingAs(User::factory()->create(['role' => 'admin']));
-        $existing = Student::create($this->studentData([
+        $existing = Student::create($this->studentRecordData([
             'student_number' => 'SIMS-1002',
             'email' => 'existing@example.com',
         ]));
@@ -119,11 +134,11 @@ class StudentCrudTest extends TestCase
     public function test_student_updates_cannot_reuse_another_records_number_or_email(): void
     {
         $this->actingAs(User::factory()->create(['role' => 'admin']));
-        $first = Student::create($this->studentData([
+        $first = Student::create($this->studentRecordData([
             'student_number' => 'SIMS-1002',
             'email' => 'first.student@example.com',
         ]));
-        $second = Student::create($this->studentData([
+        $second = Student::create($this->studentRecordData([
             'student_number' => 'SIMS-1003',
             'email' => 'second.student@example.com',
         ]));
@@ -144,6 +159,51 @@ class StudentCrudTest extends TestCase
 
     }
 
+    public function test_admin_cannot_select_a_program_outside_the_department_or_college(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
+        $data = $this->studentData();
+        $data['department_id'] = Program::query()
+            ->where('name', 'Bachelor of Science in Biology')
+            ->value('department_id');
+
+        $this->from(route('students.create'))
+            ->post(route('students.store'), $data)
+            ->assertRedirect(route('students.create'))
+            ->assertSessionHasErrors(['department_id']);
+
+        $this->assertDatabaseCount('students', 0);
+    }
+
+    public function test_existing_legacy_course_can_be_preserved_without_catalog_selection(): void
+    {
+        $student = Student::create([
+            'student_number' => 'SIMS-1099',
+            'first_name' => 'Legacy',
+            'last_name' => 'Student',
+            'email' => 'legacy.student@example.com',
+            'course' => 'Legacy degree name',
+            'year_level' => 1,
+        ]);
+        $data = $this->studentData([
+            'student_number' => $student->student_number,
+            'email' => $student->email,
+            'course' => $student->course,
+            'first_name' => 'Updated',
+        ]);
+        unset($data['college_id'], $data['department_id']);
+
+        $this->actingAs(User::factory()->create(['role' => 'admin']))
+            ->put(route('students.update', $student), $data)
+            ->assertRedirect(route('students.index'));
+
+        $this->assertDatabaseHas('students', [
+            'id' => $student->id,
+            'course' => 'Legacy degree name',
+            'first_name' => 'Updated',
+        ]);
+    }
+
     public function test_missing_student_pages_return_not_found(): void
     {
         $this->actingAs(User::factory()->create(['role' => 'admin']));
@@ -160,13 +220,31 @@ class StudentCrudTest extends TestCase
      */
     private function studentData(array $overrides = []): array
     {
+        $program = Program::query()
+            ->where('name', 'Bachelor of Science in Computer Science')
+            ->with('department')
+            ->firstOrFail();
+
         return array_merge([
             'student_number' => 'SIMS-1001',
             'first_name' => 'Alex',
             'last_name' => 'Rivera',
             'email' => 'alex.rivera@example.com',
-            'course' => 'Computer Science',
+            'course' => $program->name,
             'year_level' => 2,
+            'college_id' => $program->department->college_id,
+            'department_id' => $program->department_id,
         ], $overrides);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function studentRecordData(array $overrides = []): array
+    {
+        return array_diff_key(
+            $this->studentData($overrides),
+            array_flip(['college_id', 'department_id'])
+        );
     }
 }

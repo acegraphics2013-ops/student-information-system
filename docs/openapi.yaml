@@ -46,7 +46,7 @@ paths:
                     first_name: Jordan
                     last_name: Lee
                     email: jordan.lee@example.com
-                    course: Information Technology
+                    course: Bachelor of Science in Computer Science
                     year_level: 1
                 links: {}
                 meta: {}
@@ -66,7 +66,7 @@ paths:
               first_name: Jordan
               last_name: Lee
               email: jordan.lee@example.com
-              course: Information Technology
+              course: Bachelor of Science in Computer Science
               year_level: 1
       responses:
         "201":
@@ -205,6 +205,7 @@ components:
         course:
           type: string
           maxLength: 150
+          description: Exact degree-program name from the installed catalog. An unchanged legacy value is allowed on update.
         year_level:
           type: integer
           minimum: 1
@@ -230,6 +231,7 @@ components:
         course:
           type: string
           maxLength: 150
+          description: Exact degree-program name from the installed catalog. An unchanged legacy value is allowed on update.
         year_level:
           type: integer
           minimum: 1

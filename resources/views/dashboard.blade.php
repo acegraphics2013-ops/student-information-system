@@ -49,6 +49,31 @@
                 </div>
             </section>
 
+            <section aria-labelledby="catalog-heading" class="rounded-lg border border-indigo-100 bg-indigo-50 p-6 sm:p-8">
+                <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-indigo-700">{{ config('academic_catalog.campus') }} · School Year {{ config('academic_catalog.school_year') }}</p>
+                        <h2 id="catalog-heading" class="mt-1 text-lg font-semibold text-indigo-950">Academic program catalog</h2>
+                        <p class="mt-1 text-sm text-indigo-800">Browse colleges, departments, and degree programs. These programs are separate from class subjects.</p>
+                    </div>
+                    <a href="{{ route('academic-programs.index') }}" class="inline-flex w-fit items-center rounded-md bg-indigo-700 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        Browse programs
+                    </a>
+                </div>
+                <div class="mt-5 grid gap-4 sm:grid-cols-3">
+                    @foreach ([
+                        ['label' => 'Colleges', 'count' => $collegeCount],
+                        ['label' => 'Departments', 'count' => $departmentCount],
+                        ['label' => 'Degree programs', 'count' => $programCount],
+                    ] as $catalogStat)
+                        <div class="rounded-md bg-white p-4 ring-1 ring-indigo-100">
+                            <p class="text-sm font-medium text-gray-500">{{ $catalogStat['label'] }}</p>
+                            <p class="mt-2 text-2xl font-semibold text-gray-900">{{ number_format($catalogStat['count']) }}</p>
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+
             @if (auth()->user()->role === 'admin')
                 <section class="rounded-lg border border-indigo-100 bg-indigo-50 p-6 sm:flex sm:items-center sm:justify-between">
                     <div>

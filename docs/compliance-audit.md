@@ -8,16 +8,16 @@ test results. Status describes repository evidence, not a predicted grade.
 |---|---:|---|---|
 | A1 Authentication | 5% | Implemented / tested | Existing Breeze registration, login, logout, session and protected routes; registration test verifies public role input cannot grant admin. |
 | A2 Authorization | 5% | Implemented / tested | Existing role middleware protects web writes; API reads require Sanctum and writes require admin; Student web/API tests cover staff restrictions. |
-| A3 CRUD implementation | 10% | Implemented / tested | Student, Subject, and Enrollment web CRUD are present. Operation and authorization tests pass for each module in the full suite. |
-| A4 Database design and Eloquent | 10% | Implemented / verified | Existing migrations, unique constraints, foreign keys, relationships, and Eloquent usage are retained. The additive Sanctum migration ran; student, subject, and enrollment counts remained 1 each before and after. |
-| A5 REST API implementation | 10% | Implemented / tested | Five required Student API endpoints, JSON resource, validation, token authentication, role checks, and response codes are implemented. API feature tests pass. |
+| A3 CRUD implementation | 10% | Implemented / tested | Student, Subject, and Enrollment web CRUD are present. Student create/edit now select a catalog program through College → Department → Program selectors; catalog selection does not modify subject enrollments. Operation and authorization tests pass for each module. |
+| A4 Database design and Eloquent | 10% | Implemented / verified | Existing migrations, constraints, and Student → Enrollment → Subject relationships are retained. Three additive catalog migrations create 7 colleges, 13 departments, and 22 programs; the idempotent seeder ran without changing existing Student, Subject, and Enrollment counts (one each). |
+| A5 REST API implementation | 10% | Implemented / tested | Five required Student API endpoints, JSON resource, validation, token authentication, role checks, and response codes are implemented. New API writes validate catalog program names while unchanged legacy courses remain update-compatible. |
 | B1 MVC compliance | 5% | Implemented | API controller, shared FormRequest, JSON resource, Eloquent model and routes remain separated. |
 | B2 Code quality | 5% | Verified for changed files | Laravel Pint passes on touched PHP files; Composer validation, full tests, and diff whitespace checks pass. This does not claim that every pre-existing file was refactored. |
-| B3 Project structure | 5% | Implemented | API controller, request, resource, routes, feature tests, and `docs/` are organized by responsibility. |
+| B3 Project structure | 5% | Implemented | API and academic-program controllers, shared request validation, Eloquent catalog models, routes, feature tests, and `docs/` are organized by responsibility. |
 | C1 Prompt engineering | 10% | Partially evidenced | The portfolio records real prompt excerpts and results available from this conversation. Student-owned screenshots, model metadata, and fuller original prompt captures are still required. |
 | C2 Agent design | 10% | Partially evidenced | A specialized multi-agent workflow is proposed in `ai-agent-design.md`. This work was actually performed in one assistant session, not by independent agents; the rubric's multi-agent evidence is not yet demonstrated. |
 | C3 Token and context management | 5% | Partially evidenced | Work was divided into inspect, implement, focused-test, and document phases with a carried-forward context summary. No token usage measurements or student reflection are available. |
-| D1 Validation and error handling | 5% | Implemented / tested | Required fields, email, unique values, bounds, invalid relationship IDs/statuses, duplicate enrollments, missing resources, role violations, and API `401`/`403`/`404`/`422` responses are covered. Student number format itself has no project-defined pattern; blank, duplicate, and overlong values are tested. |
+| D1 Validation and error handling | 5% | Implemented / tested | Required fields, email, unique values, bounds, invalid catalog/program relationships, legacy course preservation, invalid relationship IDs/statuses, duplicate enrollments, missing resources, role violations, and API `401`/`403`/`404`/`422` responses are covered. Student number format itself has no project-defined pattern; blank, duplicate, and overlong values are tested. |
 | D2 AI output verification | 5% | Evidenced; student reflection pending | Route-name collision, missing Student factory, invalid PATCH rule construction, and misplaced test assertion were exposed by test/route output, corrected, and reverified. Personal evaluation remains the student's responsibility. |
 | E1 Technical documentation | 5% | Partially implemented | Local setup, API guide, OpenAPI spec, compliance report, and schema export are provided. Genuine app/API screenshots are still required. |
 | E2 Reflection | 5% | Evidence-backed draft; student completion required | Verified challenges and corrections are recorded in the reflection draft. First-person lessons and judgments are left for the student. |
@@ -33,19 +33,26 @@ requires actual handoffs.
 - The later duplicate role migration is an already-applied no-op. It is
   retained to preserve migration history and compatibility with installations
   that have recorded it.
-- The new Sanctum migration only creates `personal_access_tokens`. It ran
-  successfully, and existing student, subject, and enrollment row counts were
-  unchanged (one each before and after).
+- The Sanctum migration and three academic-catalog migrations are additive.
+  The catalog tables did not exist before migration. After migration/seeding,
+  catalog totals were 7 colleges, 13 departments, and 22 programs; existing
+  student, subject, and enrollment counts remained one each.
+- The catalog seed is repeatable and inserts missing records without deleting
+  SIMS records. It explicitly stops rather than overwriting a college when a
+  catalog abbreviation is already assigned to a different name.
+- `students.course` remains a string for compatibility. New web/API entries
+  must use a catalog program name; an unchanged legacy value can be preserved
+  on update. Degree programs do not populate `subjects` or `enrollments`.
 - Student and Subject deletion behavior must continue to follow the existing
   foreign-key cascade rules. Enrollment's unique student/subject constraint
   prevents duplicate enrollments at the database layer.
 - User registration is not allowed to assign a role; the application assigns
   its default staff role. Promote admin accounts explicitly through a trusted
   local administrative workflow.
-- Final validation passed: 56 tests / 280 assertions, production asset build,
-  Composer validation, Pint on changed PHP files, and migration status.
-  The schema-only SQL export imported successfully into a fresh in-memory
-  SQLite database and contains no row inserts. Student-provided screenshots,
+- Final validation passed: 62 tests / 324 assertions, production asset build,
+  Composer validation, Pint on changed PHP files, and migration status. The
+  schema-only SQL export imported successfully into a fresh in-memory SQLite
+  database and contains no row inserts. Student-provided screenshots,
   personal reflection, PDF exports, and any deployment evidence remain
   outstanding. No separate penetration test or external deployment test was
   performed.

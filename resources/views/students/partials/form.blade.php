@@ -73,19 +73,92 @@
                 class="mt-2" />
         </div>
 
-        <div>
-            <x-input-label for="course"
-                           value="Course" />
+        <div
+            x-data="{
+                colleges: @js($academicCatalog),
+                collegeId: @js((string) ($selectedCollegeId ?? '')),
+                departmentId: @js((string) ($selectedDepartmentId ?? '')),
+                course: @js(old('course', $student?->course ?? '')),
+                legacyCourse: @js($legacyCourse),
+                get selectedCollege() {
+                    return this.colleges.find((college) => String(college.id) === String(this.collegeId));
+                },
+                get departments() {
+                    return this.selectedCollege?.departments ?? [];
+                },
+                get selectedDepartment() {
+                    return this.departments.find((department) => String(department.id) === String(this.departmentId));
+                },
+                get programs() {
+                    return this.selectedDepartment?.programs ?? [];
+                },
+                resetDepartment() {
+                    this.departmentId = '';
+                    this.course = '';
+                },
+                resetCourse() {
+                    this.course = '';
+                },
+                get preservingLegacyCourse() {
+                    return this.legacyCourse && this.course === this.legacyCourse;
+                }
+            }"
+            class="space-y-4"
+        >
+            <div>
+                <x-input-label for="college_id" value="College" />
+                <select id="college_id"
+                        name="college_id"
+                        x-model="collegeId"
+                        @change="resetDepartment()"
+                        :required="!preservingLegacyCourse"
+                        class="block mt-1 w-full border-gray-300 rounded-md shadow-sm">
+                    <option value="">Select a college</option>
+                    <template x-for="college in colleges" :key="college.id">
+                        <option :value="String(college.id)" x-text="`${college.name} (${college.abbreviation})`"></option>
+                    </template>
+                </select>
+                <x-input-error :messages="$errors->get('college_id')" class="mt-2" />
+            </div>
 
-            <x-text-input id="course"
-                          name="course"
-                          class="block mt-1 w-full"
-                          :value="old('course', $student?->course)"
-                          required />
+            <div>
+                <x-input-label for="department_id" value="Department" />
+                <select id="department_id"
+                        name="department_id"
+                        x-model="departmentId"
+                        @change="resetCourse()"
+                        :required="!preservingLegacyCourse"
+                        :disabled="!collegeId"
+                        class="block mt-1 w-full border-gray-300 rounded-md shadow-sm disabled:bg-gray-100">
+                    <option value="">Select a department</option>
+                    <template x-for="department in departments" :key="department.id">
+                        <option :value="String(department.id)" x-text="department.name"></option>
+                    </template>
+                </select>
+                <x-input-error :messages="$errors->get('department_id')" class="mt-2" />
+            </div>
 
-            <x-input-error
-                :messages="$errors->get('course')"
-                class="mt-2" />
+            <div>
+                <x-input-label for="course" value="Degree Program" />
+                <select id="course"
+                        name="course"
+                        x-model="course"
+                        :required="!preservingLegacyCourse"
+                        :disabled="!departmentId && !preservingLegacyCourse"
+                        class="block mt-1 w-full border-gray-300 rounded-md shadow-sm disabled:bg-gray-100">
+                    <option value="">Select a degree program</option>
+                    @if ($legacyCourse)
+                        <option value="{{ $legacyCourse }}" x-show="!departmentId">
+                            Existing program (not in current catalog): {{ $legacyCourse }}
+                        </option>
+                    @endif
+                    <template x-for="program in programs" :key="program.id">
+                        <option :value="program.name" x-text="program.name"></option>
+                    </template>
+                </select>
+                <p class="mt-1 text-sm text-gray-500">Degree programs are not class subjects or enrollments.</p>
+                <x-input-error :messages="$errors->get('course')" class="mt-2" />
+            </div>
         </div>
 
         <div>
