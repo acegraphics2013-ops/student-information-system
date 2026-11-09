@@ -12,11 +12,13 @@
                     </div>
                 @endif
 
-                <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-                    <h3 class="text-lg font-semibold">Enrollments</h3>
+                <div class="mb-6 flex items-center justify-between">
+                    <h3 class="text-lg font-bold">
+                        Enrollments
+                    </h3>
                     @if (auth()->user()->role === 'admin')
                         <a href="{{ route('enrollments.create') }}"
-                           class="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+                           class="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
                             + Enroll Student
                         </a>
                     @endif
