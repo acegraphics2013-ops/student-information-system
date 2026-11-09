@@ -91,6 +91,33 @@ class StudentCrudTest extends TestCase
             ]);
 
         $this->assertDatabaseCount('students', 1);
+    }
+
+    public function test_student_updates_cannot_reuse_another_records_number_or_email(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
+        $first = Student::create($this->studentData([
+            'student_number' => 'SIMS-1002',
+            'email' => 'first.student@example.com',
+        ]));
+        $second = Student::create($this->studentData([
+            'student_number' => 'SIMS-1003',
+            'email' => 'second.student@example.com',
+        ]));
+
+        $this->from(route('students.edit', $second))
+            ->put(route('students.update', $second), $this->studentData([
+                'student_number' => $first->student_number,
+                'email' => $first->email,
+            ]))
+            ->assertRedirect(route('students.edit', $second))
+            ->assertSessionHasErrors(['student_number', 'email']);
+
+        $this->assertDatabaseHas('students', [
+            'id' => $second->id,
+            'student_number' => 'SIMS-1003',
+            'email' => 'second.student@example.com',
+        ]);
 
         $this->from(route('students.create'))
             ->post(route('students.store'), $this->studentData([
