@@ -34,6 +34,18 @@ class EnrollmentCrudTest extends TestCase
         ]);
     }
 
+    public function test_admin_enrollment_form_shows_save_button_when_options_exist(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
+        $this->sampleStudent();
+        $this->sampleSubject();
+
+        $this->get(route('enrollments.create'))
+            ->assertOk()
+            ->assertSee('Save Enrollment')
+            ->assertSee('type="submit"', false);
+    }
+
     public function test_admin_can_create_update_and_delete_an_enrollment(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);

@@ -58,11 +58,11 @@
         @endif
 
         <div class="flex items-center gap-4 pt-4">
-            <button type="submit"
-                    @disabled($students->isEmpty() || $subjects->isEmpty())
-                    class="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50">
+            <x-primary-button
+                    :disabled="$students->isEmpty() || $subjects->isEmpty()"
+                    class="bg-indigo-600 hover:bg-indigo-700 focus:bg-indigo-700">
                 {{ $enrollment ? 'Update Enrollment' : 'Save Enrollment' }}
-            </button>
+            </x-primary-button>
             <a href="{{ route('enrollments.index') }}" class="text-sm text-gray-600">Cancel</a>
         </div>
     </div>
