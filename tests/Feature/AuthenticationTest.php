@@ -16,6 +16,12 @@ class AuthenticationTest extends TestCase
         $this->get(route('login'))->assertOk();
     }
 
+    public function test_guest_is_redirected_to_login_from_dashboard(): void
+    {
+        $this->get(route('dashboard'))
+            ->assertRedirect(route('login'));
+    }
+
     public function test_user_can_register_and_logout(): void
     {
         $this->post(route('register'), [
@@ -29,6 +35,9 @@ class AuthenticationTest extends TestCase
 
         $this->assertAuthenticatedAs($user);
         $this->assertSame('staff', $user->role);
+        $this->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Jamie Student');
 
         $this->post(route('logout'))
             ->assertRedirect(route('login'));
