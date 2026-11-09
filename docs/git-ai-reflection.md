@@ -2,7 +2,7 @@
 
 ## Repository evidence
 
-At the time this note was prepared, `git rev-list --count HEAD` reported 22
+At the time this note was prepared, `git rev-list --count HEAD` reported 30
 commits on the current branch. The visible history includes incremental
 milestones such as student CRUD and tests, subject CRUD, navigation,
 enrollment CRUD, the enrollment save-button test, the Student API, test fixes,
@@ -18,7 +18,7 @@ the existing commit history was not rewritten.
 
 - **Repository maintained:** yes; a Git repository and remote-tracking branch
   are present.
-- **Commit count:** 22 at inspection time, exceeding the separate note's
+- **Commit count:** 30 at inspection time, exceeding the separate note's
   15-commit Excellent-tier description numerically. The instructor's
   qualitative evaluation of meaningful progression remains theirs.
 - **Incremental development:** evidenced by feature-specific commits covering

@@ -59,11 +59,10 @@ problem found, correction, and verification.
 
 ## Lessons learned
 
-- Verified project checks recorded before the latest coverage additions:
-  focused API/CRUD/auth tests passed; the earlier full suite passed with
-  49 tests and 212 assertions; the frontend build, Composer validation, and
-  changed-file Pint check passed. Update these numbers with the final run
-  before exporting this report.
+- Verified final checks: 56 tests and 280 assertions passed; the frontend
+  production build, Composer validation, changed-file Pint check, migration
+  status, and schema-export import check passed. The student should still
+  review these results and capture their own screenshots before exporting.
 - **Student's personal lessons and evaluation:** [complete in first person;
   explain what you learned and why your engineering choices were appropriate.]
 

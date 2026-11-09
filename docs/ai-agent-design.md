@@ -53,7 +53,7 @@ phases:
 4. Used route inspection and focused tests to catch and correct a naming
    collision and an assumed factory.
 5. Prepared documentation from available conversation and repository evidence.
-6. Ran the full suite (49 tests / 212 assertions), production asset build,
+6. Ran the full suite (56 tests / 280 assertions), production asset build,
    Composer validation, targeted Pint check, and migration status check.
    The token migration applied and the existing three SIMS table counts
    remained unchanged.

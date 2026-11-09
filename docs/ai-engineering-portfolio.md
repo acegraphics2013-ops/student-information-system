@@ -118,11 +118,10 @@ no Student factory; test data was changed to explicit model creation rather
 than adding an unnecessary factory.
 
 **Verification result:** `StudentApiTest`, `StudentCrudTest`, and
-`RegistrationTest` passed: 9 tests and 73 assertions. The subsequent full
-suite passed with 49 tests and 212 assertions. Composer validation, Pint on
-changed PHP files, and the production asset build passed. The additive token
-migration applied; local student, subject, and enrollment counts remained
-unchanged at one each.
+`RegistrationTest` passed in the full run. Final suite result: 56 tests and
+280 assertions passed. Composer validation, Pint on changed PHP files, and
+the production asset build passed. The additive token migration applied;
+local student, subject, and enrollment counts remained unchanged at one each.
 
 **Student evaluation:** Review the authorization policy, payload validation,
 and response codes; document any changes you personally made or rejected.
@@ -158,8 +157,20 @@ rule entries `['sometimes', 'required']`, while preserving the existing full
 PUT rules.
 
 **Result validated:** The targeted Student API and CRUD tests passed after
-the correction. Record the final complete test count below after the final
-suite run.
+the correction. The final complete suite passed with 56 tests and 280
+assertions.
+
+A separate subsequent test run briefly reported `Undefined variable $existing`
+because an email-uniqueness assertion was placed in the student-update test
+instead of the student-create test. The assertion was moved into the test
+scope where `$existing` is defined; the targeted CRUD suites and final full
+suite then passed.
+
+The schema-export smoke test also caught an initial DDL ordering problem
+(`no such table: main.enrollments` while importing an index before its table).
+The export query was changed to emit table definitions before indexes and
+excluded SQLite's internal `sqlite_sequence`; the resulting schema-only SQL
+successfully imported into an in-memory SQLite database.
 
 ## Token and context management — 5-point rubric evidence
 
