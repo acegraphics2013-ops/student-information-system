@@ -19,7 +19,10 @@ class SubjectCrudTest extends TestCase
 
         $this->actingAs($admin);
 
-        $this->get(route('subjects.index'))->assertOk();
+        $this->get(route('subjects.index'))
+            ->assertOk()
+            ->assertSee('Search subjects')
+            ->assertSee('Subject records');
 
         $this->post(route('subjects.store'), [
             'subject_code' => 'IT101',
@@ -94,6 +97,44 @@ class SubjectCrudTest extends TestCase
 
         $this->delete(route('subjects.destroy', $subject))
             ->assertForbidden();
+    }
+
+    public function test_subject_search_matches_code_or_name_and_shows_empty_state(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
+        Subject::create([
+            'subject_code' => 'BIO101',
+            'subject_name' => 'General Biology',
+            'units' => 3,
+        ]);
+        Subject::create([
+            'subject_code' => 'MATH201',
+            'subject_name' => 'College Algebra',
+            'units' => 3,
+        ]);
+
+        $this->get(route('subjects.index', ['search' => 'BIO101']))
+            ->assertOk()
+            ->assertViewHas('subjects', fn ($subjects): bool => $subjects->total() === 1
+                && $subjects->first()->subject_name === 'General Biology');
+
+        $this->get(route('subjects.index', ['search' => 'College Algebra']))
+            ->assertOk()
+            ->assertViewHas('subjects', fn ($subjects): bool => $subjects->total() === 1
+                && $subjects->first()->subject_code === 'MATH201');
+
+        $this->get(route('subjects.index', ['search' => 'not-a-subject']))
+            ->assertOk()
+            ->assertSee('No matching subjects');
+    }
+
+    public function test_subject_search_rejects_overlong_search_terms(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']))
+            ->from(route('subjects.index'))
+            ->get(route('subjects.index', ['search' => str_repeat('x', 101)]))
+            ->assertRedirect(route('subjects.index'))
+            ->assertSessionHasErrors('search');
     }
 
     public function test_duplicate_subject_code_is_rejected(): void

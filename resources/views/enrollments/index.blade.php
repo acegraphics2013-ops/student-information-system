@@ -1,81 +1,104 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-semibold text-gray-800">Enrollment Management</h2>
+        <div>
+            <p class="text-sm font-medium text-indigo-600">Student Information System</p>
+            <h1 class="mt-1 text-2xl font-semibold tracking-tight text-gray-900">Enrollment Management</h1>
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow rounded-lg p-6">
-                @if (session('success'))
-                    <div class="mb-5 rounded bg-green-100 p-3 text-green-800" role="status">
-                        {{ session('success') }}
+    <main class="py-10">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <section class="space-y-5 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900">Enrollments</h2>
+                        <p class="mt-1 text-sm text-gray-500">Search by student, subject, or enrollment status.</p>
                     </div>
-                @endif
-
-                <div class="mb-6 flex items-center justify-between">
-                    <h3 class="text-lg font-bold">
-                        Enrollments
-                    </h3>
                     @if (auth()->user()->role === 'admin')
-                        <a href="{{ route('enrollments.create') }}"
-                           class="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
-                            + Enroll Student
+                        <a href="{{ route('enrollments.create') }}" class="inline-flex min-h-11 items-center justify-center rounded-md bg-indigo-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                            Enroll student
                         </a>
                     @endif
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead class="bg-gray-100 text-left">
-                            <tr>
-                                <th class="p-3">Student</th>
-                                <th class="p-3">Subject</th>
-                                <th class="p-3">Status</th>
-                                <th class="p-3">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($enrollments as $enrollment)
-                                <tr class="border-b">
-                                    <td class="p-3">
-                                        {{ $enrollment->student->student_number }} —
-                                        {{ $enrollment->student->first_name }}
-                                        {{ $enrollment->student->last_name }}
-                                    </td>
-                                    <td class="p-3">
-                                        {{ $enrollment->subject->subject_code }} —
-                                        {{ $enrollment->subject->subject_name }}
-                                    </td>
-                                    <td class="p-3 capitalize">{{ $enrollment->status }}</td>
-                                    <td class="p-3">
-                                        <div class="flex items-center gap-3">
-                                            <a href="{{ route('enrollments.show', $enrollment) }}" class="text-blue-600">View</a>
-                                            @if (auth()->user()->role === 'admin')
-                                                <a href="{{ route('enrollments.edit', $enrollment) }}" class="text-amber-600">Edit</a>
-                                                <form action="{{ route('enrollments.destroy', $enrollment) }}"
-                                                      method="POST"
-                                                      onsubmit="return confirm('Remove this enrollment record?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-red-600">Delete</button>
-                                                </form>
-                                            @endif
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="p-6 text-center text-gray-500">
-                                        No enrollments found.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                <form method="GET" action="{{ route('enrollments.index') }}" role="search" class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                    <label for="enrollment-search" class="block text-sm font-semibold text-gray-700">Search enrollments</label>
+                    <div class="mt-2 flex flex-col gap-2 sm:flex-row">
+                        <input id="enrollment-search" name="search" type="search" value="{{ $search }}" maxlength="100" placeholder="Student name or number, subject, or status" class="min-h-11 min-w-0 flex-1 rounded-md border-gray-300 bg-white shadow-sm placeholder:text-gray-400 focus:border-indigo-500 focus:ring-indigo-500">
+                        <button type="submit" class="inline-flex min-h-11 items-center justify-center rounded-md bg-gray-900 px-5 text-sm font-semibold text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2">Search</button>
+                        @if ($search !== '')
+                            <a href="{{ route('enrollments.index') }}" class="inline-flex min-h-11 items-center justify-center rounded-md border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Clear</a>
+                        @endif
+                    </div>
+                </form>
 
-                <div class="mt-6">{{ $enrollments->links() }}</div>
-            </div>
+                <section class="overflow-hidden rounded-lg border border-gray-200" aria-label="Enrollment results">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 px-4 py-3 sm:px-5">
+                        <h3 class="font-semibold text-gray-900">Enrollment records</h3>
+                        <p class="text-sm text-gray-500">
+                            @if ($enrollments->total() > 0)
+                                Showing {{ $enrollments->firstItem() }}–{{ $enrollments->lastItem() }} of {{ number_format($enrollments->total()) }}
+                            @else
+                                No records found
+                            @endif
+                        </p>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3 font-semibold">Student</th>
+                                    <th scope="col" class="px-4 py-3 font-semibold">Subject</th>
+                                    <th scope="col" class="px-4 py-3 font-semibold">Status</th>
+                                    <th scope="col" class="px-4 py-3 font-semibold">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                @forelse ($enrollments as $enrollment)
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="whitespace-nowrap px-4 py-3 text-gray-700">
+                                            <span class="font-medium text-gray-900">{{ $enrollment->student->student_number }}</span>
+                                            <span class="text-gray-500">—</span>
+                                            {{ $enrollment->student->first_name }} {{ $enrollment->student->last_name }}
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-700">
+                                            <span class="font-medium text-gray-900">{{ $enrollment->subject->subject_code }}</span>
+                                            <span class="text-gray-500">—</span>
+                                            {{ $enrollment->subject->subject_name }}
+                                        </td>
+                                        <td class="whitespace-nowrap px-4 py-3">
+                                            <span class="inline-flex rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold capitalize text-gray-700">{{ $enrollment->status }}</span>
+                                        </td>
+                                        <td class="whitespace-nowrap px-4 py-3">
+                                            <div class="flex items-center gap-3">
+                                                <a href="{{ route('enrollments.show', $enrollment) }}" class="font-medium text-indigo-700 hover:text-indigo-900 focus:outline-none focus:underline">View</a>
+                                                @if (auth()->user()->role === 'admin')
+                                                    <a href="{{ route('enrollments.edit', $enrollment) }}" class="font-medium text-gray-600 hover:text-gray-900 focus:outline-none focus:underline">Edit</a>
+                                                    <form action="{{ route('enrollments.destroy', $enrollment) }}" method="POST" onsubmit="return confirm('Remove this enrollment record?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="font-medium text-red-600 hover:text-red-800 focus:outline-none focus:underline">Delete</button>
+                                                    </form>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="px-4 py-12 text-center">
+                                            <p class="font-semibold text-gray-900">{{ $search !== '' ? 'No matching enrollments' : 'No enrollment records yet' }}</p>
+                                            <p class="mt-1 text-sm text-gray-500">{{ $search !== '' ? 'Try another search term or clear your search.' : 'Enrollment records will appear here after students are enrolled.' }}</p>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    @if ($enrollments->hasPages())
+                        <div class="border-t border-gray-100 px-4 py-4 sm:px-5">{{ $enrollments->links() }}</div>
+                    @endif
+                </section>
+            </section>
         </div>
-    </div>
+    </main>
 </x-app-layout>

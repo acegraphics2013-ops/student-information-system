@@ -12,12 +12,6 @@
 
     <main class="py-10">
         <div class="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
-            @if (session('success'))
-                <div role="status" class="flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800">
-                    <span aria-hidden="true" class="mt-0.5 font-bold">✓</span>
-                    <p>{{ session('success') }}</p>
-                </div>
-            @endif
             <section aria-label="User account filters" class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
                 <form method="GET" action="{{ route('admin.users.index') }}" class="grid gap-4 sm:grid-cols-[minmax(0,1fr)_15rem_auto] sm:items-end">
                     <div>

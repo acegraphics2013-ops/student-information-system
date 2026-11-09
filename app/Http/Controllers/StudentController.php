@@ -7,18 +7,50 @@ use App\Models\College;
 use App\Models\Program;
 use App\Models\Student;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class StudentController extends Controller
 {
     // Display all students
-    public function index(): View
+    public function index(Request $request): View
     {
-        $students = Student::orderBy('last_name')
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+        ]);
+        $search = trim($validated['search'] ?? '');
+        $studentsQuery = Student::query()
+            ->when($search !== '', function ($query) use ($search): void {
+                $terms = preg_split('/\s+/', $search, -1, PREG_SPLIT_NO_EMPTY);
+
+                $query->where(function ($query) use ($search, $terms): void {
+                    $like = '%'.$search.'%';
+
+                    $query->where('student_number', 'like', $like)
+                        ->orWhere('email', 'like', $like)
+                        ->orWhere('course', 'like', $like)
+                        ->orWhere(function ($nameQuery) use ($terms): void {
+                            foreach ($terms as $term) {
+                                $termLike = '%'.$term.'%';
+
+                                $nameQuery->where(function ($termQuery) use ($termLike): void {
+                                    $termQuery->where('first_name', 'like', $termLike)
+                                        ->orWhere('last_name', 'like', $termLike);
+                                });
+                            }
+                        });
+                });
+            });
+
+        $students = $studentsQuery
+            ->orderBy('last_name')
             ->orderBy('first_name')
             ->paginate(10);
 
-        return view('students.index', compact('students'));
+        return view('students.index', [
+            'students' => $students->withQueryString(),
+            'search' => $search,
+        ]);
     }
 
     // Show the student creation form

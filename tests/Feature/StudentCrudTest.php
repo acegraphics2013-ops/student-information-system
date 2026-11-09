@@ -25,6 +25,10 @@ class StudentCrudTest extends TestCase
         $this->actingAs(User::factory()->create(['role' => 'admin']));
 
         $this->get(route('students.index'))->assertOk();
+        $this->get(route('students.index'))
+            ->assertOk()
+            ->assertSee('Search students')
+            ->assertSee('Student records');
         $this->get(route('students.create'))
             ->assertOk()
             ->assertSee('College')
@@ -76,6 +80,58 @@ class StudentCrudTest extends TestCase
         $this->put(route('students.update', $student), $this->studentData())
             ->assertForbidden();
         $this->delete(route('students.destroy', $student))->assertForbidden();
+    }
+
+    public function test_student_list_search_matches_student_number_name_email_and_program(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
+
+        Student::create($this->studentRecordData([
+            'student_number' => 'SIMS-SEARCH-01',
+            'first_name' => 'Morgan',
+            'last_name' => 'Reyes',
+            'email' => 'morgan.reyes@example.com',
+        ]));
+        Student::create($this->studentRecordData([
+            'student_number' => 'SIMS-SEARCH-02',
+            'first_name' => 'Avery',
+            'last_name' => 'Santos',
+            'email' => 'avery.santos@example.com',
+            'course' => 'Bachelor of Science in Biology',
+        ]));
+
+        $this->get(route('students.index', ['search' => 'SIMS-SEARCH-01']))
+            ->assertOk()
+            ->assertViewHas('students', fn ($students): bool => $students->total() === 1
+                && $students->first()->student_number === 'SIMS-SEARCH-01');
+
+        $this->get(route('students.index', ['search' => 'Morgan Reyes']))
+            ->assertOk()
+            ->assertViewHas('students', fn ($students): bool => $students->total() === 1
+                && $students->first()->email === 'morgan.reyes@example.com');
+
+        $this->get(route('students.index', ['search' => 'avery.santos@example.com']))
+            ->assertOk()
+            ->assertViewHas('students', fn ($students): bool => $students->total() === 1
+                && $students->first()->student_number === 'SIMS-SEARCH-02');
+
+        $this->get(route('students.index', ['search' => 'Bachelor of Science in Biology']))
+            ->assertOk()
+            ->assertViewHas('students', fn ($students): bool => $students->total() === 1
+                && $students->first()->student_number === 'SIMS-SEARCH-02');
+
+        $this->get(route('students.index', ['search' => 'no-such-student']))
+            ->assertOk()
+            ->assertSee('No matching students');
+    }
+
+    public function test_student_search_rejects_overlong_search_terms(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']))
+            ->from(route('students.index'))
+            ->get(route('students.index', ['search' => str_repeat('x', 101)]))
+            ->assertRedirect(route('students.index'))
+            ->assertSessionHasErrors('search');
     }
 
     public function test_student_creation_validates_required_unique_and_bounded_fields(): void

@@ -11,9 +11,6 @@
 
     <main class="py-10">
         <div class="mx-auto max-w-3xl space-y-5 px-4 sm:px-6 lg:px-8">
-            @if (session('success'))
-                <div role="status" class="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800">{{ session('success') }}</div>
-            @endif
             <section class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
                 <div class="border-b border-gray-100 bg-gray-50/70 px-6 py-5 sm:px-8">
                     <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Account profile</p>

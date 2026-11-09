@@ -3,19 +3,33 @@
 namespace App\Http\Controllers;
 
 use App\Models\Subject;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class SubjectController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $subjects = Subject::orderBy('subject_code')
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+        ]);
+        $search = trim($validated['search'] ?? '');
+
+        $subjects = Subject::query()
+            ->when($search !== '', function ($query) use ($search): void {
+                $like = '%'.$search.'%';
+                $query->where('subject_code', 'like', $like)
+                    ->orWhere('subject_name', 'like', $like);
+            })
+            ->orderBy('subject_code')
             ->paginate(10);
 
-        return view('subjects.index', compact('subjects'));
+        return view('subjects.index', [
+            'subjects' => $subjects->withQueryString(),
+            'search' => $search,
+        ]);
     }
 
     public function create(): View

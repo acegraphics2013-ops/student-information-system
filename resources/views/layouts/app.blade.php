@@ -18,6 +18,29 @@
         <div class="min-h-screen bg-gray-100">
             @include('layouts.navigation')
 
+            @if (session('success'))
+                <div
+                    x-data="{ show: true }"
+                    x-show="show"
+                    x-init="setTimeout(() => show = false, 5000)"
+                    x-transition
+                    role="status"
+                    aria-live="polite"
+                    class="fixed bottom-5 right-5 z-50 flex max-w-sm items-start gap-3 rounded-lg border border-green-200 bg-white p-4 text-sm text-green-800 shadow-lg ring-1 ring-black/5"
+                >
+                    <span aria-hidden="true" class="mt-0.5 font-bold text-green-600">✓</span>
+                    <p class="flex-1">{{ session('success') }}</p>
+                    <button
+                        type="button"
+                        @click="show = false"
+                        aria-label="Dismiss notification"
+                        class="-mr-1 -mt-1 rounded p-1 text-green-700 hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-600"
+                    >
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            @endif
+
             <!-- Page Heading -->
             @isset($header)
                 <header class="bg-white shadow">

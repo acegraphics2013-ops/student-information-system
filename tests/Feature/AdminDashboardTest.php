@@ -72,7 +72,7 @@ class AdminDashboardTest extends TestCase
             ->assertSee('NEMSU Tandag Campus')
             ->assertSee('School Year 2026–2027')
             ->assertSee('Taylor Student')
-            ->assertSee('Administration Dashboard')
+            ->assertSee('Administration dashboard')
             ->assertSee('Recent records');
     }
 

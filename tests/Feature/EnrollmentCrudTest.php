@@ -52,7 +52,10 @@ class EnrollmentCrudTest extends TestCase
         $student = $this->sampleStudent();
         $subject = $this->sampleSubject();
         $this->actingAs($admin);
-        $this->get(route('enrollments.index'))->assertOk();
+        $this->get(route('enrollments.index'))
+            ->assertOk()
+            ->assertSee('Search enrollments')
+            ->assertSee('Enrollment records');
 
         $this->post(route('enrollments.store'), [
             'student_id' => $student->id,
@@ -108,6 +111,40 @@ class EnrollmentCrudTest extends TestCase
             'status' => 'completed',
         ])->assertForbidden();
         $this->delete(route('enrollments.destroy', $enrollment))->assertForbidden();
+    }
+
+    public function test_enrollment_search_matches_student_subject_and_status(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $student = $this->sampleStudent();
+        $subject = $this->sampleSubject();
+        Enrollment::create([
+            'student_id' => $student->id,
+            'subject_id' => $subject->id,
+            'status' => 'completed',
+        ]);
+
+        $this->actingAs($admin);
+
+        foreach (['2026-001', 'Maria Santos', 'maria@example.com', 'IT101', 'Introduction to Computing', 'completed'] as $search) {
+            $this->get(route('enrollments.index', ['search' => $search]))
+                ->assertOk()
+                ->assertViewHas('enrollments', fn ($enrollments): bool => $enrollments->total() === 1
+                    && $enrollments->first()->status === 'completed');
+        }
+
+        $this->get(route('enrollments.index', ['search' => 'no-such-record']))
+            ->assertOk()
+            ->assertSee('No matching enrollments');
+    }
+
+    public function test_enrollment_search_rejects_overlong_search_terms(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']))
+            ->from(route('enrollments.index'))
+            ->get(route('enrollments.index', ['search' => str_repeat('x', 101)]))
+            ->assertRedirect(route('enrollments.index'))
+            ->assertSessionHasErrors('search');
     }
 
     public function test_duplicate_student_subject_enrollment_is_rejected(): void

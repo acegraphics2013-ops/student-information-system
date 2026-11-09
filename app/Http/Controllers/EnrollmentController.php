@@ -12,13 +12,49 @@ use Illuminate\View\View;
 
 class EnrollmentController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $enrollments = Enrollment::with(['student', 'subject'])
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+        ]);
+        $search = trim($validated['search'] ?? '');
+        $enrollments = Enrollment::query()
+            ->with(['student', 'subject'])
+            ->when($search !== '', function ($query) use ($search): void {
+                $like = '%'.$search.'%';
+
+                $query->where(function ($query) use ($like, $search): void {
+                    $query->where('status', 'like', $like)
+                        ->orWhereHas('student', function ($studentQuery) use ($like, $search): void {
+                            $terms = preg_split('/\s+/', $search, -1, PREG_SPLIT_NO_EMPTY);
+
+                            $studentQuery->where(function ($studentQuery) use ($like, $terms): void {
+                                $studentQuery->where('student_number', 'like', $like)
+                                    ->orWhere('email', 'like', $like)
+                                    ->orWhere(function ($nameQuery) use ($terms): void {
+                                        foreach ($terms as $term) {
+                                            $termLike = '%'.$term.'%';
+                                            $nameQuery->where(function ($termQuery) use ($termLike): void {
+                                                $termQuery->where('first_name', 'like', $termLike)
+                                                    ->orWhere('last_name', 'like', $termLike);
+                                            });
+                                        }
+                                    });
+                            });
+                        })
+                        ->orWhereHas('subject', function ($subjectQuery) use ($like): void {
+                            $subjectQuery->where('subject_code', 'like', $like)
+                                ->orWhere('subject_name', 'like', $like);
+                        });
+                });
+            })
             ->latest()
             ->paginate(10);
 
-        return view('enrollments.index', compact('enrollments'));
+        return view('enrollments.index', [
+            'enrollments' => $enrollments->withQueryString(),
+            'search' => $search,
+        ]);
     }
 
     public function create(): View
