@@ -5,6 +5,13 @@
 **Document status:** Updated technical draft; independent multi-agent execution **not claimed**  
 **Evidence snapshot:** Current workspace, verified November 10, 2026
 
+| Student information | Value |
+|---|---|
+| Student name | [STUDENT INPUT REQUIRED] |
+| Instructor | [STUDENT INPUT REQUIRED] |
+| Course/Section | [STUDENT INPUT REQUIRED] |
+| Submission date | [STUDENT INPUT REQUIRED] |
+
 ## 1. Purpose and scope
 
 The handbook requires an `AGENT_DESIGN.pdf` describing agent architecture, responsibilities, and how AI assistance was organized. This document separates **a proposed specialist-agent architecture** from **the sequential assistant workflow recorded in the project**. A diagram is a design proposal, not proof that independent agents were executed.

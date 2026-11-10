@@ -33,11 +33,22 @@ or token measurements.
 ---
 
 
+## 1. Introduction
+
+SIMS is an existing Laravel 12 student information system for NEMSU Tandag
+Campus. Its documented features include Breeze authentication, Administrator
+and Staff permissions, Student/Subject/Enrollment CRUD, a Sanctum Student API,
+and a College/Department/Program catalog. The application uses Blade,
+Tailwind CSS, Alpine.js, Eloquent, SQLite, PHPUnit, and Vite. AI assistance in
+the available project history was used for focused implementation, debugging,
+testing, code review, and documentation; a generated suggestion is not proof
+that the student used or accepted it.
+
 This draft records prompts and outcomes present in the project notes and
 available conversation history. A summary is not a verbatim prompt. Verify
 every entry against personal chat history before submission.
 
-## Tools and model record
+## 2. AI Tools Used
 
 - Tool visible in this current workflow: GitHub Copilot in VS Code.
 - Model/version: not exposed in the available evidence.
@@ -54,7 +65,17 @@ every entry against personal chat history before submission.
 - Other AI platforms tested for comparison: none documented.
 - The PDF export exists in `submission/AI_PORTFOLIO.pdf` and is marked DRAFT.
 
-## Ten prompt case studies
+## 3. Prompt Engineering Methodology
+
+The recorded workflow includes short feature prompts, context-aware
+preservation constraints, follow-up debugging prompts based on actual errors,
+testing prompts that request real counts, and documentation prompts that
+require source verification. Refinements added concrete file/module scope,
+role permissions, non-destructive database constraints, expected outputs, and
+checks. Examples below are limited to excerpts retained in project history;
+missing original wording is labeled rather than reconstructed.
+
+### Case Study Index: Ten Cases
 
 Each case below points to the available prompt/result record. Historical
 screenshots are evidence of what they visibly show, not proof of an
@@ -76,7 +97,9 @@ Original text is unavailable for Cases 5-8 where noted. Do not rewrite a
 summary as if it were the verbatim prompt. For every case, the student should
 add their own evaluation and any genuine chat capture before final submission.
 
-## Prompt 1 — debugging PHP namespace placement
+## 4. Actual Prompt Case Studies
+
+### Prompt 1 — debugging PHP namespace placement
 
 **Objective:** Resolve a test-file fatal error preventing Laravel tests from
 starting.
@@ -103,7 +126,7 @@ required as submission evidence.
 **Student evaluation:** Add a first-person assessment of whether this fix
 addressed the reported failure and what was checked before changing the file.
 
-## Prompt 2 — adding management navigation
+### Prompt 2 — adding management navigation
 
 **Objective:** Make the existing management module accessible from the
 Breeze navigation.
@@ -128,7 +151,7 @@ Add screenshots showing desktop and mobile navigation if required.
 **Student evaluation:** Describe whether the placement and responsive
 behavior matched the intended navigation and any manual browser checks.
 
-## Prompt 3 — refining the scope to the existing project
+### Prompt 3 — refining the scope to the existing project
 
 **Original prompt excerpt (user):**
 
@@ -146,7 +169,7 @@ architecture and data.
 inspected before adding the Student API. No new Laravel application was
 created, and only the additive Sanctum token migration was applied.
 
-## Prompt 4 — implementing and validating the required Student API
+### Prompt 4 — implementing and validating the required Student API
 
 **Objective:** Implement all five required REST endpoints without replacing
 existing authentication or schema.
@@ -178,7 +201,7 @@ Prompt 6 for final verification totals.
 **Student evaluation:** Review the authorization policy, payload validation,
 and response codes; document any changes you personally made or rejected.
 
-## Prompt 5 — validation prompt and iterative failure correction
+### Prompt 5 — validation prompt and iterative failure correction
 
 **Actual validation prompt excerpt (user):**
 
@@ -225,7 +248,7 @@ The export query was changed to emit table definitions before indexes and
 excluded SQLite's internal `sqlite_sequence`; the resulting schema-only SQL
 successfully imported into an in-memory SQLite database.
 
-## Prompt 6 — integrating the supplied academic catalog
+### Prompt 6 — integrating the supplied academic catalog
 
 **Objective (carried-forward task summary; verbatim original prompt is not
 available here):** Add the supplied NEMSU Tandag Campus 2026–2027 college,
@@ -262,7 +285,7 @@ import also passed. The schema import contained no catalog rows.
 and describe whether keeping a string-valued Student `course` field is an
 appropriate compatibility choice for the final project.
 
-## Prompt 7 — upgrading the administration dashboard and role management
+### Prompt 7 — upgrading the administration dashboard and role management
 
 **Original prompt evidence:** The user supplied a detailed Administration
 upgrade brief in this conversation. Its explicit requirements included:
@@ -311,7 +334,35 @@ run for the Administration changes.
 **Workflow note:** This was completed in the current assistant session. No
 independent specialist agent handoffs or screenshots are claimed.
 
-## Token and context management — 5-point rubric evidence
+## 5. Prompt Iteration Comparison
+
+| Prompting change visible in the record | Why the refinement mattered | Verification boundary |
+|---|---|---|
+| Brief navigation request followed by desktop and responsive Breeze link context | Named the existing layout surfaces and expected route-based state | The screenshots show source/terminal work, not a live navigation browser check. |
+| Existing-project constraint followed by explicit preservation and no-reset instructions | Kept work within the existing Laravel application and its records | Current tests and migration checks pass; no destructive migration command was run. |
+| Student API requirements expanded to list all five endpoints, roles, validation, and tests | Made the API contract and authorization testable | Current route list and Student API feature tests pass. |
+| Testing request required actual failures and counts instead of assumed success | Surfaced the invalid partial-update rule and kept historical counts distinct | Current full result is 93 passed / 633 assertions. |
+
+The exact first/revised wording is not available for every case. The table
+compares only prompt details preserved in the project records.
+
+## 6. AI Mistakes and Corrections
+
+| Verified issue in project notes | Correction recorded | Check/evidence |
+|---|---|---|
+| PHP namespace file began with content before `<?php` | Removed the leading blank line | Historical namespace-debugging screenshot; current test suite passes, but does not independently replay the old failure. |
+| API resource reused web Student route names | Prefixed API route names with `api.` | Current 61-route listing and web/API tests. |
+| Partial update used `sometimes|required` as one validator rule | Split it into `['sometimes', 'required']` | Current Student API tests pass. |
+| A test assumed a nonexistent `Student::factory()` | Created explicit test records instead of adding an unnecessary factory | Current Student CRUD/API tests pass. |
+| A test referenced `$existing` outside its scope | Moved the assertion to the test that defines the record | Historical fix recorded in project notes; no separate screenshot. |
+| Schema-only export put an index before its table | Exported table definitions before indexes and excluded SQLite internals | Historical schema-import test recorded in project notes. |
+| User/API policy documentation and implementation diverged | Aligned API write middleware and regression tests with Administrator-only writes | Current route middleware and role tests. |
+
+These are project-history notes, not proof that the student personally authored
+or reviewed each correction. Add personal assessment only from firsthand
+experience.
+
+## 7. Token and Context Management
 
 The actual workflow used progressively broader context rather than copying the
 entire repository into each decision. Examples below describe actions visible
@@ -392,7 +443,7 @@ copy before citing it as a course requirement.
 - **Result validated:** Pint passed; migration status showed the migration
   applied; student, subject, and enrollment counts remained one each.
 
-## Current verification evidence
+## 8. Verification Evidence
 
 The fresh Windows/Laragon run passed **93 tests / 633 assertions**, with no
 failures or skips. The route list contains 61 routes, all 13 migrations are
@@ -422,7 +473,7 @@ are historical and do not replace the fresh checks above.
   confirmation of AI tools actually used.
 - Student review and completion of the DRAFT PDF cover-page fields.
 
-## Student evaluation and conclusion
+## 9. Student Evaluation and Conclusion
 
 Use the case-study prompts above to assess what was useful, what needed
 correction, what was personally verified, and what would be changed next time.
