@@ -1,8 +1,8 @@
 # Student REST API
 
 The API uses the existing `students` table and JSON resources. Requests are
-authenticated with Laravel Sanctum personal access tokens; staff can read, and
-administrators can read and write.
+authenticated with Laravel Sanctum personal access tokens. Staff can read;
+Administrators can read and write.
 
 ## Authentication
 
@@ -87,7 +87,8 @@ client for request construction.
 | `DELETE` | `/api/students/{id}` | Admin | `204`, empty body |
 
 The list is ordered by last name and first name and paginated at 10 students
-per page. Use `?page=2` for subsequent pages.
+per page. Use `?page=2` for subsequent pages. Staff tokens may use only the two
+GET endpoints. POST, PUT, PATCH, and DELETE require an Administrator token.
 
 ### Student fields
 
@@ -108,7 +109,7 @@ The create and full-update payload requires all of these fields:
 strings up to 100 characters; email is required, valid, unique, and up to 255
 characters; `course` must exactly match a degree program in the installed
 academic catalog and be no longer than 150 characters; `year_level` must be an
-integer from 1 through 6. A partial `PATCH` may include only fields being
+integer from 1 through 5. A partial `PATCH` may include only fields being
 changed, but each supplied field must be valid. An unchanged legacy course is
 allowed during an existing student's update so catalog installation does not
 force old records to be renamed.
@@ -150,7 +151,7 @@ The collection response uses Laravel's resource pagination shape with `data`,
 | Status | Meaning |
 |---|---|
 | `401` | Missing or invalid bearer token |
-| `403` | Authenticated staff attempted an admin-only write |
+| `403` | Authenticated Staff attempted an Administrator-only write |
 | `404` | Student ID does not exist |
 | `422` | Validation failed; the JSON body includes `message` and field `errors` |
 

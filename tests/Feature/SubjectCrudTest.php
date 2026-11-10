@@ -4,8 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Subject;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Database\Seeders\SubjectCatalogSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class SubjectCrudTest extends TestCase
@@ -151,15 +151,23 @@ class SubjectCrudTest extends TestCase
 
     public function test_supplied_subject_catalog_is_seeded_and_displayed_in_full(): void
     {
+        $existing = Subject::create([
+            'subject_code' => 'GE101',
+            'subject_name' => 'Existing local subject title',
+            'units' => 4,
+        ]);
         $this->seed(SubjectCatalogSeeder::class);
         $this->seed(SubjectCatalogSeeder::class);
+
+        $this->assertSame('Existing local subject title', $existing->refresh()->subject_name);
+        $this->assertSame(4, $existing->units);
 
         $this->actingAs(User::factory()->create(['role' => 'staff']))
             ->get(route('subjects.index'))
             ->assertOk()
             ->assertSee('Showing all 20 subjects')
             ->assertSee('GE101')
-            ->assertSee('Understanding the Self')
+            ->assertSee('Existing local subject title')
             ->assertSee('IT202')
             ->assertSee('Database Management Systems')
             ->assertSee('NSTP101')

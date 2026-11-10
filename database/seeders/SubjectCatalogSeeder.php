@@ -7,6 +7,10 @@ use Illuminate\Database\Seeder;
 
 class SubjectCatalogSeeder extends Seeder
 {
+    /**
+     * User-supplied demonstration catalog; this does not assert official curricula.
+     * Existing subject rows are intentionally never overwritten.
+     */
     private const SUBJECTS = [
         ['GE101', 'Understanding the Self', 3],
         ['GE102', 'Readings in Philippine History', 3],
@@ -33,7 +37,7 @@ class SubjectCatalogSeeder extends Seeder
     public function run(): void
     {
         foreach (self::SUBJECTS as [$code, $name, $units]) {
-            Subject::query()->updateOrCreate(
+            Subject::query()->firstOrCreate(
                 ['subject_code' => $code],
                 ['subject_name' => $name, 'units' => $units]
             );

@@ -155,9 +155,10 @@ The partial-update request returned HTTP 500 instead of the expected 200.
 rule entries `['sometimes', 'required']`, while preserving the existing full
 PUT rules.
 
-**Result validated:** The targeted Student API and CRUD tests passed after
-the correction. The final complete suite passed with 56 tests and 280
-assertions.
+**Result validated at that stage:** The targeted Student API and CRUD tests
+passed after the correction. The complete suite then passed with 56 tests and
+280 assertions; this historical count was superseded by the latest result
+below.
 
 A separate subsequent test run briefly reported `Undefined variable $existing`
 because an email-uniqueness assertion was placed in the student-update test
@@ -197,7 +198,7 @@ conflict is found; it reports the conflict rather than silently changing
 catalog data.
 
 **Verification result:** The focused catalog, Student CRUD, Student API, and
-dashboard tests passed (16 tests, 149 assertions). The final full suite passed
+dashboard tests passed (16 tests, 149 assertions). The full suite then passed
 62 tests / 324 assertions. The local additive migrations and seeder completed;
 verification showed 7 colleges, 13 departments, 22 programs, and unchanged
 counts of one student, one subject, and one enrollment. The production frontend
@@ -246,11 +247,11 @@ with a post-change check that rolls back any change leaving no administrator.
 The existing profile update already ignored a crafted `role` field, and a
 regression test now verifies this.
 
-**Verification evidence:** The new dashboard/user-management tests cover
+**Verification evidence at that stage:** The new dashboard/user-management tests cover
 database totals, reports, catalog counts, route access for staff/guests,
 search/filtering, role validation, promotion/demotion of another account,
 self-demotion protection, and profile role tampering. The complete PHPUnit
-suite passed **70 tests / 374 assertions**; `npm run build` passed; Pint passed
+suite then passed **70 tests / 374 assertions**; `npm run build` passed; Pint passed
 for the changed admin PHP files. No migrations or destructive DB commands were
 run for the Administration changes.
 
@@ -333,6 +334,15 @@ were recorded.
   as additive, then applied it without a reset.
 - **Result validated:** Pint passed; migration status showed the migration
   applied; student, subject, and enrollment counts remained one each.
+
+## Latest rubric-driven verification
+
+The current full suite passed **93 tests / 633 assertions**. Composer
+validation, route listing, migration-status inspection, and the production
+asset build completed successfully. Repository-wide Pint reports formatting
+issues in existing files; after targeted formatting, Pint passes on the
+changed PHP files. Exact current results and the build warning are recorded
+in `docs/TESTING_AND_VERIFICATION.md`.
 
 ## Evidence still to add
 

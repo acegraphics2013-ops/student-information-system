@@ -7,7 +7,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::name('api.')->group(function (): void {
         Route::apiResource('students', StudentController::class)
             ->middlewareFor(
-                ['destroy'],
+                ['store', 'update', 'destroy'],
                 'role:admin'
             );
     });

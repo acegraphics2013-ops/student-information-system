@@ -70,10 +70,24 @@ The storage link allows uploaded public profile photos to be displayed. Run
 `php artisan storage:link` once per local checkout if `public\storage` does not
 already exist.
 
-The catalog seeder is safe to rerun: it adds missing catalog rows without
-deleting records. It will stop with an explicit error if a catalog abbreviation
-is already assigned to a different college name. The catalog is separate from
-`subjects`; student course/program values do not create or alter enrollments.
+The academic catalog seeder is safe to rerun: it adds missing catalog rows
+without deleting records. It will stop with an explicit error if a catalog
+abbreviation is already assigned to a different college name. The catalog is
+separate from `subjects`; student course/program values do not create or alter
+enrollments.
+
+The supplied subject catalog is demonstration data, not an independently
+verified NEMSU curriculum. It is not seeded by default. To explicitly add
+missing sample subjects to a local database, run:
+
+```powershell
+php artisan db:seed --class=SubjectCatalogSeeder
+```
+
+This seeder inserts missing codes only and never overwrites an existing
+subject's name or unit count. Review local subject rows before running it.
+`php artisan db:seed` does not create demonstration users or seed sample
+subjects.
 
 Start the local server:
 
@@ -101,21 +115,24 @@ Use the email address of the account you registered. Stop the local server with
 - **Administrator:** manage users' Staff/Administrator roles, and read/manage
   students, subjects, and enrollments. The Administration dashboard and user
   management routes are protected by server-side role middleware.
-- **Staff:** read students, subjects, and enrollments; management writes are
-  allowed for student records and enrollments; subject-catalog changes and
-  student deletion remain administrator-only.
+- **Staff:** read students, subjects, and enrollments; may create and edit
+  student records and manage enrollments in the web application. Subject
+  catalog mutations and student deletion remain administrator-only. Through
+  the Student REST API, Staff can only read; all API writes are
+  Administrator-only.
 - Each user can update their profile information and upload/remove a JPG, PNG,
   or WebP display photo up to 2 MB. Photos are stored on Laravel's public disk.
 
 Public registration assigns Staff regardless of submitted role fields. An
 administrator cannot change their own role, and role updates are validated
 server-side so manually crafted requests cannot bypass the UI. Staff may add
-and edit students, and add, update, or unload enrollments. A transaction
-prevents demoting the last administrator. User-management pages expose no
-password hashes, reset credentials, sessions, or access tokens. Administrator
-account deletion/suspension is not provided; it would need a separate policy
-and approval. Existing self-service Breeze profile/account features remain
-unchanged.
+and edit students, and add, update, or unload enrollments in the web
+application; API writes require an Administrator. A transaction protects the
+last administrator from demotion or deletion through User Management or
+profile deletion. An Administrator cannot delete their own account through
+User Management; profile deletion is allowed only if another Administrator
+remains. User-management pages expose no password hashes, reset credentials,
+sessions, or access tokens.
 
 The Administration dashboard links to the existing Student, Subject,
 Enrollment, User, and Academic Programs routes rather than duplicating CRUD.
@@ -126,9 +143,7 @@ misclassifying them.
 
 ## Student API
 
-All endpoints require a Sanctum personal access token in the
-`Authorization: Bearer <token>` header. Read [docs/api.md](docs/api.md) for
-endpoints, response shapes, status codes, and local token provisioning.
+All endpoints require a Sanctum personal access token. Read [docs/api.md](docs/api.md) for endpoints, response shapes, status codes, and local token provisioning.
 
 ## Tests and checks
 
@@ -185,6 +200,12 @@ are included.
 ## Project and assessment documents
 
 - [Rubric compliance audit](docs/compliance-audit.md)
+- [Local installation guide](docs/INSTALLATION.md)
+- [Application architecture](docs/ARCHITECTURE.md)
+- [Database schema](docs/DATABASE_SCHEMA.md)
+- [Role permissions](docs/ROLE_PERMISSIONS.md)
+- [Testing and verification record](docs/TESTING_AND_VERIFICATION.md)
+- [Git and AI reflection — student completion required](docs/GIT_AND_AI_REFLECTION.md)
 - [AI engineering portfolio / AI_PORTFOLIO Markdown source](docs/ai-engineering-portfolio.md)
 - [Agent design / AGENT_DESIGN Markdown source](docs/ai-agent-design.md)
 - [Reflection / REFLECTION evidence-based draft](docs/reflection-template.md)

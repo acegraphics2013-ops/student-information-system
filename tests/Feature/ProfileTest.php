@@ -201,4 +201,38 @@ class ProfileTest extends TestCase
 
         $this->assertNotNull($user->fresh());
     }
+
+    public function test_last_administrator_cannot_delete_account_through_profile(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)
+            ->from('/profile')
+            ->delete('/profile', ['password' => 'password'])
+            ->assertRedirect('/profile')
+            ->assertSessionHasErrors('account');
+
+        $this->assertAuthenticatedAs($admin);
+        $this->assertDatabaseHas('users', [
+            'id' => $admin->id,
+            'role' => 'admin',
+        ]);
+    }
+
+    public function test_administrator_can_delete_own_account_when_another_admin_remains(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $otherAdmin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)
+            ->delete('/profile', ['password' => 'password'])
+            ->assertRedirect('/');
+
+        $this->assertGuest();
+        $this->assertNull($admin->fresh());
+        $this->assertDatabaseHas('users', [
+            'id' => $otherAdmin->id,
+            'role' => 'admin',
+        ]);
+    }
 }

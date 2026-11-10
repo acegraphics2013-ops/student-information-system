@@ -41,6 +41,7 @@ class AuthenticationTest extends TestCase
             'email' => 'jamie@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
+            'role' => 'admin',
         ])->assertRedirect(route('dashboard'));
 
         $user = User::where('email', 'jamie@example.com')->firstOrFail();

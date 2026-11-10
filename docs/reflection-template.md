@@ -59,10 +59,13 @@ problem found, correction, and verification.
 
 ## Lessons learned
 
-- Verified final checks: 56 tests and 280 assertions passed; the frontend
-  production build, Composer validation, changed-file Pint check, migration
-  status, and schema-export import check passed. The student should still
-  review these results and capture their own screenshots before exporting.
+- Latest verified checks: 93 tests and 633 assertions passed; Composer
+  validation, route listing, migration status, and the frontend production
+  build completed successfully. The targeted Pint check for changed files
+  passed after formatting; the repository-wide Pint check still reports
+  existing formatting issues. Review `TESTING_AND_VERIFICATION.md` for exact
+  output and caveats. The student should still review these results and
+  capture genuine screenshots before exporting.
 - **Student's personal lessons and evaluation:** [complete in first person;
   explain what you learned and why your engineering choices were appropriate.]
 

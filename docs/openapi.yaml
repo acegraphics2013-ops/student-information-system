@@ -4,8 +4,8 @@ info:
   version: 1.0.0
   description: >
     Student management endpoints for the Laravel SIMS application. All paths
-    require a Sanctum personal access token. Staff may read; administrators
-    may create, update, and delete.
+    require a Sanctum personal access token. Staff may read; only
+    administrators may create, update, or delete.
 servers:
   - url: http://127.0.0.1:8000
     description: Local Laravel development server
@@ -209,7 +209,7 @@ components:
         year_level:
           type: integer
           minimum: 1
-          maximum: 6
+          maximum: 5
     StudentPatch:
       type: object
       description: Send one or more valid fields; omitted fields are unchanged.
@@ -235,7 +235,7 @@ components:
         year_level:
           type: integer
           minimum: 1
-          maximum: 6
+          maximum: 5
     StudentResponse:
       type: object
       required: [data]

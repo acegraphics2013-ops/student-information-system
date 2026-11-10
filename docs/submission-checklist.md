@@ -18,6 +18,10 @@ commit, push, or history rewrite is performed by packaging.
 
 ## Assessment documents
 
+- [x] Local installation, architecture, schema, role-permission, testing,
+  and rubric audit Markdown sources are present in `docs/`.
+- [ ] Review all Markdown sources and export the required PDFs; the handbook
+  and rubric PDFs were not available in the workspace.
 - [ ] Export `docs/ai-engineering-portfolio.md` as `AI_PORTFOLIO.pdf` after
   adding genuine screenshots and confirming the prompt evidence.
 - [ ] Export `docs/ai-agent-design.md` as `AGENT_DESIGN.pdf`.
@@ -28,6 +32,8 @@ commit, push, or history rewrite is performed by packaging.
 - [x] Oral-defense factual answer notes are included in `docs/oral-defense.md`.
 - [x] Git history and bonus-cap ambiguity are documented in
   `docs/git-ai-reflection.md`.
+- [ ] Complete `docs/GIT_AND_AI_REFLECTION.md` with the student's own
+  first-person reflection and genuine supporting evidence.
 
 No PDF export utility was available in the workspace at preparation time, so
 the Markdown sources are present but the three PDF deliverables are not yet
