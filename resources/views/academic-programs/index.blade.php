@@ -1,7 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
         <div>
-            <p class="text-sm font-medium text-indigo-600">{{ $campus }} · School Year {{ $schoolYear }}</p>
+            <p class="text-sm font-medium text-indigo-600">Student Information System</p>
+            <p class="mt-1 text-sm font-medium text-gray-500">{{ $campus }} · School Year {{ $schoolYear }}</p>
             <h1 class="mt-1 text-2xl font-semibold leading-tight text-gray-800">Academic Programs</h1>
         </div>
     </x-slot>

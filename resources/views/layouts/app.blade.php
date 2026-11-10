@@ -60,9 +60,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                     </button>
-                    <a href="{{ route('dashboard') }}" class="flex items-center gap-2 text-lg font-bold tracking-tight text-indigo-700">
+                    <a href="{{ route('dashboard') }}" class="flex items-center gap-2 text-left text-[0.78rem] font-bold leading-tight tracking-tight text-indigo-700">
                         <img src="{{ asset('images/nemsu-logo.png') }}" alt="NEMSU official logo" class="h-9 w-9 object-contain">
-                        SIMS
+                        <span>Student Information System</span>
                     </a>
                     <span class="ml-auto truncate text-sm font-medium text-gray-600">{{ Auth::user()->name }}</span>
                 </div>

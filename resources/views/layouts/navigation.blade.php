@@ -15,9 +15,9 @@
         aria-label="Main sidebar"
     >
         <div class="flex h-16 shrink-0 items-center justify-between border-b border-gray-100 px-5">
-            <a href="{{ route('dashboard') }}" class="flex items-center gap-2 text-xl font-bold tracking-tight text-indigo-700">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-2 text-left text-xl font-bold tracking-tight text-indigo-700">
                 <img src="{{ asset('images/nemsu-logo.png') }}" alt="NEMSU official logo" class="h-10 w-10 object-contain">
-                <span>SIMS BY: ACE</span>
+                <span class="leading-tight">SIMS BY: ACE</span>
             </a>
             <button
                 type="button"
