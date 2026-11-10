@@ -54,6 +54,28 @@ every entry against personal chat history before submission.
 - Other AI platforms tested for comparison: none documented.
 - The PDF export exists in `submission/AI_PORTFOLIO.pdf` and is marked DRAFT.
 
+## Ten prompt case studies
+
+Each case below points to the available prompt/result record. Historical
+screenshots are evidence of what they visibly show, not proof of an
+unpictured application behavior. The student evaluation is intentionally
+blank in every case.
+
+1. **PHP namespace debugging.** Original error excerpt and correction: Prompt 1. Relevant file: `tests/Feature/SubjectCrudTest.php`. Verification: historical test evidence; current full suite is separate. Screenshot: `screenshots/11092026440PM.JPG`, a historical debugging capture. **Student evaluation:** [STUDENT INPUT REQUIRED].
+2. **Breeze navigation.** Original excerpts: Prompt 2. Result: desktop and responsive management links. Relevant file: `resources/views/layouts/navigation.blade.php`. Verification: project history and current route availability; no live navigation screenshot. **Student evaluation:** [STUDENT INPUT REQUIRED].
+3. **Preserving the existing project.** Original excerpt: Prompt 3. Result: retain Laravel/Breeze, existing modules and data; avoid destructive resets. Relevant files: existing routes, migrations, and feature tests. Verification: current application and migration checks. No dedicated screenshot. **Student evaluation:** [STUDENT INPUT REQUIRED].
+4. **Student REST API.** Prompt excerpts: Prompt 4. Result: five Sanctum-protected Student operations and role-specific access. Relevant files: `routes/api.php`, `app/Http/Controllers/Api/StudentController.php`, `app/Http/Requests/StudentDataRequest.php`, `tests/Feature/StudentApiTest.php`. Verification: current route list and passing API tests. Screenshot: `screenshots/11092026720PM.JPG`, historical route output. **Student evaluation:** [STUDENT INPUT REQUIRED].
+5. **API route-name conflict.** The original correction prompt was not separately preserved; the problem and fix are documented under Prompt 4. API route names received the `api.` prefix to protect web route generation. Relevant files: `routes/api.php`, `tests/Feature/StudentCrudTest.php`, `tests/Feature/StudentApiTest.php`. Verification: 61 current routes and passing suite. Screenshot: same historical route capture as Case 4. **Student evaluation:** [STUDENT INPUT REQUIRED].
+6. **Invalid Laravel validation rules.** The original implementation prompt is unavailable; the later testing instruction is quoted in Prompt 5. The invalid `sometimes|required` entry was split into Laravel rules `['sometimes', 'required']`. Relevant files: `app/Http/Requests/StudentDataRequest.php` and API tests. Verification: current suite passes. No screenshot directly shows this correction. **Student evaluation:** [STUDENT INPUT REQUIRED].
+7. **Incorrect Student factory assumption.** No verbatim original prompt was preserved. A test assumption about `Student::factory()` was replaced with explicit model creation. Relevant files: Student API and CRUD feature tests. Verification: current suite passes. No screenshot directly shows the correction. **Student evaluation:** [STUDENT INPUT REQUIRED].
+8. **NEMSU academic catalog.** The objective and constraints are preserved in Prompt 6, but the original prompt text is unavailable. The College/Department/Program catalog remains separate from Subjects and legacy `students.course` data. Relevant files: catalog models, migrations, seeder, controller, and `tests/Feature/AcademicCatalogTest.php`. Verification: current database contains 7 colleges, 13 departments, and 22 programs; catalog tests pass. No screenshot directly shows the catalog UI. **Student evaluation:** [STUDENT INPUT REQUIRED].
+9. **Administration Dashboard.** Prompt evidence and requirements are summarized in Prompt 7; verify wording against the student's own history. Result: data-backed dashboard and protected account management. Relevant files: `app/Http/Controllers/Admin/`, `resources/views/admin/`, and administration feature tests. Verification: current suite passes. No live dashboard screenshot exists. **Student evaluation:** [STUDENT INPUT REQUIRED].
+10. **Security and testing corrections.** Prompt excerpts in Prompt 7 require Administrator-only role changes and last-Administrator protection. Result: server-side checks and regression tests; API writes are also Administrator-only. Relevant files: `app/Http/Controllers/Admin/UserController.php`, `app/Http/Controllers/ProfileController.php`, `routes/api.php`, and related feature tests. Verification: fresh full suite passes 93 tests / 633 assertions. Screenshot: `screenshots/111020260251PM.JPG` is historical partial test output, not this fresh run. **Student evaluation:** [STUDENT INPUT REQUIRED].
+
+Original text is unavailable for Cases 5-8 where noted. Do not rewrite a
+summary as if it were the verbatim prompt. For every case, the student should
+add their own evaluation and any genuine chat capture before final submission.
+
 ## Prompt 1 — debugging PHP namespace placement
 
 **Objective:** Resolve a test-file fatal error preventing Laravel tests from
@@ -307,7 +329,11 @@ were recorded.
 | Context reuse | A carried-forward conversation summary retained project constraints, prior decisions, and test results after earlier conversation turns were summarized. | The summary was checked against current files and commands before relying on it. |
 | Agent specialization | Specialist responsibilities are documented as a proposed workflow. | No independent agents or specialist handoffs are claimed as actual work. |
 
-### Handbook questions
+### Context-management questions retained in earlier notes
+
+The official handbook PDF was unavailable, so the wording below cannot be
+confirmed as verbatim handbook text. Compare each question with the official
+copy before citing it as a course requirement.
 
 1. **How did unnecessary AI context get reduced?** By reading likely relevant
    files in bounded groups (for example, student request + Student tests),
@@ -366,21 +392,42 @@ were recorded.
 - **Result validated:** Pint passed; migration status showed the migration
   applied; student, subject, and enrollment counts remained one each.
 
-## Latest rubric-driven verification
+## Current verification evidence
 
-The project’s Windows/Laragon testing record reports **93 tests / 633 assertions**. Composer
-validation, route listing, migration-status inspection, and the production
-asset build completed successfully. Repository-wide Pint reports formatting
-issues in existing files; after targeted formatting, Pint passes on the
-changed PHP files. Reported local results and the build warning are recorded
-in `docs/TESTING_AND_VERIFICATION.md`.
+The fresh Windows/Laragon run passed **93 tests / 633 assertions**, with no
+failures or skips. The route list contains 61 routes, all 13 migrations are
+applied, SQLite integrity and foreign-key checks passed, Composer validation
+passed, Pint passed, and the Vite production build passed with a runtime image
+resolution warning. Full results and limitations are in
+`docs/TESTING_AND_VERIFICATION.md`.
+
+### Selected historical screenshot evidence
+
+These are real screenshots from the `screenshots/` collection. Their contents
+are historical and do not replace the fresh checks above.
+
+![Historical Laravel API route and middleware listing; the screenshot predates the current route check.](evidence/images/11092026720PM.JPG)
+
+![Historical PHPUnit run in progress; the final summary is not visible in this capture.](evidence/images/111020260251PM.JPG)
+
+![Historical Vite and Pint output; the visible 41-commit count predates the current 46-commit history.](evidence/images/111020260252PM.JPG)
 
 ## Evidence still to add
 
-- Screenshots of the running dashboard, student/subject/enrollment pages, and
-  API requests and responses.
+- Screenshots of the running dashboard, Student/Subject/Enrollment pages, and
+  API requests and responses; none are in the current screenshot collection.
 - Exact model/version metadata and complete original prompt captures from the
   student's chat history.
-- First-person evaluation of generated suggestions, corrections, and
-  engineering trade-offs.
-- A final PDF export after the student reviews and completes this draft.
+- First-person evaluation for each case, plus the student's conclusion and
+  confirmation of AI tools actually used.
+- Student review and completion of the DRAFT PDF cover-page fields.
+
+## Student evaluation and conclusion
+
+Use the case-study prompts above to assess what was useful, what needed
+correction, what was personally verified, and what would be changed next time.
+Do not submit generated first-person opinions as the student's own.
+
+**[STUDENT INPUT REQUIRED]** Write a conclusion in the student's own words,
+including a specific prompt that improved, one AI error caught by verification,
+and one lesson about responsible AI use.
