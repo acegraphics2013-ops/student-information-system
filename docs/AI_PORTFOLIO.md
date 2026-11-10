@@ -1,50 +1,58 @@
-# AI Engineering Portfolio — Updated Evidence-Backed Draft
+# AI Engineering Portfolio
 
-**NEMSU Tandag Campus · SIMS · School Year 2026–2027**  
-**Status:** Draft; screenshot and first-person review required  
+**Student Information Management System (SIMS)**
+**Northeastern Mindanao State University (NEMSU) - Tandag Campus**
+**School Year:** 2026-2027
 
+| Student information | Value |
+|---|---|
+| Student name | [STUDENT INPUT REQUIRED] |
+| Instructor | [STUDENT INPUT REQUIRED] |
+| Course/Section | [STUDENT INPUT REQUIRED] |
+| Submission date | [STUDENT INPUT REQUIRED] |
 
-## Version 7 update — November 10, 2026
+**Status:** DRAFT. Student identity, original prompt review, personal evaluations, and live application screenshots are incomplete. Do not present this export as a final portfolio.
 
-The independent Version 7 archive review found **41 Git commits**, **93 test methods**, and **17 JPG development screenshots**. These facts describe the archived repository, not a guaranteed current local workstation state. The project’s Windows/Laragon testing record reports **93 passing tests with 633 assertions**, but this external audit did **not** reproduce the complete PHPUnit run. It verified PHP syntax, SQLite integrity and foreign keys, and a schema-only SQL import.
+## Current evidence snapshot - November 10, 2026
 
-### Evidence still needing human review
+The repository has 46 commits and 20 screenshot files. A fresh local test run
+passed 93 tests with 633 assertions and no failures or skips. The current
+verification record also documents 61 routes, 13 applied migrations, passing
+SQLite integrity/foreign-key checks, a passing production build, Composer
+validation, and Pint. See `TESTING_AND_VERIFICATION.md` for details.
 
-- [ ] Match each prompt case study below to the authentic VS Code/ChatGPT conversation capture.
-- [ ] Identify the actual model/version only if recoverable from settings or a saved session record.
-- [ ] Insert genuine screenshots from the `screenshots/` folder with accurate captions, after checking what each image shows.
-- [ ] Write the student's first-person evaluation for each chosen prompt and correction; do not generate invented autobiographical responses.
-- [ ] Attach a current local terminal screenshot of `php artisan test`, `npm run build`, and any remaining formatting findings.
-- [ ] Review descriptions of roles/permissions against Version 7, including Administrator-only Student API writes and last-Administrator safeguards.
-- [ ] Update file names and broken cross-references, then export the complete file as **`AI_PORTFOLIO.pdf`**.
+The official handbook and rubric PDFs were not in the workspace, so their
+full contents could not be checked. The screenshots are authentic development
+evidence, but none depicts a running SIMS page or an API-client exchange.
+Personal evaluations and missing original prompts remain student-owned.
 
-**Integrity note:** The proposed specialized agents in `AGENT_DESIGN_UPDATED.md` are not evidence that multiple independent agents actually executed. The existing portfolio documents a sequential assistant-led workflow.
+**Integrity note:** The agent architecture is a proposal. Repository evidence
+does not establish independent specialist-agent execution, model comparisons,
+or token measurements.
 
 ---
 
 
-This draft records only prompts and outcomes present in the supplied project
-conversation and current repository work. It is not a substitute for the
-rubric's requested portfolio PDF and screenshots. The student should verify
-each entry against their full chat history, add screenshots, and write their
-own evaluation before submission.
+This draft records prompts and outcomes present in the project notes and
+available conversation history. A summary is not a verbatim prompt. Verify
+every entry against personal chat history before submission.
 
 ## Tools and model record
 
-- Development environment: Copilot SDK in VS Code.
-- Model/version: not recorded in the conversation evidence available for this
-  draft.
+- Tool visible in this current workflow: GitHub Copilot in VS Code.
+- Model/version: not exposed in the available evidence.
 - Purpose: inspect the existing Laravel workspace, make code changes, execute
   application commands/tests, and update project documentation.
 - Observed strengths in this workflow: workspace file inspection, focused
   patches, route/test execution, and iterative corrections in one environment.
 - Observed limitation: the session record does not identify a model version
   or provide token-cost telemetry.
-- Independent specialized agents: none were used for the work recorded here.
-- Other AI platforms tested for comparison: none documented. A comparative
-  study would be dishonest without genuine side-by-side runs.
-- PDF deliverable: this Markdown file is the source draft. It still needs
-  student review, genuine screenshots, and export as `AI_PORTFOLIO.pdf`.
+- Independent specialized agents: no independent handoffs are evidenced.
+- Historical screenshots show other AI interfaces, but open tabs alone do not
+  establish that those tools were used. The student must identify any other
+  tools from their own records.
+- Other AI platforms tested for comparison: none documented.
+- The PDF export exists in `submission/AI_PORTFOLIO.pdf` and is marked DRAFT.
 
 ## Prompt 1 — debugging PHP namespace placement
 

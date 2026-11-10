@@ -3,7 +3,7 @@
 **Student Information Management System (SIMS)**  
 **NEMSU Tandag Campus — School Year 2026–2027**  
 **Document status:** Updated technical draft; independent multi-agent execution **not claimed**  
-**Evidence snapshot:** Version 7 archive, inspected November 10, 2026
+**Evidence snapshot:** Current workspace, verified November 10, 2026
 
 ## 1. Purpose and scope
 
@@ -89,14 +89,13 @@ These steps are supported by project documentation and prior reviews. They do **
 
 | Evidence | Source-supported observation | Limit |
 |---|---|---|
-| Windows/Laragon testing record | Reports **93 passing tests / 633 assertions** | The Version 7 external audit did not independently rerun PHPUnit |
-| Version 7 test source | **93 test methods** found | Source presence is not evidence of a passing run |
-| Route and code inspection | Five Student API endpoints and Administrator-only API writes observed | Must still validate against a fresh local test run |
-| SQLite integrity | `integrity_check` returned `ok`; foreign-key check found no violations | Tests performed on archived data, not every deployed environment |
-| Schema-only SQL | Imported into an in-memory SQLite database | An export can import while application behavior still needs testing |
-| Frontend build record | Build reported successful with `/images/bg-login.jpg` warning | Image resolution at runtime requires checking |
-| Pint record | Changed-file check passed, repository-wide check identified 11 files with formatting differences | Global formatting was not confirmed clean |
-| Git history | Version 7 archive contained **41 commits** | Recheck before final submission |
+| Fresh Windows/Laragon suite | **93 passed; 633 assertions** | Ran November 10, 2026; no failures or skips |
+| Route and code inspection | 61 routes; all five Student API operations use Sanctum and writes require Administrator | Feature tests cover Staff read-only access and Admin writes |
+| SQLite integrity | `integrity_check` returned `ok`; foreign-key check returned no rows | Read-only check of the local database |
+| Academic catalog | 7 colleges, 13 departments, 22 programs | Aggregate counts only; no personal record values read |
+| Frontend build | Production build passed with a `/images/bg-login.jpg` runtime-resolution warning | The referenced file exists under `public/images`; browser rendering was not checked |
+| Composer and Pint | Both checks passed | `git diff --check` passed after fixing an audit-document whitespace issue; Git warned about CRLF normalization |
+| Git history and screenshots | 46 commits; 20 screenshot files | Commit count is a point-in-time value; screenshots are development evidence, not live-app proof |
 
 Earlier phases of development reported different test totals; use the latest actual local results for the final PDF and identify older numbers as historical snapshots.
 
@@ -113,6 +112,6 @@ Earlier phases of development reported different test totals; use the latest act
 
 The proposed architecture offers a clear way to divide responsibilities, define handoffs, and enforce human review. The documented project work demonstrates sequential AI-assisted software engineering and verification, not an independently executed multi-agent system.
 
-Before exporting `AGENT_DESIGN.pdf`, render the Mermaid diagram as a readable figure, check the latest verification evidence, add real workflow screenshots where available, complete the student information, and review the document for accuracy.
+The submission PDF renderer turns the Mermaid source into a diagram. The current diagram is labeled as a proposal and is not execution evidence. The export remains a draft until the student reviews its description of the actual workflow and supplies the required cover-page details.
 
 **Status:** Updated source draft. The proposed workflow should remain labeled **proposed** unless authentic independent-agent execution evidence is later supplied.

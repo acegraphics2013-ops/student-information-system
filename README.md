@@ -176,11 +176,12 @@ modify the local application database.
 
 ## Screenshots
 
-The assessment requires genuine screenshots of the running application.
-Capture the dashboard, student/subject/enrollment workflows, and API requests
-from the local environment, then place the real images under
-`docs\screenshots\` and link them here. No sample or fabricated screenshots
-are included.
+Twenty genuine screenshots are present in `screenshots/`. They show VS Code,
+terminal, Git, setup, route, test, and build activity. They do not show a
+running SIMS page or an API-client exchange, so they are not evidence of those
+workflows. See the [screenshot index](docs/evidence/SCREENSHOT_INDEX.md) for
+the contents, dates, and recommended use of every image. Capture current
+application and API screens separately if required by the instructor.
 
 ## Project structure
 
@@ -208,14 +209,26 @@ are included.
 - [Git and AI reflection](docs/GIT_AND_AI_REFLECTION.md)
 - [AI engineering portfolio source](docs/AI_PORTFOLIO.md)
 - [Agent design source](docs/AGENT_DESIGN.md)
-- [Reflection draft](docs/REFLECTION.md)
+- [Personal reflection draft](docs/REFLECTION.md)
+- [Screenshot evidence index](docs/evidence/SCREENSHOT_INDEX.md)
+- [Final submission status](docs/FINAL_SUBMISSION_STATUS.md)
 - [Final submission checklist](docs/submission-checklist.md)
 - [Oral-defense notes](docs/oral-defense.md)
 - [OpenAPI specification](docs/openapi.yaml)
 
-PDF deliverables generated from the source drafts are stored in the project root:
-`AI_PORTFOLIO.pdf`, `AGENT_DESIGN.pdf`, and `REFLECTION.pdf`.
+Draft PDF exports are stored in `submission/` as `AI_PORTFOLIO.pdf`,
+`AGENT_DESIGN.pdf`, and `REFLECTION.pdf`. The AI Portfolio and Reflection
+remain drafts because screenshot evidence, student details, and first-person
+answers are incomplete. Do not submit these drafts as final documents.
 
-The handbook and rubric supplied for the assessment are not redistributed in
-this repository. Screenshots, personal reflection, and deployment evidence
-must be supplied by the student; none are fabricated here.
+## Git development history
+
+The repository history records the incremental development of authentication,
+Student, Subject, Enrollment, API, catalog, test, and documentation work. At
+the November 10, 2026 verification point, `git rev-list --count HEAD` reported
+46 commits. The source-only submission ZIP excludes `.git/`; use the repository
+history for commit-level review.
+
+## Academic disclaimer
+
+This website is an unofficial student project developed solely for academic purposes and project submission. It is not an official website of Northeastern Mindanao State University (NEMSU) – Tandag Campus and is not affiliated with or endorsed by the university.

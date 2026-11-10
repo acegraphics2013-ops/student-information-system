@@ -50,12 +50,15 @@ is claimed.
 
 ## Current verification and submission gaps
 
-The current full test result is 93 passed tests and 633 assertions. Production
-frontend build and Composer validation passed. The repository-wide Pint check
-reported formatting issues; the changed-file check passed after formatting.
-See [TESTING_AND_VERIFICATION.md](TESTING_AND_VERIFICATION.md) for exact
-commands and caveats.
+The fresh November 10, 2026 run passed 93 tests / 633 assertions with no
+failures or skips. Route listing, migration status, SQLite integrity and
+foreign-key checks, Composer validation, Pint, and the production frontend
+build passed. Vite emitted a runtime-resolution warning for the login image;
+the referenced file exists, but browser rendering was not checked. See
+[TESTING_AND_VERIFICATION.md](TESTING_AND_VERIFICATION.md) for command results.
 
-No separate external penetration test, deployment test, genuine screenshots,
-completed personal reflection, or PDF export is claimed. Complete the
-student-owned evidence and review the final source before submission.
+Twenty genuine screenshots are indexed. They document development activity,
+not a running SIMS page or API-client exchange. Draft PDF exports exist in
+`submission/`; the AI Portfolio still needs student review and authentic
+evidence, and the Reflection requires first-person student answers. No
+independent agent run, external penetration test, or deployment is claimed.

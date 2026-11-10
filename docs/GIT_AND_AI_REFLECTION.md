@@ -7,21 +7,25 @@ claiming a PDF review.
 
 ## Verifiable workflow facts
 
-- The repository has an existing incremental commit history. Earlier
-  inspection recorded 30 commits; check the current count with
-  `git rev-list --count HEAD` before including that number in a submission.
+- The repository has an incremental history. `git rev-list --count HEAD`
+  reported **46 commits** on November 10, 2026. Recheck before final submission.
 - The current rubric-driven code and documentation changes are uncommitted.
   No commit, push, or deployment was made for this work.
-- Copilot SDK in VS Code was used for workspace inspection, code changes,
-  command execution, tests, and documentation.
+- GitHub Copilot in VS Code is the assistant documented in this current
+  workflow. The exact model/version was not exposed. Historical screenshots
+  show other AI interfaces, but a visible browser tab alone does not establish
+  that a tool was used for the project.
 - No model/version metadata or token-cost telemetry is available in the
   evidence for this workflow.
 - No independent AI agents or inter-agent handoffs were used. The role and
   handoff descriptions in `ai-agent-design.md` are a proposed workflow, not
   evidence of actual multi-agent execution.
-- No cross-model comparison, deployment, or genuine screenshots are claimed.
-- Tests and route inspection caught earlier API route-name and test-fixture
-  issues; the current full suite passed 93 tests and 633 assertions.
+- No cross-model comparison, deployment, or independent-agent execution is
+  claimed. Twenty genuine development screenshots exist; they do not show a
+  running SIMS page or API-client exchange.
+- The fresh full suite passed 93 tests and 633 assertions on November 10,
+  2026. Historical API route-name and test-fixture issues are documented in
+  `AI_PORTFOLIO.md`.
 
 ## Student-written reflection
 

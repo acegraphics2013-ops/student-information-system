@@ -1,8 +1,34 @@
-# Testing and Verification Record — SIMS Version 7
+# Testing and Verification Record
 
 **Project:** Student Information Management System (SIMS), NEMSU Tandag Campus  
-**Evidence date:** Version 7 archive inspected November 10, 2026  
-**Important distinction:** The original Windows/Laragon report describes a real local testing session, while the independent archive audit performed **static and database checks** and did **not** reproduce the full application test suite.
+**Current verification date:** November 10, 2026
+**Environment:** Windows / Laragon, PHP 8.2.12, Laravel 12.71.0, Composer 2.10.3, SQLite
+
+## Current workspace run
+
+| Command | Result | Notes |
+|---|---|---|
+| `php -v` | Passed | PHP 8.2.12 (CLI). |
+| `php artisan about` | Passed | Laravel 12.71.0; local environment; SQLite driver. |
+| `php artisan route:list` | Passed | 61 registered routes, including all five Student API operations. |
+| `php artisan migrate:status` | Passed | All 13 listed migrations are applied; this command was read-only. |
+| `php artisan test` | **93 passed, 0 failed, 0 skipped; 633 assertions** | Duration 26.69 seconds. PHPUnit uses in-memory SQLite as configured in `phpunit.xml`; project database rows were not used by the test database. |
+| `npm run build` | Passed | Vite 6.4.5 built 62 modules. It warned that `/images/bg-login.jpg` was not bundled; `public/images/bg-login.jpg` exists for runtime URL resolution. Browser rendering was not tested in this run. |
+| `composer validate --no-check-publish` | Passed | `composer.json` is valid. |
+| `vendor\bin\pint --test` | Passed | Repository-wide check returned passed. |
+| `git diff --check` | Passed after documentation correction | Git emitted only a CRLF-to-LF normalization warning. |
+| SQLite integrity checks | Passed | `PRAGMA integrity_check` returned `ok`; `PRAGMA foreign_key_check` returned no rows. Catalog totals: 7 colleges, 13 departments, 22 programs. No record values were read. |
+| Git history | Verified | 46 commits at this verification point; no commit or push was made for this work. |
+
+The screenshot files are historical evidence and are not substitutes for this
+fresh command output. The current build warning is non-blocking for the build;
+the referenced file exists, but an actual browser check remains advisable.
+
+## Historical Version 7 record
+
+The following archived results describe the earlier Version 7 snapshot only.
+They are retained to explain the old screenshots and are superseded by the
+current run above.
 
 ## 1. Development environment recorded by project
 
@@ -87,15 +113,15 @@ git status
 
 Avoid `migrate:fresh`, `db:wipe`, and destructive test/reset commands against the development database.
 
-## 7. Sign-off
+## 7. Current sign-off
 
 | Verification | Status |
 |---|---|
-| Original documented local PHPUnit run | **Reported passed (93 / 633)** |
-| Independent PHP syntax/database archive checks | **Passed** |
-| Independent full PHPUnit rerun | **Not verified** |
-| Repository-wide formatting | **Not passing in last recorded run** |
-| Login image warning resolved | **Not verified** |
-| Final source-only submission ZIP | **Not yet verified** |
+| Fresh local PHPUnit run | **Passed: 93 tests / 633 assertions, no failures or skips** |
+| Route and migration checks | **Passed: 61 routes; 13 migrations applied** |
+| SQLite integrity and foreign keys | **Passed: integrity `ok`, no foreign-key violations** |
+| Production asset build | **Passed with runtime image-resolution warning; browser not checked** |
+| Composer validation and Pint | **Passed** |
+| Final source-only submission ZIP | **Pending creation and archive inspection** |
 
-**Status:** Evidence-based updated Markdown record, not a claim that Version 7 is fully submission-ready.
+**Status:** Fresh technical verification is complete. Manual UI evidence, student-authored reflection, and final submission review remain outstanding.

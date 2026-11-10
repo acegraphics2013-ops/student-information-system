@@ -22,14 +22,14 @@ commit, push, or history rewrite is performed by packaging.
   and rubric audit Markdown sources are present in `docs/`.
 - [x] The handbook and rubric PDFs were not available in the workspace, so
   the audit uses the supplied rubric checklist and verified repository evidence.
-- [x] `docs/AI_PORTFOLIO.md` was exported to the project-root PDF
-  `AI_PORTFOLIO.pdf`; its personal evaluation sections remain student-owned.
-- [x] `docs/AGENT_DESIGN.md` was exported to the project-root PDF
-  `AGENT_DESIGN.pdf`.
-- [x] `docs/REFLECTION.md` was exported to the project-root PDF
-  `REFLECTION.pdf`; student-specific reflection entries remain clearly marked
-  as pending personal input.
-- [ ] Capture actual screenshots and link them in the README/portfolio.
+- [x] Draft exports are generated in `submission/` with the required names:
+  `AI_PORTFOLIO.pdf`, `AGENT_DESIGN.pdf`, and `REFLECTION.pdf`.
+- [ ] Complete the student-owned portfolio evaluation and reflection before
+  presenting those drafts as final deliverables.
+- [x] Twenty genuine development screenshots are indexed in
+  `docs/evidence/SCREENSHOT_INDEX.md`.
+- [ ] Capture real SIMS pages and API request/response screens; no such images
+  were present in the workspace at verification time.
 - [x] Student API reference and OpenAPI 3 specification are included.
 - [x] Oral-defense factual answer notes are included in `docs/oral-defense.md`.
 - [x] Git history and AI workflow evidence are documented in
@@ -38,9 +38,10 @@ commit, push, or history rewrite is performed by packaging.
   first-person reflection and genuine supporting evidence if required by the
   instructor.
 
-The project-root PDF deliverables are generated from the verified Markdown
-sources. They are intentionally honest about the student-input sections and do
-not invent first-person reflection or unsupported agent execution claims.
+The PDFs in `submission/` are generated from Markdown sources and explicitly
+marked as drafts where student input or real application evidence is missing.
+The older project-root PDFs were preserved and are not included in the final
+package.
 
 ## Final safety checks before submission
 
