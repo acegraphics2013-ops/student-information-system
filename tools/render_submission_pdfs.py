@@ -270,7 +270,7 @@ def document_body(path: Path, nodes: list[dict]) -> list[dict]:
                 return nodes[index:]
     if path.name == "REFLECTION.md":
         for index, node in enumerate(nodes):
-            if node.get("type") == "blockquote":
+            if node.get("type") == "block_quote":
                 return nodes[index:]
     return output
 
@@ -391,7 +391,7 @@ def render_nodes(nodes: list[dict], source: Path, width: float, styles: dict[str
             story.extend([table_flowable(node, width, styles), Spacer(1, 7)])
         elif kind == "list":
             story.append(list_flowable(node, width, styles))
-        elif kind == "blockquote":
+        elif kind == "block_quote":
             inner = render_nodes(node.get("children", []), source, width - 14, styles)
             box = Table([[inner]], colWidths=[width], hAlign="LEFT")
             box.setStyle(TableStyle([
