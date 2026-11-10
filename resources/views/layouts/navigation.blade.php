@@ -1,156 +1,176 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
-    <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" class="text-lg font-bold tracking-tight text-indigo-700">
-                        SIMS
-                    </a>
+<div>
+    <div
+        x-cloak
+        x-show="sidebarOpen"
+        x-transition.opacity
+        @click="sidebarOpen = false"
+        class="fixed inset-0 z-40 bg-gray-950/50 lg:hidden"
+        aria-hidden="true"
+    ></div>
+
+    <aside
+        id="app-sidebar"
+        class="fixed inset-y-0 left-0 z-50 flex w-64 -translate-x-full flex-col border-r border-gray-200 bg-white shadow-xl transition-transform duration-200 ease-in-out lg:translate-x-0 lg:shadow-sm"
+        :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+        aria-label="Main sidebar"
+    >
+        <div class="flex h-16 shrink-0 items-center justify-between border-b border-gray-100 px-5">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-2 text-xl font-bold tracking-tight text-indigo-700">
+                <img src="{{ asset('images/nemsu-logo.png') }}" alt="" class="h-10 w-10 object-contain">
+                <span>SIMS</span>
+            </a>
+            <button
+                type="button"
+                @click="sidebarOpen = false"
+                aria-label="Close navigation menu"
+                class="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 lg:hidden"
+            >
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-5" aria-label="Main navigation">
+            <p class="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">Workspace</p>
+            <a href="{{ route('dashboard') }}" @click="sidebarOpen = false" @class([
+                'group flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors',
+                'bg-indigo-50 text-indigo-700' => request()->routeIs('dashboard'),
+                'text-gray-600 hover:bg-gray-50 hover:text-gray-900' => ! request()->routeIs('dashboard'),
+            ])>
+                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="3.5" y="3.5" width="7" height="7" rx="1.5" stroke-width="1.8" />
+                    <rect x="13.5" y="3.5" width="7" height="7" rx="1.5" stroke-width="1.8" />
+                    <rect x="3.5" y="13.5" width="7" height="7" rx="1.5" stroke-width="1.8" />
+                    <rect x="13.5" y="13.5" width="7" height="7" rx="1.5" stroke-width="1.8" />
+                </svg>
+                {{ __('Dashboard') }}
+            </a>
+
+            <p class="px-3 pb-2 pt-6 text-xs font-semibold uppercase tracking-wider text-gray-400">Management</p>
+            <a href="{{ route('students.index') }}" @click="sidebarOpen = false" @class([
+                'group flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors',
+                'bg-indigo-50 text-indigo-700' => request()->routeIs('students.*'),
+                'text-gray-600 hover:bg-gray-50 hover:text-gray-900' => ! request()->routeIs('students.*'),
+            ])>
+                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="4" y="3.5" width="16" height="17" rx="2.5" stroke-width="1.8" />
+                    <circle cx="12" cy="9" r="2.5" stroke-width="1.8" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7.5 17a4.5 4.5 0 0 1 9 0" />
+                </svg>
+                {{ __('Students') }}
+            </a>
+            <a href="{{ route('subjects.index') }}" @click="sidebarOpen = false" @class([
+                'group flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors',
+                'bg-indigo-50 text-indigo-700' => request()->routeIs('subjects.*'),
+                'text-gray-600 hover:bg-gray-50 hover:text-gray-900' => ! request()->routeIs('subjects.*'),
+            ])>
+                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6v14m0-14c-1.6-1.5-4-2-7-2v14c3 0 5.4.5 7 2m0-14c1.6-1.5 4-2 7-2v14c-3 0-5.4.5-7 2" />
+                </svg>
+                {{ __('Subjects') }}
+            </a>
+            <a href="{{ route('enrollments.index') }}" @click="sidebarOpen = false" @class([
+                'group flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors',
+                'bg-indigo-50 text-indigo-700' => request()->routeIs('enrollments.*'),
+                'text-gray-600 hover:bg-gray-50 hover:text-gray-900' => ! request()->routeIs('enrollments.*'),
+            ])>
+                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="4" y="3.5" width="16" height="17" rx="2.5" stroke-width="1.8" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m8 12 2.5 2.5L16.5 9M8 6.5h8" />
+                </svg>
+                {{ __('Enrollments') }}
+            </a>
+            <a href="{{ route('academic-programs.index') }}" @click="sidebarOpen = false" @class([
+                'group flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors',
+                'bg-indigo-50 text-indigo-700' => request()->routeIs('academic-programs.*'),
+                'text-gray-600 hover:bg-gray-50 hover:text-gray-900' => ! request()->routeIs('academic-programs.*'),
+            ])>
+                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 20h16M6 20V8l6-4 6 4v12M9 10h.01M15 10h.01M9 14h.01M15 14h.01M10 20v-3h4v3" />
+                </svg>
+                {{ __('Academic Programs') }}
+            </a>
+
+            @if (Auth::user()->role === 'admin')
+                <p class="px-3 pb-2 pt-6 text-xs font-semibold uppercase tracking-wider text-gray-400">Administration</p>
+                <a href="{{ route('admin.index') }}" @click="sidebarOpen = false" @class([
+                    'group flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors',
+                    'bg-indigo-50 text-indigo-700' => request()->routeIs('admin.index'),
+                    'text-gray-600 hover:bg-gray-50 hover:text-gray-900' => ! request()->routeIs('admin.index'),
+                ])>
+                    <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3 4 7v5c0 5 3.4 8 8 9 4.6-1 8-4 8-9V7l-8-4Zm-3 9 2 2 4-4" />
+                    </svg>
+                    {{ __('Administration') }}
+                </a>
+                <a href="{{ route('admin.users.index') }}" @click="sidebarOpen = false" @class([
+                    'group flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors',
+                    'bg-indigo-50 text-indigo-700' => request()->routeIs('admin.users.*'),
+                    'text-gray-600 hover:bg-gray-50 hover:text-gray-900' => ! request()->routeIs('admin.users.*'),
+                ])>
+                    <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="9" cy="8" r="3" stroke-width="1.8" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 20v-1a6 6 0 0 1 12 0v1H3Zm13-12a3 3 0 1 1 2.5 3M18 14a5 5 0 0 1 3 4.6V20h-3" />
+                    </svg>
+                    {{ __('User Accounts') }}
+                </a>
+            @endif
+        </nav>
+
+        <div class="shrink-0 border-t border-gray-100 p-3" x-data="{ accountMenuOpen: false }">
+            <div class="flex items-center gap-3 rounded-lg px-2 py-2">
+                @if (Auth::user()->profile_photo_path)
+                    <img src="{{ asset('storage/'.Auth::user()->profile_photo_path) }}" alt="" class="h-10 w-10 shrink-0 rounded-full object-cover">
+                @else
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-700">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr(Auth::user()->name, 0, 1)) }}</span>
+                @endif
+                <div class="min-w-0 flex-1">
+                    <p class="truncate text-sm font-semibold text-gray-900">{{ Auth::user()->name }}</p>
+                    <p class="truncate text-xs capitalize text-gray-500">{{ Auth::user()->role }}</p>
                 </div>
-
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-                    <x-nav-link
-                        :href="route('students.index')"
-                        :active="request()->routeIs('students.*')">
-                        {{ __('Students') }}
-                    </x-nav-link>
-                    <x-nav-link
-                        :href="route('subjects.index')"
-                        :active="request()->routeIs('subjects.*')">
-                        {{ __('Subjects') }}
-                    </x-nav-link>
-                    <x-nav-link
-                        :href="route('enrollments.index')"
-                        :active="request()->routeIs('enrollments.*')">
-                        {{ __('Enrollments') }}
-                    </x-nav-link>
-                    <x-nav-link
-                        :href="route('academic-programs.index')"
-                        :active="request()->routeIs('academic-programs.*')">
-                        {{ __('Academic Programs') }}
-                    </x-nav-link>
-                    @if (Auth::user()->role === 'admin')
-                        <x-nav-link :href="route('admin.index')" :active="request()->routeIs('admin.index')">
-                            {{ __('Administration') }}
-                        </x-nav-link>
-                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
-                            {{ __('User Accounts') }}
-                        </x-nav-link>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
-
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </button>
-                    </x-slot>
-
-                    <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
-
-                        <!-- Authentication -->
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
-                        </form>
-                    </x-slot>
-                </x-dropdown>
-            </div>
-
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                <button
+                    type="button"
+                    @click="accountMenuOpen = ! accountMenuOpen"
+                    :aria-expanded="accountMenuOpen.toString()"
+                    aria-controls="sidebar-account-actions"
+                    aria-label="Toggle account options"
+                    class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                        <circle cx="4" cy="10" r="1.7" />
+                        <circle cx="10" cy="10" r="1.7" />
+                        <circle cx="16" cy="10" r="1.7" />
                     </svg>
                 </button>
             </div>
-        </div>
-    </div>
-
-    <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link
-                :href="route('students.index')"
-                :active="request()->routeIs('students.*')">
-                {{ __('Students') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link
-                :href="route('subjects.index')"
-                :active="request()->routeIs('subjects.*')">
-                {{ __('Subjects') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link
-                :href="route('enrollments.index')"
-                :active="request()->routeIs('enrollments.*')">
-                {{ __('Enrollments') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link
-                :href="route('academic-programs.index')"
-                :active="request()->routeIs('academic-programs.*')">
-                {{ __('Academic Programs') }}
-            </x-responsive-nav-link>
-            @if (Auth::user()->role === 'admin')
-                <x-responsive-nav-link :href="route('admin.index')" :active="request()->routeIs('admin.index')">
-                    {{ __('Administration') }}
-                </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
-                    {{ __('User Accounts') }}
-                </x-responsive-nav-link>
-            @endif
-        </div>
-
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-            </div>
-
-            <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
-                </x-responsive-nav-link>
-
-                <!-- Authentication -->
+            <div
+                id="sidebar-account-actions"
+                x-cloak
+                x-show="accountMenuOpen"
+                x-transition
+                @keydown.escape.stop="accountMenuOpen = false"
+                class="mt-2 space-y-1 border-t border-gray-100 pt-2"
+                aria-label="Account options"
+            >
+                <a
+                    href="{{ route('profile.edit') }}"
+                    @click="accountMenuOpen = false; sidebarOpen = false"
+                    @class([
+                        'block min-h-10 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                        'bg-indigo-50 text-indigo-700' => request()->routeIs('profile.*'),
+                        'text-gray-600 hover:bg-gray-50 hover:text-gray-900' => ! request()->routeIs('profile.*'),
+                    ])
+                >
+                    {{ __('Profile settings') }}
+                </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-
-                    <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();">
+                    <button type="submit" class="block min-h-10 w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-gray-600 transition-colors hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         {{ __('Log Out') }}
-                    </x-responsive-nav-link>
+                    </button>
                 </form>
             </div>
         </div>
-    </div>
-</nav>
+    </aside>
+</div>

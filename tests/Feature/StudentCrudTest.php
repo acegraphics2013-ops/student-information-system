@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\College;
+use App\Models\Department;
 use App\Models\Program;
 use App\Models\Student;
 use App\Models\User;
@@ -32,7 +34,7 @@ class StudentCrudTest extends TestCase
         $this->get(route('students.create'))
             ->assertOk()
             ->assertSee('College')
-            ->assertSee('Department')
+            ->assertDontSee('Department')
             ->assertSee('Degree Program')
             ->assertSee('College of Information Technology Education');
 
@@ -61,7 +63,7 @@ class StudentCrudTest extends TestCase
         $this->assertDatabaseMissing('students', ['id' => $student->id]);
     }
 
-    public function test_staff_can_read_students_but_cannot_modify_them(): void
+    public function test_staff_can_create_and_edit_students_but_cannot_delete_them(): void
     {
         $student = Student::create($this->studentRecordData([
             'student_number' => 'SIMS-1002',
@@ -70,16 +72,28 @@ class StudentCrudTest extends TestCase
 
         $this->actingAs(User::factory()->create(['role' => 'staff']));
 
-        $this->get(route('students.index'))->assertOk();
+        $this->get(route('students.index'))
+            ->assertOk()
+            ->assertSee('Add student')
+            ->assertSee('Edit');
         $this->get(route('students.show', $student))->assertOk();
 
-        $this->get(route('students.create'))->assertForbidden();
-        $this->get(route('students.edit', $student))->assertForbidden();
+        $this->get(route('students.create'))->assertOk();
+        $this->get(route('students.edit', $student))->assertOk();
         $this->post(route('students.store'), $this->studentData())
-            ->assertForbidden();
-        $this->put(route('students.update', $student), $this->studentData())
-            ->assertForbidden();
+            ->assertRedirect(route('students.index'));
+        $this->put(route('students.update', $student), $this->studentData([
+            'student_number' => $student->student_number,
+            'email' => $student->email,
+            'first_name' => 'Updated by Staff',
+        ]))->assertRedirect(route('students.index'));
+
+        $this->assertDatabaseHas('students', [
+            'id' => $student->id,
+            'first_name' => 'Updated by Staff',
+        ]);
         $this->delete(route('students.destroy', $student))->assertForbidden();
+        $this->assertDatabaseHas('students', ['id' => $student->id]);
     }
 
     public function test_student_list_search_matches_student_number_name_email_and_program(): void
@@ -215,18 +229,28 @@ class StudentCrudTest extends TestCase
 
     }
 
-    public function test_admin_cannot_select_a_program_outside_the_department_or_college(): void
+    public function test_admin_cannot_select_a_program_outside_the_selected_college(): void
     {
         $this->actingAs(User::factory()->create(['role' => 'admin']));
         $data = $this->studentData();
-        $data['department_id'] = Program::query()
-            ->where('name', 'Bachelor of Science in Biology')
-            ->value('department_id');
+        $otherCollege = College::create([
+            'name' => 'College Outside Selection',
+            'abbreviation' => 'COS',
+        ]);
+        $otherDepartment = Department::create([
+            'college_id' => $otherCollege->id,
+            'name' => 'Outside Department',
+        ]);
+        $otherProgram = Program::create([
+            'department_id' => $otherDepartment->id,
+            'name' => 'Unique Program Outside Selected College',
+        ]);
+        $data['course'] = $otherProgram->name;
 
         $this->from(route('students.create'))
             ->post(route('students.store'), $data)
             ->assertRedirect(route('students.create'))
-            ->assertSessionHasErrors(['department_id']);
+            ->assertSessionHasErrors(['course']);
 
         $this->assertDatabaseCount('students', 0);
     }
@@ -247,7 +271,7 @@ class StudentCrudTest extends TestCase
             'course' => $student->course,
             'first_name' => 'Updated',
         ]);
-        unset($data['college_id'], $data['department_id']);
+        unset($data['college_id']);
 
         $this->actingAs(User::factory()->create(['role' => 'admin']))
             ->put(route('students.update', $student), $data)
@@ -289,7 +313,6 @@ class StudentCrudTest extends TestCase
             'course' => $program->name,
             'year_level' => 2,
             'college_id' => $program->department->college_id,
-            'department_id' => $program->department_id,
         ], $overrides);
     }
 
@@ -300,7 +323,7 @@ class StudentCrudTest extends TestCase
     {
         return array_diff_key(
             $this->studentData($overrides),
-            array_flip(['college_id', 'department_id'])
+            array_flip(['college_id'])
         );
     }
 }

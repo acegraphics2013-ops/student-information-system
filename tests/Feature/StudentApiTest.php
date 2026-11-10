@@ -82,7 +82,7 @@ class StudentApiTest extends TestCase
             ->assertUnauthorized();
     }
 
-    public function test_staff_can_read_but_cannot_modify_students_via_api(): void
+    public function test_staff_can_create_and_update_but_cannot_delete_students_via_api(): void
     {
         $this->withApiToken(User::factory()->create(['role' => 'staff']));
         $student = Student::create($this->studentData([
@@ -93,14 +93,25 @@ class StudentApiTest extends TestCase
         $this->getJson('/api/students')->assertOk();
         $this->getJson("/api/students/{$student->id}")->assertOk();
 
-        $this->postJson('/api/students', $this->studentData())
-            ->assertForbidden();
-        $this->putJson("/api/students/{$student->id}", $this->studentData())
-            ->assertForbidden();
+        $created = $this->postJson('/api/students', $this->studentData())
+            ->assertCreated();
+        $createdId = $created->json('data.id');
+
+        $this->putJson("/api/students/{$student->id}", $this->studentData([
+            'student_number' => $student->student_number,
+            'email' => $student->email,
+            'first_name' => 'Updated by Staff',
+        ]))
+            ->assertOk()
+            ->assertJsonPath('data.first_name', 'Updated by Staff');
         $this->deleteJson("/api/students/{$student->id}")
             ->assertForbidden();
 
-        $this->assertDatabaseHas('students', ['id' => $student->id]);
+        $this->assertDatabaseHas('students', [
+            'id' => $student->id,
+            'first_name' => 'Updated by Staff',
+        ]);
+        $this->assertDatabaseHas('students', ['id' => $createdId]);
     }
 
     public function test_student_api_validates_input_and_returns_not_found(): void

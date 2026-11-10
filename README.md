@@ -5,7 +5,8 @@ Alpine.js, Eloquent, SQLite, and a Sanctum-protected Student REST API.
 
 ## Features
 
-- Breeze registration, login, logout, profile, and password flows
+- Breeze registration, login, logout, profile, password, and display-photo flows
+- Official NEMSU emblem displayed in the login screen, dashboard, sidebar, and browser tab
 - Role-based admin writes and staff read access
 - Administrator-only system dashboard with database-backed user, student,
   subject, enrollment, and academic catalog statistics
@@ -58,11 +59,16 @@ does not already exist, then apply outstanding migrations:
 if (-not (Test-Path database\database.sqlite)) { New-Item database\database.sqlite -ItemType File }
 php artisan migrate
 php artisan db:seed --class=NemsuAcademicCatalogSeeder
+php artisan storage:link
 ```
 
 Migrations update the existing schema and do not reset records. Back up the
 SQLite file before applying migrations to an existing installation. Never use
 `migrate:fresh` or `db:wipe` on data you want to keep.
+
+The storage link allows uploaded public profile photos to be displayed. Run
+`php artisan storage:link` once per local checkout if `public\storage` does not
+already exist.
 
 The catalog seeder is safe to rerun: it adds missing catalog rows without
 deleting records. It will stop with an explicit error if a catalog abbreviation
@@ -96,11 +102,15 @@ Use the email address of the account you registered. Stop the local server with
   students, subjects, and enrollments. The Administration dashboard and user
   management routes are protected by server-side role middleware.
 - **Staff:** read students, subjects, and enrollments; management writes are
-  denied by server-side middleware.
+  allowed for student records and enrollments; subject-catalog changes and
+  student deletion remain administrator-only.
+- Each user can update their profile information and upload/remove a JPG, PNG,
+  or WebP display photo up to 2 MB. Photos are stored on Laravel's public disk.
 
 Public registration assigns Staff regardless of submitted role fields. An
 administrator cannot change their own role, and role updates are validated
-server-side so manually crafted requests cannot bypass the UI. A transaction
+server-side so manually crafted requests cannot bypass the UI. Staff may add
+and edit students, and add, update, or unload enrollments. A transaction
 prevents demoting the last administrator. User-management pages expose no
 password hashes, reset credentials, sessions, or access tokens. Administrator
 account deletion/suspension is not provided; it would need a separate policy

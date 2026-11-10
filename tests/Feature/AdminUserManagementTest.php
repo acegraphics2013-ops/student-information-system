@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class AdminUserManagementTest extends TestCase
@@ -37,7 +38,8 @@ class AdminUserManagementTest extends TestCase
             ->assertOk()
             ->assertSee('Apply filters')
             ->assertSee('Registered accounts')
-            ->assertSee('Manage role')
+            ->assertSee('Add user')
+            ->assertSee('Edit')
             ->assertSee('sm:hidden', false)
             ->assertSee('sm:block', false);
 
@@ -45,16 +47,21 @@ class AdminUserManagementTest extends TestCase
             ->assertOk()
             ->assertSee($staff->email)
             ->assertSee('Account profile')
-            ->assertSee('Manage access role')
-            ->assertDontSee('password')
+            ->assertSee('Edit account')
+            ->assertDontSee('type="password"', false)
             ->assertDontSee('remember_token')
             ->assertDontSee('personal_access_tokens');
 
         $this->get(route('admin.users.edit', $staff))
             ->assertOk()
-            ->assertSee('Choose an access role')
+            ->assertSee('Access role')
             ->assertSee('least privileged role')
-            ->assertSee('Save role');
+            ->assertSee('Save changes');
+
+        $this->get(route('admin.users.create'))
+            ->assertOk()
+            ->assertSee('Create user account')
+            ->assertSee('Confirm temporary password');
     }
 
     public function test_admin_can_promote_and_demote_another_account(): void
@@ -80,6 +87,101 @@ class AdminUserManagementTest extends TestCase
             'id' => $staff->id,
             'role' => 'staff',
         ]);
+    }
+
+    public function test_admin_can_create_an_account_and_assign_its_role(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)
+            ->post(route('admin.users.store'), [
+                'name' => 'New Staff Member',
+                'email' => 'new.staff@example.com',
+                'role' => 'staff',
+                'password' => 'secure-pass-123',
+                'password_confirmation' => 'secure-pass-123',
+            ])
+            ->assertRedirect();
+
+        $user = User::where('email', 'new.staff@example.com')->firstOrFail();
+        $this->assertSame('New Staff Member', $user->name);
+        $this->assertSame('staff', $user->role);
+        $this->assertTrue(password_verify('secure-pass-123', $user->password));
+    }
+
+    public function test_account_creation_rejects_duplicate_email_invalid_role_and_unconfirmed_password(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        User::factory()->create(['email' => 'taken@example.com']);
+
+        $this->actingAs($admin)
+            ->from(route('admin.users.create'))
+            ->post(route('admin.users.store'), [
+                'name' => 'Invalid New User',
+                'email' => 'taken@example.com',
+                'role' => 'owner',
+                'password' => 'secure-pass-123',
+                'password_confirmation' => 'does-not-match',
+            ])
+            ->assertRedirect(route('admin.users.create'))
+            ->assertSessionHasErrors(['email', 'role', 'password']);
+
+        $this->assertDatabaseMissing('users', ['name' => 'Invalid New User']);
+    }
+
+    public function test_admin_can_edit_account_details_and_optionally_change_password(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $staff = User::factory()->create(['role' => 'staff']);
+        $staff->createToken('test-token');
+        DB::table('sessions')->insert([
+            'id' => 'user-session',
+            'user_id' => $staff->id,
+            'payload' => 'test-session',
+            'last_activity' => now()->timestamp,
+        ]);
+        DB::table('password_reset_tokens')->insert([
+            'email' => $staff->email,
+            'token' => 'test-reset-token',
+            'created_at' => now(),
+        ]);
+
+        $this->actingAs($admin)
+            ->patch(route('admin.users.update', $staff), [
+                'name' => 'Updated Staff',
+                'email' => 'updated.staff@example.com',
+                'role' => 'staff',
+                'password' => 'another-secure-pass',
+                'password_confirmation' => 'another-secure-pass',
+            ])
+            ->assertRedirect(route('admin.users.show', $staff));
+
+        $staff->refresh();
+        $this->assertSame('Updated Staff', $staff->name);
+        $this->assertSame('updated.staff@example.com', $staff->email);
+        $this->assertTrue(password_verify('another-secure-pass', $staff->password));
+    }
+
+    public function test_admin_can_delete_another_account_but_not_self_or_last_admin(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $staff = User::factory()->create(['role' => 'staff']);
+
+        $this->actingAs($admin)
+            ->delete(route('admin.users.destroy', $admin))
+            ->assertSessionHasErrors('account');
+        $this->assertDatabaseHas('users', ['id' => $admin->id]);
+
+        $this->delete(route('admin.users.destroy', $staff))
+            ->assertRedirect(route('admin.users.index'));
+        $this->assertDatabaseMissing('users', ['id' => $staff->id]);
+        $this->assertDatabaseMissing('personal_access_tokens', ['tokenable_id' => $staff->id]);
+        $this->assertDatabaseMissing('sessions', ['id' => 'user-session']);
+        $this->assertDatabaseMissing('password_reset_tokens', ['email' => $staff->email]);
+
+        $this->delete(route('admin.users.destroy', $admin))
+            ->assertSessionHasErrors('account');
+        $this->assertDatabaseHas('users', ['id' => $admin->id, 'role' => 'admin']);
     }
 
     public function test_admin_cannot_self_demote_or_demote_the_last_administrator(): void
@@ -130,11 +232,20 @@ class AdminUserManagementTest extends TestCase
 
         $this->actingAs($staff);
         $this->get(route('admin.users.index'))->assertForbidden();
+        $this->get(route('admin.users.create'))->assertForbidden();
         $this->get(route('admin.users.show', $admin))->assertForbidden();
         $this->get(route('admin.users.edit', $admin))->assertForbidden();
+        $this->post(route('admin.users.store'), [
+            'name' => 'Unauthorized User',
+            'email' => 'unauthorized@example.com',
+            'role' => 'staff',
+            'password' => 'secure-pass-123',
+            'password_confirmation' => 'secure-pass-123',
+        ])->assertForbidden();
         $this->patch(route('admin.users.update', $admin), [
             'role' => 'staff',
         ])->assertForbidden();
+        $this->delete(route('admin.users.destroy', $admin))->assertForbidden();
     }
 
     public function test_guests_are_redirected_from_user_management(): void
@@ -142,6 +253,7 @@ class AdminUserManagementTest extends TestCase
         $user = User::factory()->create();
 
         $this->get(route('admin.users.index'))->assertRedirect(route('login'));
+        $this->get(route('admin.users.create'))->assertRedirect(route('login'));
         $this->get(route('admin.users.show', $user))->assertRedirect(route('login'));
     }
 }

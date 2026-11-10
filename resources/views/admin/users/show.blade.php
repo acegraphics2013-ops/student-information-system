@@ -5,12 +5,27 @@
                 <p class="text-sm font-semibold uppercase tracking-wide text-indigo-600">Administration / User accounts</p>
                 <h1 class="mt-1 text-2xl font-semibold tracking-tight text-gray-900">Account details</h1>
             </div>
-            <a href="{{ route('admin.users.index') }}" class="inline-flex min-h-10 items-center rounded-md border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Back to users</a>
+            <div class="flex flex-wrap gap-2">
+                <a href="{{ route('admin.users.index') }}" class="inline-flex min-h-10 items-center rounded-md border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Back to users</a>
+                <a href="{{ route('admin.users.edit', $user) }}" class="inline-flex min-h-10 items-center rounded-md bg-indigo-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Edit account</a>
+                @if (! auth()->user()->is($user) && ($user->role !== 'admin' || $adminCount > 1))
+                    <form method="POST" action="{{ route('admin.users.destroy', $user) }}" onsubmit="return confirm('Delete this user account? This action cannot be undone.')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="inline-flex min-h-10 items-center rounded-md border border-red-200 bg-white px-4 text-sm font-semibold text-red-700 shadow-sm hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">Delete account</button>
+                    </form>
+                @endif
+            </div>
         </div>
     </x-slot>
 
     <main class="py-10">
         <div class="mx-auto max-w-3xl space-y-5 px-4 sm:px-6 lg:px-8">
+            @if ($errors->any())
+                <div role="alert" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                    <ul class="list-inside list-disc">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+                </div>
+            @endif
             <section class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
                 <div class="border-b border-gray-100 bg-gray-50/70 px-6 py-5 sm:px-8">
                     <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Account profile</p>
@@ -42,14 +57,14 @@
                         </div>
                     </dl>
                     <div class="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-gray-100 pt-6">
-                        <p class="max-w-md text-sm text-gray-500">Role changes affect which management actions this account can perform.</p>
-                        <a href="{{ route('admin.users.edit', $user) }}" class="inline-flex min-h-11 items-center rounded-md bg-indigo-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Manage access role</a>
+                        <p class="max-w-md text-sm text-gray-500">Account details and role changes affect this person's access to the system.</p>
+                        <a href="{{ route('admin.users.edit', $user) }}" class="inline-flex min-h-11 items-center rounded-md bg-indigo-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Edit account</a>
                     </div>
                 </div>
             </section>
             <aside class="flex gap-3 rounded-lg border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
                 <span aria-hidden="true" class="font-bold">i</span>
-                <p>Sensitive credentials are protected. Password hashes, reset tokens, sessions, and API access tokens are not displayed or editable here.</p>
+                <p>Existing passwords are never displayed. An administrator can set a new password from the edit page. Reset tokens, sessions, and API access tokens are not displayed.</p>
             </aside>
         </div>
     </main>

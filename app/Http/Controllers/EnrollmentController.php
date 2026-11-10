@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Enrollment;
 use App\Models\Student;
 use App\Models\Subject;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class EnrollmentController extends Controller
@@ -18,65 +20,125 @@ class EnrollmentController extends Controller
             'search' => ['nullable', 'string', 'max:100'],
         ]);
         $search = trim($validated['search'] ?? '');
-        $enrollments = Enrollment::query()
-            ->with(['student', 'subject'])
+        $students = Student::query()
+            ->whereHas('enrollments')
             ->when($search !== '', function ($query) use ($search): void {
                 $like = '%'.$search.'%';
+                $terms = preg_split('/\s+/', $search, -1, PREG_SPLIT_NO_EMPTY);
 
-                $query->where(function ($query) use ($like, $search): void {
-                    $query->where('status', 'like', $like)
-                        ->orWhereHas('student', function ($studentQuery) use ($like, $search): void {
-                            $terms = preg_split('/\s+/', $search, -1, PREG_SPLIT_NO_EMPTY);
-
-                            $studentQuery->where(function ($studentQuery) use ($like, $terms): void {
-                                $studentQuery->where('student_number', 'like', $like)
-                                    ->orWhere('email', 'like', $like)
-                                    ->orWhere(function ($nameQuery) use ($terms): void {
-                                        foreach ($terms as $term) {
-                                            $termLike = '%'.$term.'%';
-                                            $nameQuery->where(function ($termQuery) use ($termLike): void {
-                                                $termQuery->where('first_name', 'like', $termLike)
-                                                    ->orWhere('last_name', 'like', $termLike);
-                                            });
-                                        }
-                                    });
-                            });
+                $query->where(function ($query) use ($like, $terms): void {
+                    $query->where('student_number', 'like', $like)
+                        ->orWhere('email', 'like', $like)
+                        ->orWhere(function ($nameQuery) use ($terms): void {
+                            foreach ($terms as $term) {
+                                $termLike = '%'.$term.'%';
+                                $nameQuery->where(function ($termQuery) use ($termLike): void {
+                                    $termQuery->where('first_name', 'like', $termLike)
+                                        ->orWhere('last_name', 'like', $termLike);
+                                });
+                            }
                         })
-                        ->orWhereHas('subject', function ($subjectQuery) use ($like): void {
-                            $subjectQuery->where('subject_code', 'like', $like)
-                                ->orWhere('subject_name', 'like', $like);
+                        ->orWhereHas('enrollments', function ($enrollmentQuery) use ($like): void {
+                            $enrollmentQuery->where('status', 'like', $like)
+                                ->orWhereHas('subject', function ($subjectQuery) use ($like): void {
+                                    $subjectQuery->where('subject_code', 'like', $like)
+                                        ->orWhere('subject_name', 'like', $like);
+                                });
                         });
                 });
             })
-            ->latest()
+            ->with(['enrollments.subject'])
+            ->orderBy('last_name')
+            ->orderBy('first_name')
             ->paginate(10);
 
         return view('enrollments.index', [
-            'enrollments' => $enrollments->withQueryString(),
+            'students' => $students->withQueryString(),
             'search' => $search,
         ]);
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
-        return view('enrollments.create', $this->formOptions());
+        $validated = $request->validate([
+            'student_id' => ['nullable', 'integer', Rule::exists('students', 'id')],
+        ]);
+
+        return view('enrollments.create', [
+            ...$this->formOptions(),
+            'initialStudentId' => $validated['student_id'] ?? '',
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
-        $validated = $this->validateEnrollment($request);
+        $validated = $request->validate([
+            'student_id' => ['required', 'integer', Rule::exists('students', 'id')],
+            'subject_ids' => ['required', 'array', 'min:1'],
+            'subject_ids.*' => ['required', 'integer', 'distinct', Rule::exists('subjects', 'id')],
+            'status' => ['required', Rule::in(['enrolled', 'completed', 'dropped'])],
+        ]);
 
-        Enrollment::create($validated);
+        DB::transaction(function () use ($validated): void {
+            $student = Student::query()
+                ->lockForUpdate()
+                ->findOrFail($validated['student_id']);
+            $subjectIds = array_map('intval', $validated['subject_ids']);
+            $alreadyEnrolled = Enrollment::query()
+                ->where('student_id', $student->id)
+                ->whereIn('subject_id', $subjectIds)
+                ->exists();
+
+            if ($alreadyEnrolled) {
+                throw ValidationException::withMessages([
+                    'subject_ids' => 'The student is already enrolled in one or more selected subjects.',
+                ]);
+            }
+
+            $selectedUnits = Subject::query()
+                ->whereIn('id', $subjectIds)
+                ->sum('units');
+
+            if ($selectedUnits > 10) {
+                throw ValidationException::withMessages([
+                    'subject_ids' => 'The selected subjects cannot exceed 10 units in total.',
+                ]);
+            }
+
+            if ($validated['status'] === 'enrolled') {
+                $currentUnits = Enrollment::query()
+                    ->join('subjects', 'enrollments.subject_id', '=', 'subjects.id')
+                    ->where('enrollments.student_id', $student->id)
+                    ->where('enrollments.status', 'enrolled')
+                    ->sum('subjects.units');
+
+                if ($currentUnits + $selectedUnits > 10) {
+                    throw ValidationException::withMessages([
+                        'subject_ids' => 'A student may not exceed 10 enrolled units. This student currently has '.$currentUnits.' units.',
+                    ]);
+                }
+            }
+
+            foreach ($subjectIds as $subjectId) {
+                Enrollment::create([
+                    'student_id' => $student->id,
+                    'subject_id' => $subjectId,
+                    'status' => $validated['status'],
+                ]);
+            }
+        });
 
         return redirect()->route('enrollments.index')
-            ->with('success', 'Student enrolled successfully.');
+            ->with('success', 'Student enrolled in the selected subjects successfully.');
     }
 
     public function show(Enrollment $enrollment): View
     {
-        $enrollment->load(['student', 'subject']);
+        $student = Student::query()
+            ->with(['enrollments.subject'])
+            ->findOrFail($enrollment->student_id);
 
-        return view('enrollments.show', compact('enrollment'));
+        return view('enrollments.show', compact('student'));
     }
 
     public function edit(Enrollment $enrollment): View
@@ -91,7 +153,35 @@ class EnrollmentController extends Controller
     {
         $validated = $this->validateEnrollment($request, $enrollment);
 
-        $enrollment->update($validated);
+        DB::transaction(function () use ($validated, $enrollment): void {
+            $student = Student::query()
+                ->lockForUpdate()
+                ->findOrFail($validated['student_id']);
+
+            if ($validated['status'] === 'enrolled') {
+                $currentUnits = Enrollment::query()
+                    ->join('subjects', 'enrollments.subject_id', '=', 'subjects.id')
+                    ->where('enrollments.student_id', $student->id)
+                    ->where('enrollments.status', 'enrolled')
+                    ->when(
+                        (int) $enrollment->student_id === (int) $student->id
+                            && $enrollment->status === 'enrolled',
+                        fn ($query) => $query->where('enrollments.id', '!=', $enrollment->id)
+                    )
+                    ->sum('subjects.units');
+                $selectedUnits = Subject::query()
+                    ->whereKey($validated['subject_id'])
+                    ->value('units');
+
+                if ($currentUnits + $selectedUnits > 10) {
+                    throw ValidationException::withMessages([
+                        'subject_id' => 'A student may not exceed 10 enrolled units. This student currently has '.$currentUnits.' units.',
+                    ]);
+                }
+            }
+
+            $enrollment->update($validated);
+        });
 
         return redirect()->route('enrollments.index')
             ->with('success', 'Enrollment updated successfully.');
@@ -107,8 +197,28 @@ class EnrollmentController extends Controller
 
     private function formOptions(): array
     {
+        $students = Student::query()
+            ->with(['enrollments.subject'])
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->get();
+
         return [
-            'students' => Student::orderBy('last_name')->orderBy('first_name')->get(),
+            'students' => $students,
+            'enrollmentStudents' => $students->map(fn (Student $student): array => [
+                'id' => $student->id,
+                'student_number' => $student->student_number,
+                'first_name' => $student->first_name,
+                'last_name' => $student->last_name,
+                'email' => $student->email,
+                'enrolled_units' => $student->enrollments
+                    ->where('status', 'enrolled')
+                    ->sum(fn (Enrollment $enrollment): int => (int) ($enrollment->subject?->units ?? 0)),
+                'existing_subject_ids' => $student->enrollments
+                    ->pluck('subject_id')
+                    ->map(fn ($id): string => (string) $id)
+                    ->values(),
+            ])->values(),
             'subjects' => Subject::orderBy('subject_code')->get(),
         ];
     }

@@ -5,7 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>NEMSU Tandag | Student Information System</title>
+        <link rel="icon" type="image/png" href="{{ asset('images/nemsu-logo.png') }}">
+        <link rel="apple-touch-icon" href="{{ asset('images/nemsu-logo.png') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -13,9 +15,12 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <style>
+            [x-cloak] { display: none !important; }
+        </style>
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
+        <div x-data="{ sidebarOpen: false }" @keydown.escape.window="sidebarOpen = false" class="min-h-screen bg-gray-100">
             @include('layouts.navigation')
 
             @if (session('success'))
@@ -26,7 +31,7 @@
                     x-transition
                     role="status"
                     aria-live="polite"
-                    class="fixed bottom-5 right-5 z-50 flex max-w-sm items-start gap-3 rounded-lg border border-green-200 bg-white p-4 text-sm text-green-800 shadow-lg ring-1 ring-black/5"
+                    class="fixed bottom-5 right-5 z-[60] flex max-w-sm items-start gap-3 rounded-lg border border-green-200 bg-white p-4 text-sm text-green-800 shadow-lg ring-1 ring-black/5"
                 >
                     <span aria-hidden="true" class="mt-0.5 font-bold text-green-600">✓</span>
                     <p class="flex-1">{{ session('success') }}</p>
@@ -41,19 +46,39 @@
                 </div>
             @endif
 
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
+            <div class="min-h-screen lg:pl-64">
+                <div class="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-gray-200 bg-white px-4 shadow-sm lg:hidden">
+                    <button
+                        type="button"
+                        @click="sidebarOpen = true"
+                        aria-label="Open navigation menu"
+                        aria-controls="app-sidebar"
+                        :aria-expanded="sidebarOpen.toString()"
+                        class="inline-flex h-10 w-10 items-center justify-center rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    <a href="{{ route('dashboard') }}" class="flex items-center gap-2 text-lg font-bold tracking-tight text-indigo-700">
+                        <img src="{{ asset('images/nemsu-logo.png') }}" alt="" class="h-9 w-9 object-contain">
+                        SIMS
+                    </a>
+                    <span class="ml-auto truncate text-sm font-medium text-gray-600">{{ Auth::user()->name }}</span>
+                </div>
 
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
+                @isset($header)
+                    <header class="bg-white shadow-sm">
+                        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                            {{ $header }}
+                        </div>
+                    </header>
+                @endisset
+
+                <main>
+                    {{ $slot }}
+                </main>
+            </div>
         </div>
     </body>
 </html>

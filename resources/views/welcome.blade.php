@@ -4,7 +4,9 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Laravel</title>
+        <title>NEMSU Tandag | Student Information System</title>
+        <link rel="icon" type="image/png" href="{{ asset('images/nemsu-logo.png') }}">
+        <link rel="apple-touch-icon" href="{{ asset('images/nemsu-logo.png') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

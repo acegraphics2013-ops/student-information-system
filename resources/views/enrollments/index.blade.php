@@ -12,13 +12,11 @@
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h2 class="text-lg font-semibold text-gray-900">Enrollments</h2>
-                        <p class="mt-1 text-sm text-gray-500">Search by student, subject, or enrollment status.</p>
+                        <p class="mt-1 text-sm text-gray-500">Search for a student, then view their complete subject load.</p>
                     </div>
-                    @if (auth()->user()->role === 'admin')
-                        <a href="{{ route('enrollments.create') }}" class="inline-flex min-h-11 items-center justify-center rounded-md bg-indigo-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                            Enroll student
-                        </a>
-                    @endif
+                    <a href="{{ route('enrollments.create') }}" class="inline-flex min-h-11 items-center justify-center rounded-md bg-indigo-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        Enroll student
+                    </a>
                 </div>
 
                 <form method="GET" action="{{ route('enrollments.index') }}" role="search" class="rounded-lg border border-gray-200 bg-gray-50 p-4">
@@ -36,8 +34,8 @@
                     <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 px-4 py-3 sm:px-5">
                         <h3 class="font-semibold text-gray-900">Enrollment records</h3>
                         <p class="text-sm text-gray-500">
-                            @if ($enrollments->total() > 0)
-                                Showing {{ $enrollments->firstItem() }}–{{ $enrollments->lastItem() }} of {{ number_format($enrollments->total()) }}
+                            @if ($students->total() > 0)
+                                Showing {{ $students->firstItem() }}–{{ $students->lastItem() }} of {{ number_format($students->total()) }} students
                             @else
                                 No records found
                             @endif
@@ -48,54 +46,45 @@
                             <thead class="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
                                 <tr>
                                     <th scope="col" class="px-4 py-3 font-semibold">Student</th>
-                                    <th scope="col" class="px-4 py-3 font-semibold">Subject</th>
-                                    <th scope="col" class="px-4 py-3 font-semibold">Status</th>
+                                    <th scope="col" class="px-4 py-3 font-semibold">Subjects Loaded</th>
+                                    <th scope="col" class="px-4 py-3 font-semibold">Enrolled Units</th>
                                     <th scope="col" class="px-4 py-3 font-semibold">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
-                                @forelse ($enrollments as $enrollment)
+                                @forelse ($students as $student)
                                     <tr class="hover:bg-gray-50">
                                         <td class="whitespace-nowrap px-4 py-3 text-gray-700">
-                                            <span class="font-medium text-gray-900">{{ $enrollment->student->student_number }}</span>
+                                            <span class="font-medium text-gray-900">{{ $student->student_number }}</span>
                                             <span class="text-gray-500">—</span>
-                                            {{ $enrollment->student->first_name }} {{ $enrollment->student->last_name }}
+                                            {{ $student->first_name }} {{ $student->last_name }}
                                         </td>
                                         <td class="px-4 py-3 text-gray-700">
-                                            <span class="font-medium text-gray-900">{{ $enrollment->subject->subject_code }}</span>
-                                            <span class="text-gray-500">—</span>
-                                            {{ $enrollment->subject->subject_name }}
+                                            {{ $student->enrollments->count() }}
+                                        </td>
+                                        <td class="whitespace-nowrap px-4 py-3 text-gray-700">
+                                            {{ $student->enrollments
+                                                ->where('status', 'enrolled')
+                                                ->sum(fn ($enrollment) => (int) ($enrollment->subject?->units ?? 0)) }}
+                                            <span class="text-gray-500">/ 10</span>
                                         </td>
                                         <td class="whitespace-nowrap px-4 py-3">
-                                            <span class="inline-flex rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold capitalize text-gray-700">{{ $enrollment->status }}</span>
-                                        </td>
-                                        <td class="whitespace-nowrap px-4 py-3">
-                                            <div class="flex items-center gap-3">
-                                                <a href="{{ route('enrollments.show', $enrollment) }}" class="font-medium text-indigo-700 hover:text-indigo-900 focus:outline-none focus:underline">View</a>
-                                                @if (auth()->user()->role === 'admin')
-                                                    <a href="{{ route('enrollments.edit', $enrollment) }}" class="font-medium text-gray-600 hover:text-gray-900 focus:outline-none focus:underline">Edit</a>
-                                                    <form action="{{ route('enrollments.destroy', $enrollment) }}" method="POST" onsubmit="return confirm('Remove this enrollment record?')">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="font-medium text-red-600 hover:text-red-800 focus:outline-none focus:underline">Delete</button>
-                                                    </form>
-                                                @endif
-                                            </div>
+                                            <a href="{{ route('enrollments.show', $student->enrollments->first()) }}" class="font-medium text-indigo-700 hover:text-indigo-900 focus:outline-none focus:underline">View subjects</a>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
                                         <td colspan="4" class="px-4 py-12 text-center">
-                                            <p class="font-semibold text-gray-900">{{ $search !== '' ? 'No matching enrollments' : 'No enrollment records yet' }}</p>
-                                            <p class="mt-1 text-sm text-gray-500">{{ $search !== '' ? 'Try another search term or clear your search.' : 'Enrollment records will appear here after students are enrolled.' }}</p>
+                                            <p class="font-semibold text-gray-900">{{ $search !== '' ? 'No matching students' : 'No enrollment records yet' }}</p>
+                                            <p class="mt-1 text-sm text-gray-500">{{ $search !== '' ? 'Try another student, subject, or status search.' : 'Enrollment records will appear here after students are enrolled.' }}</p>
                                         </td>
                                     </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
-                    @if ($enrollments->hasPages())
-                        <div class="border-t border-gray-100 px-4 py-4 sm:px-5">{{ $enrollments->links() }}</div>
+                    @if ($students->hasPages())
+                        <div class="border-t border-gray-100 px-4 py-4 sm:px-5">{{ $students->links() }}</div>
                     @endif
                 </section>
             </section>

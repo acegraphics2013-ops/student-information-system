@@ -123,19 +123,13 @@ class StudentController extends Controller
                 'id' => $college->id,
                 'name' => $college->name,
                 'abbreviation' => $college->abbreviation,
-                'departments' => $college->departments
+                'programs' => $college->departments
+                    ->flatMap(fn ($department) => $department->programs)
                     ->sortBy('name')
                     ->values()
-                    ->map(fn ($department): array => [
-                        'id' => $department->id,
-                        'name' => $department->name,
-                        'programs' => $department->programs
-                            ->sortBy('name')
-                            ->values()
-                            ->map(fn (Program $program): array => [
-                                'id' => $program->id,
-                                'name' => $program->name,
-                            ]),
+                    ->map(fn (Program $program): array => [
+                        'id' => $program->id,
+                        'name' => $program->name,
                     ]),
             ])
             ->values();
@@ -158,10 +152,6 @@ class StudentController extends Controller
             'selectedCollegeId' => old(
                 'college_id',
                 $selectedProgram?->department?->college_id
-            ),
-            'selectedDepartmentId' => old(
-                'department_id',
-                $selectedProgram?->department_id
             ),
             'legacyCourse' => $legacyCourse,
         ];

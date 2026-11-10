@@ -42,7 +42,10 @@ class EnrollmentCrudTest extends TestCase
 
         $this->get(route('enrollments.create'))
             ->assertOk()
-            ->assertSee('Save Enrollment')
+            ->assertSee('Search by student number, name, or email.')
+            ->assertSee('Choose subjects')
+            ->assertSee('Select multiple subjects, up to 10 units total.')
+            ->assertSee('Enroll in Selected Subjects')
             ->assertSee('type="submit"', false);
     }
 
@@ -59,12 +62,18 @@ class EnrollmentCrudTest extends TestCase
 
         $this->post(route('enrollments.store'), [
             'student_id' => $student->id,
-            'subject_id' => $subject->id,
+            'subject_ids' => [$subject->id],
             'status' => 'enrolled',
         ])->assertRedirect(route('enrollments.index'));
 
         $enrollment = Enrollment::firstOrFail();
-        $this->get(route('enrollments.show', $enrollment))->assertOk();
+        $this->get(route('enrollments.index'))
+            ->assertOk()
+            ->assertSee('View subjects');
+        $this->get(route('enrollments.show', $enrollment))
+            ->assertOk()
+            ->assertSee('All Subjects Loaded')
+            ->assertSee('Introduction to Computing');
         $this->get(route('enrollments.edit', $enrollment))->assertOk();
 
         $this->put(route('enrollments.update', $enrollment), [
@@ -84,11 +93,16 @@ class EnrollmentCrudTest extends TestCase
         $this->assertDatabaseMissing('enrollments', ['id' => $enrollment->id]);
     }
 
-    public function test_staff_can_view_but_cannot_change_enrollments(): void
+    public function test_staff_can_enroll_update_and_unload_subjects(): void
     {
         $staff = User::factory()->create(['role' => 'staff']);
         $student = $this->sampleStudent();
         $subject = $this->sampleSubject();
+        $additionalSubject = Subject::create([
+            'subject_code' => 'IT102',
+            'subject_name' => 'Programming',
+            'units' => 3,
+        ]);
         $enrollment = Enrollment::create([
             'student_id' => $student->id,
             'subject_id' => $subject->id,
@@ -96,21 +110,40 @@ class EnrollmentCrudTest extends TestCase
         ]);
 
         $this->actingAs($staff);
-        $this->get(route('enrollments.index'))->assertOk();
-        $this->get(route('enrollments.show', $enrollment))->assertOk();
-        $this->get(route('enrollments.create'))->assertForbidden();
-        $this->get(route('enrollments.edit', $enrollment))->assertForbidden();
+        $this->get(route('enrollments.index'))
+            ->assertOk()
+            ->assertSee('Enroll student')
+            ->assertSee('View subjects')
+            ->assertDontSee('Unload');
+        $this->get(route('enrollments.show', $enrollment))
+            ->assertOk()
+            ->assertSee('Unload')
+            ->assertSee('Introduction to Computing');
+        $this->get(route('enrollments.create'))->assertOk();
+        $this->get(route('enrollments.edit', $enrollment))->assertOk();
+
         $this->post(route('enrollments.store'), [
             'student_id' => $student->id,
-            'subject_id' => $subject->id,
-            'status' => 'enrolled',
-        ])->assertForbidden();
+            'subject_ids' => [$additionalSubject->id],
+            'status' => 'dropped',
+        ])->assertRedirect(route('enrollments.index'));
+        $addedEnrollment = Enrollment::query()
+            ->where('status', 'dropped')
+            ->firstOrFail();
+
         $this->put(route('enrollments.update', $enrollment), [
             'student_id' => $student->id,
             'subject_id' => $subject->id,
-            'status' => 'completed',
-        ])->assertForbidden();
-        $this->delete(route('enrollments.destroy', $enrollment))->assertForbidden();
+            'status' => 'dropped',
+        ])->assertRedirect(route('enrollments.index'));
+        $this->assertDatabaseHas('enrollments', [
+            'id' => $enrollment->id,
+            'status' => 'dropped',
+        ]);
+
+        $this->delete(route('enrollments.destroy', $addedEnrollment))
+            ->assertRedirect(route('enrollments.index'));
+        $this->assertDatabaseMissing('enrollments', ['id' => $addedEnrollment->id]);
     }
 
     public function test_enrollment_search_matches_student_subject_and_status(): void
@@ -129,13 +162,54 @@ class EnrollmentCrudTest extends TestCase
         foreach (['2026-001', 'Maria Santos', 'maria@example.com', 'IT101', 'Introduction to Computing', 'completed'] as $search) {
             $this->get(route('enrollments.index', ['search' => $search]))
                 ->assertOk()
-                ->assertViewHas('enrollments', fn ($enrollments): bool => $enrollments->total() === 1
-                    && $enrollments->first()->status === 'completed');
+                ->assertViewHas('students', fn ($students): bool => $students->total() === 1
+                    && $students->first()->student_number === '2026-001');
         }
 
         $this->get(route('enrollments.index', ['search' => 'no-such-record']))
             ->assertOk()
-            ->assertSee('No matching enrollments');
+            ->assertSee('No matching students');
+    }
+
+    public function test_enrollment_list_shows_each_student_once_and_view_shows_all_subjects(): void
+    {
+        $student = $this->sampleStudent();
+        $firstSubject = $this->sampleSubject();
+        $secondSubject = Subject::create([
+            'subject_code' => 'IT102',
+            'subject_name' => 'Programming',
+            'units' => 4,
+        ]);
+        Enrollment::create([
+            'student_id' => $student->id,
+            'subject_id' => $firstSubject->id,
+            'status' => 'enrolled',
+        ]);
+        $secondEnrollment = Enrollment::create([
+            'student_id' => $student->id,
+            'subject_id' => $secondSubject->id,
+            'status' => 'completed',
+        ]);
+
+        $this->actingAs(User::factory()->create(['role' => 'staff']))
+            ->get(route('enrollments.index'))
+            ->assertOk()
+            ->assertViewHas('students', fn ($students): bool => $students->total() === 1
+                && $students->first()->enrollments->count() === 2)
+            ->assertSee('2026-001')
+            ->assertSee('View subjects');
+
+        $this->get(route('enrollments.show', $secondEnrollment))
+            ->assertOk()
+            ->assertSee('Introduction to Computing')
+            ->assertSee('Programming')
+            ->assertSee('All Subjects Loaded')
+            ->assertSee(route('enrollments.create', ['student_id' => $student->id]), false);
+
+        $this->get(route('enrollments.create', ['student_id' => $student->id]))
+            ->assertOk()
+            ->assertSee('Add Subjects to Student')
+            ->assertViewHas('initialStudentId', (string) $student->id);
     }
 
     public function test_enrollment_search_rejects_overlong_search_terms(): void
@@ -160,11 +234,107 @@ class EnrollmentCrudTest extends TestCase
 
         $this->actingAs($admin)->post(route('enrollments.store'), [
             'student_id' => $student->id,
-            'subject_id' => $subject->id,
+            'subject_ids' => [$subject->id],
             'status' => 'enrolled',
-        ])->assertSessionHasErrors('subject_id');
+        ])->assertSessionHasErrors('subject_ids');
 
         $this->assertDatabaseCount('enrollments', 1);
+    }
+
+    public function test_student_can_be_enrolled_in_multiple_subjects_up_to_ten_units(): void
+    {
+        $student = $this->sampleStudent();
+        $firstSubject = $this->sampleSubject();
+        $secondSubject = Subject::create([
+            'subject_code' => 'IT102',
+            'subject_name' => 'Programming',
+            'units' => 4,
+        ]);
+        $thirdSubject = Subject::create([
+            'subject_code' => 'IT103',
+            'subject_name' => 'Data Fundamentals',
+            'units' => 3,
+        ]);
+
+        $this->actingAs(User::factory()->create(['role' => 'staff']))
+            ->post(route('enrollments.store'), [
+                'student_id' => $student->id,
+                'subject_ids' => [$firstSubject->id, $secondSubject->id, $thirdSubject->id],
+                'status' => 'enrolled',
+            ])
+            ->assertRedirect(route('enrollments.index'));
+
+        $this->assertDatabaseCount('enrollments', 3);
+        $this->assertSame(10, (int) \Illuminate\Support\Facades\DB::table('enrollments')
+            ->join('subjects', 'enrollments.subject_id', '=', 'subjects.id')
+            ->where('enrollments.student_id', $student->id)
+            ->where('enrollments.status', 'enrolled')
+            ->sum('subjects.units'));
+    }
+
+    public function test_enrollment_cannot_exceed_ten_units_including_current_load(): void
+    {
+        $student = $this->sampleStudent();
+        $existingSubject = $this->sampleSubject();
+        $firstNewSubject = Subject::create([
+            'subject_code' => 'IT102',
+            'subject_name' => 'Programming',
+            'units' => 4,
+        ]);
+        $secondNewSubject = Subject::create([
+            'subject_code' => 'IT103',
+            'subject_name' => 'Data Fundamentals',
+            'units' => 4,
+        ]);
+        Enrollment::create([
+            'student_id' => $student->id,
+            'subject_id' => $existingSubject->id,
+            'status' => 'enrolled',
+        ]);
+
+        $this->actingAs(User::factory()->create(['role' => 'staff']))
+            ->post(route('enrollments.store'), [
+                'student_id' => $student->id,
+                'subject_ids' => [$firstNewSubject->id, $secondNewSubject->id],
+                'status' => 'enrolled',
+            ])
+            ->assertSessionHasErrors('subject_ids');
+
+        $this->assertDatabaseCount('enrollments', 1);
+    }
+
+    public function test_updating_an_enrollment_cannot_exceed_ten_active_units(): void
+    {
+        $student = $this->sampleStudent();
+        $eightUnitSubject = Subject::create([
+            'subject_code' => 'IT108',
+            'subject_name' => 'Advanced Computing',
+            'units' => 8,
+        ]);
+        $threeUnitSubject = $this->sampleSubject();
+        Enrollment::create([
+            'student_id' => $student->id,
+            'subject_id' => $eightUnitSubject->id,
+            'status' => 'enrolled',
+        ]);
+        $enrollmentToActivate = Enrollment::create([
+            'student_id' => $student->id,
+            'subject_id' => $threeUnitSubject->id,
+            'status' => 'dropped',
+        ]);
+
+        $this->actingAs(User::factory()->create(['role' => 'staff']))
+            ->put(route('enrollments.update', $enrollmentToActivate), [
+                'student_id' => $student->id,
+                'subject_id' => $threeUnitSubject->id,
+                'status' => 'enrolled',
+            ])
+            ->assertSessionHasErrors('subject_id');
+
+        $this->assertDatabaseHas('enrollments', [
+            'id' => $enrollmentToActivate->id,
+            'status' => 'dropped',
+        ]);
     }
 
     public function test_duplicate_student_subject_pair_is_rejected_on_update(): void
@@ -210,9 +380,9 @@ class EnrollmentCrudTest extends TestCase
 
         $this->actingAs($admin)->post(route('enrollments.store'), [
             'student_id' => 999999,
-            'subject_id' => 999999,
+            'subject_ids' => [999999],
             'status' => 'invalid',
-        ])->assertSessionHasErrors(['student_id', 'subject_id', 'status']);
+        ])->assertSessionHasErrors(['student_id', 'subject_ids.0', 'status']);
     }
 
     public function test_missing_enrollment_pages_return_not_found(): void

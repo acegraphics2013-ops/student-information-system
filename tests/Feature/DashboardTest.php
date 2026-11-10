@@ -50,6 +50,9 @@ class DashboardTest extends TestCase
             ->assertViewHas('collegeCount', 7)
             ->assertViewHas('departmentCount', 13)
             ->assertViewHas('programCount', 22)
+            ->assertSee('NEMSU official logo')
+            ->assertSee('images/nemsu-logo.png')
+            ->assertSee('<title>NEMSU Tandag | Student Information System</title>', false)
             ->assertSee('Welcome back')
             ->assertSee('System overview')
             ->assertSee('Students')
@@ -57,7 +60,28 @@ class DashboardTest extends TestCase
             ->assertSee('Enrollments')
             ->assertSee('Academic program catalog')
             ->assertSee('Browse programs')
-            ->assertSee('Profile')
+            ->assertSee('Profile settings')
+            ->assertSee('Toggle account options')
+            ->assertSee('Account options')
             ->assertSee('Log Out');
+    }
+
+    public function test_sidebar_shows_administration_links_only_to_admins(): void
+    {
+        $staffResponse = $this->actingAs(User::factory()->create(['role' => 'staff']))
+            ->get(route('dashboard'));
+
+        $staffResponse->assertOk()
+            ->assertSee('Main sidebar')
+            ->assertSee('Students')
+            ->assertSee('Enrollments')
+            ->assertDontSee('User Accounts');
+
+        $adminResponse = $this->actingAs(User::factory()->create(['role' => 'admin']))
+            ->get(route('dashboard'));
+
+        $adminResponse->assertOk()
+            ->assertSee('Administration')
+            ->assertSee('User Accounts');
     }
 }

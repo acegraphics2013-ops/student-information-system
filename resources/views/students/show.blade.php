@@ -35,12 +35,10 @@
                         Back to Students
                     </a>
 
-                    @if(auth()->user()->role === 'admin')
-                        <a href="{{ route('students.edit', $student) }}"
-                           class="text-amber-600">
-                            Edit Student
-                        </a>
-                    @endif
+                    <a href="{{ route('students.edit', $student) }}"
+                       class="text-amber-600">
+                        Edit Student
+                    </a>
                 </div>
 
             </div>

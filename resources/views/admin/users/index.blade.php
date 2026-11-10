@@ -4,14 +4,22 @@
             <div>
                 <p class="text-sm font-semibold uppercase tracking-wide text-indigo-600">Administration</p>
                 <h1 class="mt-1 text-2xl font-semibold tracking-tight text-gray-900">User accounts</h1>
-                <p class="mt-1 text-sm text-gray-500">Review registered accounts and manage access roles.</p>
+                <p class="mt-1 text-sm text-gray-500">Create accounts, update details and roles, or remove access.</p>
             </div>
-            <a href="{{ route('admin.index') }}" class="inline-flex min-h-10 items-center rounded-md border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Back to dashboard</a>
+            <div class="flex flex-wrap gap-2">
+                <a href="{{ route('admin.index') }}" class="inline-flex min-h-10 items-center rounded-md border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Back to dashboard</a>
+                <a href="{{ route('admin.users.create') }}" class="inline-flex min-h-10 items-center rounded-md bg-indigo-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Add user</a>
+            </div>
         </div>
     </x-slot>
 
     <main class="py-10">
         <div class="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
+            @if ($errors->any())
+                <div role="alert" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                    <ul class="list-inside list-disc">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+                </div>
+            @endif
             <section aria-label="User account filters" class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
                 <form method="GET" action="{{ route('admin.users.index') }}" class="grid gap-4 sm:grid-cols-[minmax(0,1fr)_15rem_auto] sm:items-end">
                     <div>
@@ -75,7 +83,16 @@
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-gray-600">{{ $user->created_at?->format('M j, Y') ?? '—' }}</td>
                                     <td class="whitespace-nowrap px-6 py-4 text-right">
-                                        <a href="{{ route('admin.users.edit', $user) }}" class="inline-flex min-h-9 items-center rounded-md px-3 text-sm font-semibold text-indigo-700 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Manage role for {{ $user->name }}">Manage role</a>
+                                        <div class="inline-flex items-center gap-1">
+                                            <a href="{{ route('admin.users.edit', $user) }}" class="inline-flex min-h-9 items-center rounded-md px-3 text-sm font-semibold text-indigo-700 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Edit {{ $user->name }}">Edit</a>
+                                            @if (! auth()->user()->is($user) && ($user->role !== 'admin' || $adminCount > 1))
+                                                <form method="POST" action="{{ route('admin.users.destroy', $user) }}" onsubmit="return confirm('Delete this user account? This action cannot be undone.')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="inline-flex min-h-9 items-center rounded-md px-3 text-sm font-semibold text-red-700 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500" aria-label="Delete {{ $user->name }}">Delete</button>
+                                                </form>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
@@ -99,7 +116,16 @@
                             </div>
                             <div class="mt-4 flex items-center justify-between gap-3">
                                 <p class="text-xs text-gray-500">Registered {{ $user->created_at?->format('M j, Y') ?? '—' }}</p>
-                                <a href="{{ route('admin.users.edit', $user) }}" class="inline-flex min-h-9 items-center rounded-md px-3 text-sm font-semibold text-indigo-700 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Manage role for {{ $user->name }}">Manage role</a>
+                                <div class="flex items-center gap-1">
+                                    <a href="{{ route('admin.users.edit', $user) }}" class="inline-flex min-h-9 items-center rounded-md px-3 text-sm font-semibold text-indigo-700 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Edit {{ $user->name }}">Edit</a>
+                                    @if (! auth()->user()->is($user) && ($user->role !== 'admin' || $adminCount > 1))
+                                        <form method="POST" action="{{ route('admin.users.destroy', $user) }}" onsubmit="return confirm('Delete the selected user account? This action cannot be undone.')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="inline-flex min-h-9 items-center rounded-md px-3 text-sm font-semibold text-red-700 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500" aria-label="Delete {{ $user->name }}">Delete</button>
+                                        </form>
+                                    @endif
+                                </div>
                             </div>
                         </article>
                     @empty

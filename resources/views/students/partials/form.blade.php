@@ -77,24 +77,13 @@
             x-data="{
                 colleges: @js($academicCatalog),
                 collegeId: @js((string) ($selectedCollegeId ?? '')),
-                departmentId: @js((string) ($selectedDepartmentId ?? '')),
                 course: @js(old('course', $student?->course ?? '')),
                 legacyCourse: @js($legacyCourse),
                 get selectedCollege() {
                     return this.colleges.find((college) => String(college.id) === String(this.collegeId));
                 },
-                get departments() {
-                    return this.selectedCollege?.departments ?? [];
-                },
-                get selectedDepartment() {
-                    return this.departments.find((department) => String(department.id) === String(this.departmentId));
-                },
                 get programs() {
-                    return this.selectedDepartment?.programs ?? [];
-                },
-                resetDepartment() {
-                    this.departmentId = '';
-                    this.course = '';
+                    return this.selectedCollege?.programs ?? [];
                 },
                 resetCourse() {
                     this.course = '';
@@ -110,7 +99,7 @@
                 <select id="college_id"
                         name="college_id"
                         x-model="collegeId"
-                        @change="resetDepartment()"
+                        @change="resetCourse()"
                         :required="!preservingLegacyCourse"
                         class="block mt-1 w-full border-gray-300 rounded-md shadow-sm">
                     <option value="">Select a college</option>
@@ -122,33 +111,16 @@
             </div>
 
             <div>
-                <x-input-label for="department_id" value="Department" />
-                <select id="department_id"
-                        name="department_id"
-                        x-model="departmentId"
-                        @change="resetCourse()"
-                        :required="!preservingLegacyCourse"
-                        :disabled="!collegeId"
-                        class="block mt-1 w-full border-gray-300 rounded-md shadow-sm disabled:bg-gray-100">
-                    <option value="">Select a department</option>
-                    <template x-for="department in departments" :key="department.id">
-                        <option :value="String(department.id)" x-text="department.name"></option>
-                    </template>
-                </select>
-                <x-input-error :messages="$errors->get('department_id')" class="mt-2" />
-            </div>
-
-            <div>
                 <x-input-label for="course" value="Degree Program" />
                 <select id="course"
                         name="course"
                         x-model="course"
                         :required="!preservingLegacyCourse"
-                        :disabled="!departmentId && !preservingLegacyCourse"
+                        :disabled="!collegeId && !preservingLegacyCourse"
                         class="block mt-1 w-full border-gray-300 rounded-md shadow-sm disabled:bg-gray-100">
                     <option value="">Select a degree program</option>
                     @if ($legacyCourse)
-                        <option value="{{ $legacyCourse }}" x-show="!departmentId">
+                        <option value="{{ $legacyCourse }}" x-show="!collegeId">
                             Existing program (not in current catalog): {{ $legacyCourse }}
                         </option>
                     @endif

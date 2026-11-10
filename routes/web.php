@@ -37,16 +37,15 @@ Route::middleware('auth')->group(function () {
         ->group(function (): void {
             Route::get('/', AdminDashboardController::class)->name('index');
             Route::resource('users', AdminUserController::class)
-                ->only(['index', 'show', 'edit', 'update']);
+                ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
         });
 
     Route::get('/academic-programs', [AcademicProgramController::class, 'index'])
         ->name('academic-programs.index');
 
     Route::resource('students', StudentController::class)
-        ->middleware('auth')
         ->middlewareFor(
-            ['create', 'store', 'edit', 'update', 'destroy'],
+            ['destroy'],
             'role:admin'
         );
 
@@ -56,14 +55,12 @@ Route::middleware('auth')->group(function () {
             'role:admin'
         );
 
-    Route::resource('enrollments', EnrollmentController::class)
-        ->middlewareFor(
-            ['create', 'store', 'edit', 'update', 'destroy'],
-            'role:admin'
-        );
+    Route::resource('enrollments', EnrollmentController::class);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo.update');
+    Route::delete('/profile/photo', [ProfileController::class, 'deletePhoto'])->name('profile.photo.destroy');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 

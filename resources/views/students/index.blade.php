@@ -18,12 +18,10 @@
                         <p class="mt-1 text-sm text-gray-500">Search by student number, name, email, or degree program.</p>
                     </div>
 
-                    @if(auth()->user()->role === 'admin')
-                        <a href="{{ route('students.create') }}"
-                           class="inline-flex min-h-11 items-center justify-center rounded-md bg-indigo-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                            Add student
-                        </a>
-                    @endif
+                    <a href="{{ route('students.create') }}"
+                       class="inline-flex min-h-11 items-center justify-center rounded-md bg-indigo-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        Add student
+                    </a>
                 </div>
 
                 <form method="GET" action="{{ route('students.index') }}" role="search" class="rounded-lg border border-gray-200 bg-gray-50 p-4">
@@ -99,12 +97,12 @@
                                                 View
                                             </a>
 
-                                            @if(auth()->user()->role === 'admin')
-                                                <a href="{{ route('students.edit', $student) }}"
-                                                   class="font-medium text-gray-600 hover:text-gray-900 focus:outline-none focus:underline">
-                                                    Edit
-                                                </a>
+                                            <a href="{{ route('students.edit', $student) }}"
+                                               class="font-medium text-gray-600 hover:text-gray-900 focus:outline-none focus:underline">
+                                                Edit
+                                            </a>
 
+                                            @if(auth()->user()->role === 'admin')
                                                 <form method="POST"
                                                       action="{{ route('students.destroy', $student) }}"
                                                       onsubmit="return confirm('Delete this student and all related enrollments?')">
