@@ -24,9 +24,35 @@
                             <ul class="mt-2 list-inside list-disc">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
                         </div>
                     @endif
-                    <form method="POST" action="{{ route('admin.users.update', $user) }}" class="space-y-6">
+                    <form method="POST" action="{{ route('admin.users.update', $user) }}" enctype="multipart/form-data" class="space-y-6">
                         @csrf
                         @method('PATCH')
+                        <section class="space-y-4 border-b border-gray-100 pb-6" aria-labelledby="profile-photo-heading">
+                            <div>
+                                <h3 id="profile-photo-heading" class="text-sm font-semibold text-gray-900">Profile photo</h3>
+                                <p class="mt-1 text-sm text-gray-500">JPG, PNG, or WebP up to 2 MB.</p>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-indigo-100 text-xl font-semibold text-indigo-700">
+                                    @if ($user->profile_photo_path)
+                                        <img src="{{ asset('storage/'.$user->profile_photo_path) }}" alt="{{ $user->name }} profile photo" class="h-full w-full object-cover">
+                                    @else
+                                        {{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($user->name, 0, 1)) }}
+                                    @endif
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <label for="profile_photo" class="block text-sm font-medium text-gray-700">Upload or replace photo</label>
+                                    <input id="profile_photo" name="profile_photo" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" class="mt-2 block w-full rounded-md border border-gray-300 bg-white text-sm text-gray-700 file:mr-4 file:min-h-10 file:border-0 file:bg-gray-50 file:px-4 file:font-semibold file:text-gray-700 hover:file:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    @error('profile_photo')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                                    @if ($user->profile_photo_path)
+                                        <label class="mt-3 inline-flex items-center gap-2 text-sm text-gray-700">
+                                            <input type="checkbox" name="remove_profile_photo" value="1" @checked(old('remove_profile_photo')) class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                            Remove current photo
+                                        </label>
+                                    @endif
+                                </div>
+                            </div>
+                        </section>
                         <div>
                             <label for="name" class="block text-sm font-semibold text-gray-700">Full name</label>
                             <input id="name" name="name" type="text" value="{{ old('name', $user->name) }}" required maxlength="255" autocomplete="name" class="mt-2 block min-h-11 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">

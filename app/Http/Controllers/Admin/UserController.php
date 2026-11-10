@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Throwable;
 
 class UserController extends Controller
 {
@@ -57,18 +58,34 @@ class UserController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'role' => ['required', Rule::in(['admin', 'staff'])],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'profile_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
-        $user = DB::transaction(function () use ($validated): User {
-            $user = new User;
-            $user->name = $validated['name'];
-            $user->email = $validated['email'];
-            $user->role = $validated['role'];
-            $user->password = $validated['password'];
-            $user->save();
+        $photoPath = $request->file('profile_photo')?->store('profile-photos', 'public');
 
-            return $user;
-        });
+        if ($request->hasFile('profile_photo') && $photoPath === false) {
+            abort(500, 'The profile photo could not be saved.');
+        }
+
+        try {
+            $user = DB::transaction(function () use ($validated, $photoPath): User {
+                $user = new User;
+                $user->name = $validated['name'];
+                $user->email = $validated['email'];
+                $user->role = $validated['role'];
+                $user->password = $validated['password'];
+                $user->profile_photo_path = $photoPath;
+                $user->save();
+
+                return $user;
+            });
+        } catch (Throwable $exception) {
+            if ($photoPath) {
+                Storage::disk('public')->delete($photoPath);
+            }
+
+            throw $exception;
+        }
 
         return redirect()
             ->route('admin.users.show', $user)
@@ -102,6 +119,8 @@ class UserController extends Controller
             ],
             'role' => ['required', Rule::in(['admin', 'staff'])],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'profile_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'remove_profile_photo' => ['sometimes', 'boolean'],
         ]);
         $actor = $request->user();
 
@@ -111,34 +130,59 @@ class UserController extends Controller
             ]);
         }
 
-        DB::transaction(function () use ($user, $validated): void {
-            $account = User::query()
-                ->lockForUpdate()
-                ->findOrFail($user->id);
-            if (array_key_exists('name', $validated)) {
-                $account->name = $validated['name'];
-            }
-            if (array_key_exists('email', $validated)) {
-                $account->email = $validated['email'];
-            }
-            $account->role = $validated['role'];
-            if (! empty($validated['password'])) {
-                $account->password = $validated['password'];
-            }
-            $account->save();
+        $photoPath = $request->file('profile_photo')?->store('profile-photos', 'public');
 
-            if (
-                $validated['role'] !== 'admin'
-                && User::query()
-                    ->where('role', 'admin')
+        if ($request->hasFile('profile_photo') && $photoPath === false) {
+            abort(500, 'The profile photo could not be saved.');
+        }
+
+        $previousPhoto = $user->profile_photo_path;
+        try {
+            DB::transaction(function () use ($user, $validated, $photoPath): void {
+                $account = User::query()
                     ->lockForUpdate()
-                    ->count() === 0
-            ) {
-                throw ValidationException::withMessages([
-                    'role' => 'The last administrator account cannot be demoted.',
-                ]);
+                    ->findOrFail($user->id);
+                if (array_key_exists('name', $validated)) {
+                    $account->name = $validated['name'];
+                }
+                if (array_key_exists('email', $validated)) {
+                    $account->email = $validated['email'];
+                }
+                $account->role = $validated['role'];
+                if (! empty($validated['password'])) {
+                    $account->password = $validated['password'];
+                }
+                if ($photoPath) {
+                    $account->profile_photo_path = $photoPath;
+                } elseif (! empty($validated['remove_profile_photo'])) {
+                    $account->profile_photo_path = null;
+                }
+                $account->save();
+
+                if (
+                    $validated['role'] !== 'admin'
+                    && User::query()
+                        ->where('role', 'admin')
+                        ->lockForUpdate()
+                        ->count() === 0
+                ) {
+                    throw ValidationException::withMessages([
+                        'role' => 'The last administrator account cannot be demoted.',
+                    ]);
+                }
+            });
+        } catch (Throwable $exception) {
+            if ($photoPath) {
+                Storage::disk('public')->delete($photoPath);
             }
-        });
+
+            throw $exception;
+        }
+
+        $user->refresh();
+        if ($previousPhoto && $previousPhoto !== $user->profile_photo_path) {
+            Storage::disk('public')->delete($previousPhoto);
+        }
 
         return redirect()
             ->route('admin.users.show', $user)

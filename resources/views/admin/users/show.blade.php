@@ -30,7 +30,16 @@
                 <div class="border-b border-gray-100 bg-gray-50/70 px-6 py-5 sm:px-8">
                     <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Account profile</p>
                     <div class="mt-2 flex flex-wrap items-center justify-between gap-4">
-                        <h2 class="text-xl font-semibold tracking-tight text-gray-900">{{ $user->name }}</h2>
+                        <div class="flex min-w-0 items-center gap-3">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-indigo-100 text-lg font-semibold text-indigo-700">
+                                @if ($user->profile_photo_path)
+                                    <img src="{{ asset('storage/'.$user->profile_photo_path) }}" alt="{{ $user->name }} profile photo" class="h-full w-full object-cover">
+                                @else
+                                    {{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($user->name, 0, 1)) }}
+                                @endif
+                            </div>
+                            <h2 class="truncate text-xl font-semibold tracking-tight text-gray-900">{{ $user->name }}</h2>
+                        </div>
                         <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold {{ $user->role === 'admin' ? 'bg-indigo-50 text-indigo-800 ring-1 ring-indigo-200' : 'bg-gray-100 text-gray-700 ring-1 ring-gray-200' }}">
                             <span aria-hidden="true" class="h-2 w-2 rounded-full {{ $user->role === 'admin' ? 'bg-indigo-600' : 'bg-gray-500' }}"></span>
                             {{ $user->role === 'admin' ? 'Administrator' : 'Staff' }}

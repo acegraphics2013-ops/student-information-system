@@ -24,8 +24,12 @@
                 <div class="absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-blue-500/20 blur-3xl"></div>
                 <div class="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div class="flex items-center gap-4">
-                        <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20 backdrop-blur">
-                            <span class="text-2xl font-bold">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr(auth()->user()->name, 0, 1)) }}</span>
+                        <div class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white/10 ring-1 ring-white/20 backdrop-blur">
+                            @if (auth()->user()->profile_photo_path)
+                                <img src="{{ asset('storage/'.auth()->user()->profile_photo_path) }}" alt="{{ auth()->user()->name }} profile photo" class="h-full w-full object-cover">
+                            @else
+                                <span class="text-2xl font-bold">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr(auth()->user()->name, 0, 1)) }}</span>
+                            @endif
                         </div>
                         <div>
                             <p class="text-sm font-medium text-blue-200">Welcome back</p>

@@ -156,6 +156,11 @@ class StudentCrudTest extends TestCase
             'email' => 'existing@example.com',
         ]));
 
+        $this->get(route('students.create'))
+            ->assertOk()
+            ->assertSee('Year 5')
+            ->assertDontSee('Year 6');
+
         $this->from(route('students.create'))
             ->post(route('students.store'), [
                 'student_number' => $existing->student_number,
@@ -176,6 +181,20 @@ class StudentCrudTest extends TestCase
             ]);
 
         $this->assertDatabaseCount('students', 1);
+
+        $this->from(route('students.create'))
+            ->post(route('students.store'), $this->studentData([
+                'student_number' => 'SIMS-1004',
+                'email' => 'year-six@example.com',
+                'year_level' => 6,
+            ]))
+            ->assertRedirect(route('students.create'))
+            ->assertSessionHasErrors('year_level');
+
+        $this->get(route('students.edit', $existing))
+            ->assertOk()
+            ->assertSee('Year 5')
+            ->assertDontSee('Year 6');
 
         $this->from(route('students.create'))
             ->post(route('students.store'), $this->studentData([

@@ -64,7 +64,7 @@ class StudentDataRequest extends FormRequest
                 $this->uniqueRule('email', $student),
             ],
             'course' => [...$required, 'string', 'max:150', Rule::in($validCourses)],
-            'year_level' => [...$required, 'integer', 'between:1,6'],
+            'year_level' => [...$required, 'integer', 'between:1,5'],
             'college_id' => $isWebForm
                 ? [
                     ...$selectorRequired,

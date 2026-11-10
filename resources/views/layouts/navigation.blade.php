@@ -16,7 +16,7 @@
     >
         <div class="flex h-16 shrink-0 items-center justify-between border-b border-gray-100 px-5">
             <a href="{{ route('dashboard') }}" class="flex items-center gap-2 text-xl font-bold tracking-tight text-indigo-700">
-                <img src="{{ asset('images/nemsu-logo.png') }}" alt="" class="h-10 w-10 object-contain">
+                <img src="{{ asset('images/nemsu-logo.png') }}" alt="NEMSU official logo" class="h-10 w-10 object-contain">
                 <span>SIMS BY: ACE</span>
             </a>
             <button
@@ -121,7 +121,7 @@
         <div class="shrink-0 border-t border-gray-100 p-3" x-data="{ accountMenuOpen: false }">
             <div class="flex items-center gap-3 rounded-lg px-2 py-2">
                 @if (Auth::user()->profile_photo_path)
-                    <img src="{{ asset('storage/'.Auth::user()->profile_photo_path) }}" alt="" class="h-10 w-10 shrink-0 rounded-full object-cover">
+                    <img src="{{ asset('storage/'.Auth::user()->profile_photo_path) }}" alt="{{ Auth::user()->name }} profile photo" class="h-10 w-10 shrink-0 rounded-full object-cover">
                 @else
                     <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-700">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr(Auth::user()->name, 0, 1)) }}</span>
                 @endif

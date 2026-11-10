@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Database\Seeders\SubjectCatalogSeeder;
 use Tests\TestCase;
 
 class SubjectCrudTest extends TestCase
@@ -146,6 +147,24 @@ class SubjectCrudTest extends TestCase
             ->assertSee('SUB001')
             ->assertSee('SUB015')
             ->assertViewHas('subjects', fn ($subjects): bool => $subjects->count() === 15);
+    }
+
+    public function test_supplied_subject_catalog_is_seeded_and_displayed_in_full(): void
+    {
+        $this->seed(SubjectCatalogSeeder::class);
+        $this->seed(SubjectCatalogSeeder::class);
+
+        $this->actingAs(User::factory()->create(['role' => 'staff']))
+            ->get(route('subjects.index'))
+            ->assertOk()
+            ->assertSee('Showing all 20 subjects')
+            ->assertSee('GE101')
+            ->assertSee('Understanding the Self')
+            ->assertSee('IT202')
+            ->assertSee('Database Management Systems')
+            ->assertSee('NSTP101')
+            ->assertSee('National Service Training Program 1')
+            ->assertViewHas('subjects', fn ($subjects): bool => $subjects->count() === 20);
     }
 
     public function test_subject_search_rejects_overlong_search_terms(): void

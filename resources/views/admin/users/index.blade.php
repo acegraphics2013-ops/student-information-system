@@ -72,8 +72,19 @@
                             @forelse ($users as $user)
                                 <tr class="transition-colors hover:bg-gray-50/80">
                                     <td class="px-6 py-4">
-                                        <a href="{{ route('admin.users.show', $user) }}" class="font-semibold text-gray-900 hover:text-indigo-700">{{ $user->name }}</a>
-                                        <p class="mt-1 text-gray-500">{{ $user->email }}</p>
+                                        <div class="flex items-center gap-3">
+                                            <div class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-indigo-100 text-sm font-semibold text-indigo-700">
+                                                @if ($user->profile_photo_path)
+                                                    <img src="{{ asset('storage/'.$user->profile_photo_path) }}" alt="{{ $user->name }} profile photo" class="h-full w-full object-cover">
+                                                @else
+                                                    {{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($user->name, 0, 1)) }}
+                                                @endif
+                                            </div>
+                                            <div class="min-w-0">
+                                                <a href="{{ route('admin.users.show', $user) }}" class="font-semibold text-gray-900 hover:text-indigo-700">{{ $user->name }}</a>
+                                                <p class="mt-1 text-gray-500">{{ $user->email }}</p>
+                                            </div>
+                                        </div>
                                     </td>
                                     <td class="px-6 py-4">
                                         <span class="inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-semibold {{ $user->role === 'admin' ? 'bg-indigo-50 text-indigo-800 ring-1 ring-indigo-200' : 'bg-gray-100 text-gray-700 ring-1 ring-gray-200' }}">
@@ -108,9 +119,18 @@
                     @forelse ($users as $user)
                         <article class="p-4">
                             <div class="flex items-start justify-between gap-3">
-                                <div class="min-w-0">
-                                    <a href="{{ route('admin.users.show', $user) }}" class="break-words font-semibold text-gray-900 hover:text-indigo-700">{{ $user->name }}</a>
-                                    <p class="mt-1 break-all text-sm text-gray-500">{{ $user->email }}</p>
+                                <div class="flex min-w-0 items-center gap-3">
+                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-indigo-100 text-sm font-semibold text-indigo-700">
+                                        @if ($user->profile_photo_path)
+                                            <img src="{{ asset('storage/'.$user->profile_photo_path) }}" alt="{{ $user->name }} profile photo" class="h-full w-full object-cover">
+                                        @else
+                                            {{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($user->name, 0, 1)) }}
+                                        @endif
+                                    </div>
+                                    <div class="min-w-0">
+                                        <a href="{{ route('admin.users.show', $user) }}" class="break-words font-semibold text-gray-900 hover:text-indigo-700">{{ $user->name }}</a>
+                                        <p class="mt-1 break-all text-sm text-gray-500">{{ $user->email }}</p>
+                                    </div>
                                 </div>
                                 <span class="shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold {{ $user->role === 'admin' ? 'bg-indigo-50 text-indigo-800 ring-1 ring-indigo-200' : 'bg-gray-100 text-gray-700 ring-1 ring-gray-200' }}">{{ $user->role === 'admin' ? 'Admin' : 'Staff' }}</span>
                             </div>

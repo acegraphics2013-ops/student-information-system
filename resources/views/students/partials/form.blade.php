@@ -143,7 +143,7 @@
                     class="block mt-1 w-full border-gray-300 rounded-md shadow-sm">
                 <option value="">Select Year Level</option>
 
-                @for($year = 1; $year <= 6; $year++)
+                @for($year = 1; $year <= 5; $year++)
                     <option value="{{ $year }}"
                         @selected(old('year_level', $student?->year_level) == $year)>
                         Year {{ $year }}

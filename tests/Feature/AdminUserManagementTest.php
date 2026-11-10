@@ -5,11 +5,21 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class AdminUserManagementTest extends TestCase
 {
     use RefreshDatabase;
+
+    private function tinyPng(): string
+    {
+        return base64_decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADUlEQVR4nGP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC',
+            true
+        );
+    }
 
     public function test_admin_can_search_view_and_filter_user_accounts(): void
     {
@@ -55,6 +65,8 @@ class AdminUserManagementTest extends TestCase
         $this->get(route('admin.users.edit', $staff))
             ->assertOk()
             ->assertSee('Access role')
+            ->assertSee('Profile photo')
+            ->assertSee('enctype="multipart/form-data"', false)
             ->assertSee('least privileged role')
             ->assertSee('Save changes');
 
@@ -107,6 +119,69 @@ class AdminUserManagementTest extends TestCase
         $this->assertSame('New Staff Member', $user->name);
         $this->assertSame('staff', $user->role);
         $this->assertTrue(password_verify('secure-pass-123', $user->password));
+    }
+
+    public function test_admin_can_upload_replace_and_remove_any_users_profile_photo(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->create(['role' => 'admin']);
+        $staff = User::factory()->create(['role' => 'staff']);
+
+        $this->actingAs($admin)
+            ->patch(route('admin.users.update', $staff), [
+                'role' => 'staff',
+                'profile_photo' => UploadedFile::fake()->createWithContent('staff-photo.png', $this->tinyPng()),
+            ])
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('admin.users.show', $staff));
+
+        $staff->refresh();
+        $firstPhoto = $staff->profile_photo_path;
+        $this->assertNotNull($firstPhoto);
+        Storage::disk('public')->assertExists($firstPhoto);
+        $this->get(route('admin.users.show', $staff))
+            ->assertOk()
+            ->assertSee('src="'.asset('storage/'.$firstPhoto).'"', false);
+
+        $this->patch(route('admin.users.update', $staff), [
+            'role' => 'staff',
+            'profile_photo' => UploadedFile::fake()->createWithContent('replacement-photo.png', $this->tinyPng()),
+        ])->assertSessionHasNoErrors();
+
+        $staff->refresh();
+        $replacementPhoto = $staff->profile_photo_path;
+        $this->assertNotSame($firstPhoto, $replacementPhoto);
+        Storage::disk('public')->assertMissing($firstPhoto);
+        Storage::disk('public')->assertExists($replacementPhoto);
+
+        $this->patch(route('admin.users.update', $staff), [
+            'role' => 'staff',
+            'remove_profile_photo' => '1',
+        ])->assertSessionHasNoErrors();
+
+        $this->assertNull($staff->refresh()->profile_photo_path);
+        Storage::disk('public')->assertMissing($replacementPhoto);
+    }
+
+    public function test_admin_user_creation_accepts_an_optional_profile_photo(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)
+            ->post(route('admin.users.store'), [
+                'name' => 'Photo Staff Member',
+                'email' => 'photo.staff@example.com',
+                'role' => 'staff',
+                'password' => 'secure-pass-123',
+                'password_confirmation' => 'secure-pass-123',
+                'profile_photo' => UploadedFile::fake()->createWithContent('new-user-photo.png', $this->tinyPng()),
+            ])
+            ->assertSessionHasNoErrors();
+
+        $user = User::where('email', 'photo.staff@example.com')->firstOrFail();
+        $this->assertNotNull($user->profile_photo_path);
+        Storage::disk('public')->assertExists($user->profile_photo_path);
     }
 
     public function test_account_creation_rejects_duplicate_email_invalid_role_and_unconfirmed_password(): void

@@ -41,7 +41,11 @@ class DashboardTest extends TestCase
             'subject_id' => $subject->id,
         ]);
 
-        $this->actingAs(User::factory()->create())
+        $user = User::factory()->create([
+            'profile_photo_path' => 'profile-photos/dashboard-user.png',
+        ]);
+
+        $this->actingAs($user)
             ->get(route('dashboard'))
             ->assertOk()
             ->assertViewHas('studentCount', 1)
@@ -54,11 +58,13 @@ class DashboardTest extends TestCase
             ->assertSee('images/nemsu-logo.png')
             ->assertSee('<title>NEMSU Tandag | Student Information System</title>', false)
             ->assertSee('Welcome back')
-            ->assertSee('System overview')
+            ->assertSee('src="'.asset('storage/'.$user->profile_photo_path).'"', false)
+            ->assertSee($user->name.' profile photo')
+            ->assertSee('System Overview')
             ->assertSee('Students')
             ->assertSee('Subjects')
             ->assertSee('Enrollments')
-            ->assertSee('Academic program catalog')
+            ->assertSee('Academic Program Catalog')
             ->assertSee('Browse programs')
             ->assertSee('Profile settings')
             ->assertSee('Toggle account options')

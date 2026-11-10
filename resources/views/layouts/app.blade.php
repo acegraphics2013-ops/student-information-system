@@ -61,7 +61,7 @@
                         </svg>
                     </button>
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-2 text-lg font-bold tracking-tight text-indigo-700">
-                        <img src="{{ asset('images/nemsu-logo.png') }}" alt="" class="h-9 w-9 object-contain">
+                        <img src="{{ asset('images/nemsu-logo.png') }}" alt="NEMSU official logo" class="h-9 w-9 object-contain">
                         SIMS
                     </a>
                     <span class="ml-auto truncate text-sm font-medium text-gray-600">{{ Auth::user()->name }}</span>

@@ -16,7 +16,7 @@
                     <h2 class="font-semibold text-gray-900">Account details</h2>
                     <p class="mt-1 text-sm text-gray-500">Create login credentials and choose the account's access level.</p>
                 </div>
-                <form method="POST" action="{{ route('admin.users.store') }}" class="space-y-5 p-6 sm:p-8">
+                <form method="POST" action="{{ route('admin.users.store') }}" enctype="multipart/form-data" class="space-y-5 p-6 sm:p-8">
                     @csrf
                     @if ($errors->any())
                         <div role="alert" class="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-800">
@@ -33,6 +33,12 @@
                         <label for="email" class="block text-sm font-semibold text-gray-700">Email address</label>
                         <input id="email" name="email" type="email" value="{{ old('email') }}" required maxlength="255" autocomplete="email" class="mt-2 block min-h-11 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                         @error('email')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                    </div>
+                    <div>
+                        <label for="profile_photo" class="block text-sm font-semibold text-gray-700">Profile photo <span class="font-normal text-gray-500">(optional)</span></label>
+                        <p class="mt-1 text-sm text-gray-500">JPG, PNG, or WebP up to 2 MB.</p>
+                        <input id="profile_photo" name="profile_photo" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" class="mt-2 block w-full rounded-md border border-gray-300 bg-white text-sm text-gray-700 file:mr-4 file:min-h-10 file:border-0 file:bg-gray-50 file:px-4 file:font-semibold file:text-gray-700 hover:file:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        @error('profile_photo')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                     </div>
                     <div>
                         <label for="role" class="block text-sm font-semibold text-gray-700">Access role</label>

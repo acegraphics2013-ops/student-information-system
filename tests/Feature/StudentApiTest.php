@@ -124,7 +124,7 @@ class StudentApiTest extends TestCase
             'last_name' => '',
             'email' => 'invalid',
             'course' => '',
-            'year_level' => 99,
+            'year_level' => 6,
         ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors([
