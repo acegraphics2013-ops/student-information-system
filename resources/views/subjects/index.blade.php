@@ -36,8 +36,8 @@
                     <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 px-4 py-3 sm:px-5">
                         <h3 class="font-semibold text-gray-900">Subject records</h3>
                         <p class="text-sm text-gray-500">
-                            @if ($subjects->total() > 0)
-                                Showing {{ $subjects->firstItem() }}–{{ $subjects->lastItem() }} of {{ number_format($subjects->total()) }}
+                            @if ($subjects->isNotEmpty())
+                                Showing all {{ number_format($subjects->count()) }} {{ \Illuminate\Support\Str::plural('subject', $subjects->count()) }}
                             @else
                                 No records found
                             @endif
@@ -84,9 +84,6 @@
                             </tbody>
                         </table>
                     </div>
-                    @if ($subjects->hasPages())
-                        <div class="border-t border-gray-100 px-4 py-4 sm:px-5">{{ $subjects->links() }}</div>
-                    @endif
                 </section>
             </section>
         </div>

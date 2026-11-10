@@ -24,10 +24,10 @@ class SubjectController extends Controller
                     ->orWhere('subject_name', 'like', $like);
             })
             ->orderBy('subject_code')
-            ->paginate(10);
+            ->get();
 
         return view('subjects.index', [
-            'subjects' => $subjects->withQueryString(),
+            'subjects' => $subjects,
             'search' => $search,
         ]);
     }

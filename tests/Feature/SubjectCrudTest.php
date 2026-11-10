@@ -115,17 +115,37 @@ class SubjectCrudTest extends TestCase
 
         $this->get(route('subjects.index', ['search' => 'BIO101']))
             ->assertOk()
-            ->assertViewHas('subjects', fn ($subjects): bool => $subjects->total() === 1
+            ->assertViewHas('subjects', fn ($subjects): bool => $subjects->count() === 1
                 && $subjects->first()->subject_name === 'General Biology');
 
         $this->get(route('subjects.index', ['search' => 'College Algebra']))
             ->assertOk()
-            ->assertViewHas('subjects', fn ($subjects): bool => $subjects->total() === 1
+            ->assertViewHas('subjects', fn ($subjects): bool => $subjects->count() === 1
                 && $subjects->first()->subject_code === 'MATH201');
 
         $this->get(route('subjects.index', ['search' => 'not-a-subject']))
             ->assertOk()
             ->assertSee('No matching subjects');
+    }
+
+    public function test_subject_list_displays_all_saved_subjects_on_one_page(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'staff']));
+
+        foreach (range(1, 15) as $number) {
+            Subject::create([
+                'subject_code' => sprintf('SUB%03d', $number),
+                'subject_name' => "Catalog Subject {$number}",
+                'units' => 3,
+            ]);
+        }
+
+        $this->get(route('subjects.index'))
+            ->assertOk()
+            ->assertSee('Showing all 15 subjects')
+            ->assertSee('SUB001')
+            ->assertSee('SUB015')
+            ->assertViewHas('subjects', fn ($subjects): bool => $subjects->count() === 15);
     }
 
     public function test_subject_search_rejects_overlong_search_terms(): void
