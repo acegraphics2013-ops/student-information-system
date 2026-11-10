@@ -199,20 +199,22 @@ are included.
 
 ## Project and assessment documents
 
-- [Rubric compliance audit](docs/compliance-audit.md)
+- [Rubric compliance audit](docs/FINAL_RUBRIC_AUDIT.md)
 - [Local installation guide](docs/INSTALLATION.md)
 - [Application architecture](docs/ARCHITECTURE.md)
 - [Database schema](docs/DATABASE_SCHEMA.md)
 - [Role permissions](docs/ROLE_PERMISSIONS.md)
 - [Testing and verification record](docs/TESTING_AND_VERIFICATION.md)
-- [Git and AI reflection — student completion required](docs/GIT_AND_AI_REFLECTION.md)
-- [AI engineering portfolio / AI_PORTFOLIO Markdown source](docs/ai-engineering-portfolio.md)
-- [Agent design / AGENT_DESIGN Markdown source](docs/ai-agent-design.md)
-- [Reflection / REFLECTION evidence-based draft](docs/reflection-template.md)
-- [Git and AI reflection](docs/git-ai-reflection.md)
+- [Git and AI reflection](docs/GIT_AND_AI_REFLECTION.md)
+- [AI engineering portfolio source](docs/AI_PORTFOLIO.md)
+- [Agent design source](docs/AGENT_DESIGN.md)
+- [Reflection draft](docs/REFLECTION.md)
 - [Final submission checklist](docs/submission-checklist.md)
 - [Oral-defense notes](docs/oral-defense.md)
 - [OpenAPI specification](docs/openapi.yaml)
+
+PDF deliverables generated from the source drafts are stored in the project root:
+`AI_PORTFOLIO.pdf`, `AGENT_DESIGN.pdf`, and `REFLECTION.pdf`.
 
 The handbook and rubric supplied for the assessment are not redistributed in
 this repository. Screenshots, personal reflection, and deployment evidence
