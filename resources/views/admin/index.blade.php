@@ -3,7 +3,7 @@
     <x-slot name="header">
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <p class="text-sm font-medium text-indigo-600">Student Information System</p>
+                <p class="text-sm font-medium text-indigo-600">Student Information Management System</p>
                 <p class="mt-1 text-sm font-semibold uppercase tracking-wide text-gray-500">{{ $campus }} · School Year {{ $schoolYear }}</p>
                 <h1 class="mt-1 text-2xl font-semibold tracking-tight text-gray-900">Administration dashboard</h1>
                 <p class="mt-1 text-sm text-gray-500">Manage system access and monitor academic records.</p>

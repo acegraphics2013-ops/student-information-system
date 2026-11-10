@@ -2,7 +2,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div>
-            <p class="text-sm font-medium text-indigo-600">Student Information System</p>
+            <p class="text-sm font-medium text-indigo-600">Student Information Management System</p>
             <h1 class="mt-1 text-2xl font-semibold tracking-tight text-gray-900">Student Management</h1>
         </div>
     </x-slot>

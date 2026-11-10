@@ -22,7 +22,7 @@ class AuthenticationTest extends TestCase
             ->assertSee('Disclaimer:')
             ->assertSee('This website is an unofficial student project developed solely')
             ->assertSee('placeholder="Enter your password"', false)
-            ->assertSee('<title>NEMSU Tandag | Student Information System</title>', false)
+            ->assertSee('<title>NEMSU Tandag | Student Information Management System</title>', false)
             ->assertSee('rel="icon"', false);
 
         $this->assertSame(1, substr_count($loginPage->getContent(), 'Forgot your password?'));

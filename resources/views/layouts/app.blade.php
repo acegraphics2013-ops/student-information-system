@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>NEMSU Tandag | Student Information System</title>
+        <title>NEMSU Tandag | Student Information Management System</title>
         <link rel="icon" type="image/png" href="{{ asset('images/nemsu-logo.png') }}">
         <link rel="apple-touch-icon" href="{{ asset('images/nemsu-logo.png') }}">
 
@@ -62,7 +62,7 @@
                     </button>
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-2 text-left text-[0.78rem] font-bold leading-tight tracking-tight text-indigo-700">
                         <img src="{{ asset('images/nemsu-logo.png') }}" alt="NEMSU official logo" class="h-9 w-9 object-contain">
-                        <span>Student Information System</span>
+                        <span>Student Information Management System</span>
                     </a>
                     <span class="ml-auto truncate text-sm font-medium text-gray-600">{{ Auth::user()->name }}</span>
                 </div>

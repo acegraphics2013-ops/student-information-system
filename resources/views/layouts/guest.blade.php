@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>NEMSU Tandag | Student Information System</title>
+        <title>NEMSU Tandag | Student Information Management System</title>
         <link rel="icon" type="image/png" href="{{ asset('images/nemsu-logo.png') }}">
         <link rel="apple-touch-icon" href="{{ asset('images/nemsu-logo.png') }}">
 

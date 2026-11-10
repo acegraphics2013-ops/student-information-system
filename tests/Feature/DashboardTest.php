@@ -56,7 +56,7 @@ class DashboardTest extends TestCase
             ->assertViewHas('programCount', 22)
             ->assertSee('NEMSU official logo')
             ->assertSee('images/nemsu-logo.png')
-            ->assertSee('<title>NEMSU Tandag | Student Information System</title>', false)
+            ->assertSee('<title>NEMSU Tandag | Student Information Management System</title>', false)
             ->assertSee('Welcome back')
             ->assertSee('src="'.asset('storage/'.$user->profile_photo_path).'"', false)
             ->assertSee($user->name.' profile photo')
