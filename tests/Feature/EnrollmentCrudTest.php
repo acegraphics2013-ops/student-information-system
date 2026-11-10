@@ -7,6 +7,7 @@ use App\Models\Student;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class EnrollmentCrudTest extends TestCase
@@ -265,7 +266,7 @@ class EnrollmentCrudTest extends TestCase
             ->assertRedirect(route('enrollments.index'));
 
         $this->assertDatabaseCount('enrollments', 3);
-        $this->assertSame(10, (int) \Illuminate\Support\Facades\DB::table('enrollments')
+        $this->assertSame(10, (int) DB::table('enrollments')
             ->join('subjects', 'enrollments.subject_id', '=', 'subjects.id')
             ->where('enrollments.student_id', $student->id)
             ->where('enrollments.status', 'enrolled')

@@ -14,8 +14,8 @@ class EnsureRole
         string ...$roles
     ): Response {
         if (
-            !$request->user() ||
-            !in_array($request->user()->role, $roles, true)
+            ! $request->user() ||
+            ! in_array($request->user()->role, $roles, true)
         ) {
             abort(403, 'Access denied.');
         }

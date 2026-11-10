@@ -1,12 +1,12 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+
 return new class extends Migration
 {
     /**
      * Run the migrations.
      */
-
     public function up(): void
     {
         // The role column is added by the earlier role migration.
@@ -16,5 +16,4 @@ return new class extends Migration
     {
         // The earlier role migration owns the column and its rollback.
     }
-
 };
