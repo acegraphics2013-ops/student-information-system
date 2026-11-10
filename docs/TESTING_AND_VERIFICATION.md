@@ -82,15 +82,11 @@ The inability to run archived Windows dependencies under Linux is not proof of a
 
 ## 5. Outstanding verification work
 
-- [ ] Run a fresh `php artisan test` on Windows/Laragon and save full terminal output.
-- [ ] Run `npm run build`; verify that the actual login background image loads in the browser on a clean installation.
-- [ ] Re-run `vendor\\bin\\pint --test`; resolve or document the 11-file formatting issue.
-- [ ] Test login, Administrator/Staff access, and protected CRUD actions manually.
-- [ ] Test Student API GET/POST/PUT/DELETE requests with valid and invalid tokens/roles.
-- [ ] Check Blade compilation with `php artisan view:cache` (and `php artisan view:clear` afterward), if safe in the local environment.
-- [ ] Verify screenshots correspond to real application behavior and capture missing evidence.
-- [ ] Check the final Git working tree and commit count.
-- [ ] Do not include `.env`, a personal SQLite database, `vendor`, `node_modules`, or `.git` in the final source-only ZIP.
+- [ ] Visually verify login background rendering in a browser; `public/images/bg-login.jpg` exists and the production build passes.
+- [ ] Capture current login, Administrator/Staff, CRUD, catalog, and API screenshots, with tokens and personal data redacted.
+- [ ] Compare the four context questions in the reflection with the actual handbook; the handbook PDF was unavailable here.
+- [ ] Complete the student's own cover details, portfolio evaluations, and first-person reflection.
+- [ ] Inspect the final source ZIP and confirm excluded files and sensitive records are absent.
 
 ## 6. Reproducible local commands (PowerShell)
 

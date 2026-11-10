@@ -4,75 +4,75 @@
 **Source folder:** `screenshots/`  
 **Count:** 20 images
 
-Dates below are file-modification dates, not independently verified capture
-timestamps. The screenshots are genuine files from the workspace. They show
-development and setup activity; none shows a running SIMS page or an API-client
-request/response. Four selected images are copied into `docs/evidence/images/`
-for the draft PDF and sanitized package. Original files are left untouched.
-
-## Inventory
-
-### 1. `1. Open your Laravel project.JPG`
-
-- **What it shows:** VS Code with a historical test run showing 34 passing tests and 101 assertions; not the current test result.
-- **Date:** 2026-11-09 (file modified; capture time unverified).
-- **Rubric:** D1 validation/testing, D2 output verification.
-- **Recommended placement:** Historical testing notes only; do not use as current sign-off.
-- **Package:** Omitted; selected current verification should be captured separately.
-
-### 2. `11092026423PM.JPG`
-
-- **What it shows:** VS Code terminal with an older run showing 34 passing tests and 101 assertions.
-- **Date:** 2026-11-09 (file modified; capture time unverified).
-- **Rubric:** D1 validation/testing.
-- **Recommended placement:** Historical test-result notes; do not cite as current.
-- **Package:** Omitted; selected captures are more relevant.
-
-### 3. `11092026440PM.JPG`
-
-- **What it shows:** PHP namespace declaration failure and the related test-file correction in VS Code.
-- **Date:** 2026-11-09 (file modified; capture time unverified).
-- **Rubric:** C1 prompt case 1, D1 debugging.
-- **Recommended placement:** AI Portfolio case study on namespace debugging.
-- **Package:** Included as `docs/evidence/images/11092026440PM.JPG`.
-
-### 4. `11092026450PM.JPG`
-
 - **What it shows:** Browser view of the public GitHub repository, including account/profile UI.
-- **Date:** 2026-11-09 (file modified; capture time unverified).
+timestamps. The screenshots are genuine files from the workspace. They show
 - **Rubric:** B3 project structure, Git evidence.
 - **Recommended placement:** Not recommended; the visible account UI is unnecessary for the technical portfolio.
 - **Package:** Omitted to avoid including unrelated account/profile details.
 
-### 5. `11092026501PM.JPG`
+## Inventory
 
-- **What it shows:** Subject CRUD test code and a targeted test run showing 3 passed and 17 assertions.
-- **Date:** 2026-11-09 (file modified; capture time unverified).
+- **What it shows:** Subject CRUD route listing and a targeted test run showing 3 passed and 17 assertions.
+
+- **What it shows:** VS Code with a historical test run showing 34 passing tests and 101 assertions; not the current test result.
+- **Recommended placement:** Historical Subject CRUD case study.
+- **Rubric:** D1 validation/testing, D2 output verification.
+- **Recommended placement:** Historical testing notes only; do not use as current sign-off.
+- **Package:** Omitted; selected current verification should be captured separately.
+
+- **What it shows:** Enrollment route listing and a targeted Enrollment test run showing 4 passed and 22 assertions.
+
 - **Rubric:** A3 CRUD, D1 testing.
+- **Recommended placement:** Historical Enrollment CRUD case study.
+- **Rubric:** D1 validation/testing.
+- **Recommended placement:** Historical test-result notes; do not cite as current.
+- **Package:** Omitted; selected captures are more relevant.
+
+- **What it shows:** Enrollment feature diff, targeted tests (4 passed, 22 assertions), and the Git commit command/output.
+
+- **What it shows:** PHP namespace declaration failure and the related test-file correction in VS Code.
+- **Recommended placement:** AI Portfolio discussion of iterative review and commits.
+- **Rubric:** C1 prompt case 1, D1 debugging.
+- **Recommended placement:** AI Portfolio case study on namespace debugging.
+- **Package:** Included as `docs/evidence/images/11092026440PM.JPG`.
+
+- **What it shows:** Enrollment view diff and route listing for the Enrollment module.
+
+- **Rubric:** A3 CRUD, B2 code review.
+- **Recommended placement:** Historical Enrollment implementation workflow.
+- **Package:** Omitted; no live application page is visible.
+- **Recommended placement:** Not recommended; the visible account UI is unnecessary for the technical portfolio.
+- **Package:** Omitted to avoid including unrelated account/profile details.
+
+- **What it shows:** Historical full Laravel route listing, showing 51 routes including Student API paths.
+
+- **Rubric:** A5 API, D1 route verification.
+- **Recommended placement:** Historical route inspection; the count is not current.
+- **Package:** Omitted; the more specific API middleware capture is included.
 - **Recommended placement:** Historical Subject CRUD case study.
 - **Package:** Omitted; the current full suite is documented separately.
 
-### 6. `11092026512PM.JPG`
+- **What it shows:** Verbose Student API route listing, including Sanctum authentication and Administrator middleware on write actions.
 
-- **What it shows:** Enrollment route listing and a targeted Enrollment test run showing 4 passed and 22 assertions.
-- **Date:** 2026-11-09 (file modified; capture time unverified).
-- **Rubric:** A3 CRUD, D1 testing.
+- **Rubric:** A2 authorization, A5 API.
+- **Recommended placement:** AI Portfolio API/security case study; label as historical.
+- **Package:** Included as `docs/evidence/images/11092026730PM.JPG`.
 - **Recommended placement:** Historical Enrollment CRUD case study.
 - **Package:** Omitted; other selected evidence is more directly relevant.
 
-### 7. `11092026514PM.JPG`
+- **What it shows:** Partial PHPUnit output with passing test groups; no final summary is visible.
 
-- **What it shows:** VS Code branch/diff review for enrollment and navigation changes, with a related Git commit in the terminal.
-- **Date:** 2026-11-09 (file modified; capture time unverified).
-- **Rubric:** A3 CRUD, B2 code review, Git process.
+- **Rubric:** D1 testing.
+- **Recommended placement:** Historical test process only.
+- **Package:** Omitted; no final count is visible.
 - **Recommended placement:** AI Portfolio discussion of iterative review and commits.
 - **Package:** Omitted; other selected evidence is more directly relevant.
 
-### 8. `11092026518PM.JPG`
+- **What it shows:** Historical Vite production build and Composer validation output.
 
 - **What it shows:** Historical full Laravel route list with 51 routes.
-- **Date:** 2026-11-09 (file modified; capture time unverified).
-- **Rubric:** A5 API, D1 route verification.
+- **Recommended placement:** Historical build verification; Vite's image warning is visible in the capture.
+- **Package:** Omitted; a later build/Pint capture is selected.
 - **Recommended placement:** Historical route inspection; the route count is not current.
 - **Package:** Omitted; the more specific API middleware capture is included.
 

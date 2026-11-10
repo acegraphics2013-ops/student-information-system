@@ -82,10 +82,10 @@ screenshots are evidence of what they visibly show, not proof of an
 unpictured application behavior. The student evaluation is intentionally
 blank in every case.
 
-1. **PHP namespace debugging.** Original error excerpt and correction: Prompt 1. Relevant file: `tests/Feature/SubjectCrudTest.php`. Verification: historical test evidence; current full suite is separate. Screenshot: `screenshots/11092026440PM.JPG`, a historical debugging capture. **Student evaluation:** [STUDENT INPUT REQUIRED].
+1. **PHP namespace debugging.** Original error excerpt and correction: Prompt 1. Relevant file: `tests/Feature/SubjectCrudTest.php`. Verification: historical test evidence; current full suite is separate. Screenshot: `../screenshots/11092026440PM.JPG`, a historical debugging capture. **Student evaluation:** [STUDENT INPUT REQUIRED].
 2. **Breeze navigation.** Original excerpts: Prompt 2. Result: desktop and responsive management links. Relevant file: `resources/views/layouts/navigation.blade.php`. Verification: project history and current route availability; no live navigation screenshot. **Student evaluation:** [STUDENT INPUT REQUIRED].
 3. **Preserving the existing project.** Original excerpt: Prompt 3. Result: retain Laravel/Breeze, existing modules and data; avoid destructive resets. Relevant files: existing routes, migrations, and feature tests. Verification: current application and migration checks. No dedicated screenshot. **Student evaluation:** [STUDENT INPUT REQUIRED].
-4. **Student REST API.** Prompt excerpts: Prompt 4. Result: five Sanctum-protected Student operations and role-specific access. Relevant files: `routes/api.php`, `app/Http/Controllers/Api/StudentController.php`, `app/Http/Requests/StudentDataRequest.php`, `tests/Feature/StudentApiTest.php`. Verification: current route list and passing API tests. Screenshot: `screenshots/11092026720PM.JPG`, historical route output. **Student evaluation:** [STUDENT INPUT REQUIRED].
+4. **Student REST API.** Prompt excerpts: Prompt 4. Result: five Sanctum-protected Student operations and role-specific access. Relevant files: `routes/api.php`, `app/Http/Controllers/Api/StudentController.php`, `app/Http/Requests/StudentDataRequest.php`, `tests/Feature/StudentApiTest.php`. Verification: current route list and passing API tests. Screenshot: `../screenshots/11092026730PM.JPG`, historical route/middleware output. **Student evaluation:** [STUDENT INPUT REQUIRED].
 5. **API route-name conflict.** The original correction prompt was not separately preserved; the problem and fix are documented under Prompt 4. API route names received the `api.` prefix to protect web route generation. Relevant files: `routes/api.php`, `tests/Feature/StudentCrudTest.php`, `tests/Feature/StudentApiTest.php`. Verification: 61 current routes and passing suite. Screenshot: same historical route capture as Case 4. **Student evaluation:** [STUDENT INPUT REQUIRED].
 6. **Invalid Laravel validation rules.** The original implementation prompt is unavailable; the later testing instruction is quoted in Prompt 5. The invalid `sometimes|required` entry was split into Laravel rules `['sometimes', 'required']`. Relevant files: `app/Http/Requests/StudentDataRequest.php` and API tests. Verification: current suite passes. No screenshot directly shows this correction. **Student evaluation:** [STUDENT INPUT REQUIRED].
 7. **Incorrect Student factory assumption.** No verbatim original prompt was preserved. A test assumption about `Student::factory()` was replaced with explicit model creation. Relevant files: Student API and CRUD feature tests. Verification: current suite passes. No screenshot directly shows the correction. **Student evaluation:** [STUDENT INPUT REQUIRED].
@@ -457,11 +457,11 @@ resolution warning. Full results and limitations are in
 These are real screenshots from the `screenshots/` collection. Their contents
 are historical and do not replace the fresh checks above.
 
-![Historical Laravel API route and middleware listing; the screenshot predates the current route check.](evidence/images/11092026720PM.JPG)
+![Historical verbose Laravel API route and middleware listing; the screenshot predates the current route check.](../screenshots/11092026730PM.JPG)
 
-![Historical PHPUnit run in progress; the final summary is not visible in this capture.](evidence/images/111020260251PM.JPG)
+![Historical PHPUnit run in progress; the final summary is not visible in this capture.](../screenshots/111020260251PM.JPG)
 
-![Historical Vite and Pint output; the visible 41-commit count predates the current 46-commit history.](evidence/images/111020260252PM.JPG)
+![Historical Vite and Pint output; the visible 41-commit count predates the current 46-commit history.](../screenshots/111020260252PM.JPG)
 
 ## Evidence still to add
 
