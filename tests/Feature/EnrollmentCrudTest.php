@@ -50,6 +50,26 @@ class EnrollmentCrudTest extends TestCase
             ->assertSee('type="submit"', false);
     }
 
+    public function test_enrollment_form_notifies_when_student_already_has_subjects_loaded(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $student = $this->sampleStudent();
+        $subject = $this->sampleSubject();
+        Enrollment::create([
+            'student_id' => $student->id,
+            'subject_id' => $subject->id,
+            'status' => 'enrolled',
+            'semester' => '1st Semester',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('enrollments.create'))
+            ->assertOk()
+            ->assertSee('loaded on their record')
+            ->assertSee('cannot be enrolled again')
+            ->assertSee('Already enrolled — cannot be enrolled again');
+    }
+
     public function test_enrollment_semester_is_saved_displayed_and_validated(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);

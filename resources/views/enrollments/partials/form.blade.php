@@ -41,8 +41,19 @@
             get displayedUnits() {
                 return this.status === 'enrolled' ? this.totalUnits : this.selectedUnits;
             },
+            get enrolledSubjectCodes() {
+                const existingIds = this.selectedStudent?.existing_subject_ids ?? [];
+                return this.subjects
+                    .filter((subject) => existingIds.includes(String(subject.id)))
+                    .map((subject) => subject.code);
+            },
             hasSubject(subjectId) {
                 return this.selectedStudent?.existing_subject_ids.includes(String(subjectId)) ?? false;
+            },
+            notifyAlreadyEnrolled(subject) {
+                this.notice = `${subject.code} — ${subject.name} is already enrolled on this student’s record and cannot be enrolled again.`;
+                clearTimeout(this.noticeTimer);
+                this.noticeTimer = setTimeout(() => { this.notice = ''; }, 4000);
             },
             canSelect(subject) {
                 return this.selectedSubjectIds.includes(String(subject.id))
@@ -62,11 +73,13 @@
                 this.selectedStudentId = String(student.id);
                 this.selectedSubjectIds = [];
                 this.search = '';
+                this.notice = '';
             },
             changeStudent() {
                 this.selectedStudentId = '';
                 this.selectedSubjectIds = [];
                 this.search = '';
+                this.notice = '';
             }
         }"
     @endif
@@ -151,6 +164,9 @@
                         <p class="font-semibold text-gray-900" x-text="selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : ''"></p>
                         <p class="mt-1 text-sm text-gray-600" x-text="selectedStudent ? `${selectedStudent.student_number} · ${selectedStudent.email}` : ''"></p>
                         <p class="mt-1 text-xs font-medium text-indigo-700" x-text="selectedStudent ? `Enrolled load in ${semester}: ${semesterUnits} / 10 units` : ''"></p>
+                        <p class="mt-1 text-xs font-medium text-amber-700"
+                           x-show="selectedStudent && enrolledSubjectCodes.length > 0"
+                           x-text="`Subjects already on record: ${enrolledSubjectCodes.length} (${enrolledSubjectCodes.join(', ')})`"></p>
                     </div>
                     <button type="button" @click="changeStudent()"
                             class="shrink-0 rounded-md px-3 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -172,11 +188,45 @@
                 </div>
                 <input type="hidden" name="status" x-model="status">
                 <x-input-error :messages="$errors->get('subject_ids')" class="mt-2" />
+
+                <!-- Already-enrolled notification -->
+                <div x-cloak x-show="selectedStudent && enrolledSubjectCodes.length > 0"
+                     class="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3"
+                     role="status" aria-live="polite">
+                    <svg class="mt-0.5 h-5 w-5 shrink-0 text-amber-500" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"></path>
+                    </svg>
+                    <div class="min-w-0 text-sm text-amber-800">
+                        <p class="font-semibold">
+                            Already enrolled: this student has
+                            <span x-text="enrolledSubjectCodes.length"></span>
+                            <span x-text="enrolledSubjectCodes.length === 1 ? 'subject' : 'subjects'"></span>
+                            loaded on their record.
+                        </p>
+                        <p class="mt-0.5">
+                            <span class="font-medium" x-text="enrolledSubjectCodes.join(', ')"></span>
+                            — shown as “Already enrolled” below and cannot be enrolled again. Select other subjects for
+                            <span class="font-medium" x-text="semester"></span>.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Transient notice for clicked already-enrolled subjects -->
+                <div x-cloak x-show="notice !== ''" x-transition.opacity.duration.200ms
+                     class="rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-medium text-red-700"
+                     role="alert" aria-live="polite">
+                    <span x-text="notice"></span>
+                </div>
+
                 <div class="max-h-80 space-y-2 overflow-y-auto rounded-lg border border-gray-200 p-2">
                     <template x-for="subject in subjects" :key="subject.id">
                         <label class="flex cursor-pointer items-center gap-3 rounded-md border border-transparent p-3 transition"
-                               :class="selectedSubjectIds.includes(String(subject.id)) ? 'border-indigo-200 bg-indigo-50' : 'hover:bg-gray-50'"
-                               :for="`subject-${subject.id}`">
+                               :class="selectedSubjectIds.includes(String(subject.id))
+                                   ? 'border-indigo-200 bg-indigo-50'
+                                   : (hasSubject(subject.id) ? 'border-amber-200 bg-amber-50/70' : 'hover:bg-gray-50')"
+                               :for="`subject-${subject.id}`"
+                               @click="hasSubject(subject.id) && notifyAlreadyEnrolled(subject)">
                             <input type="checkbox"
                                    :id="`subject-${subject.id}`"
                                    name="subject_ids[]"
@@ -187,7 +237,9 @@
                                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50">
                             <span class="min-w-0 flex-1">
                                 <span class="block text-sm font-semibold text-gray-900" x-text="`${subject.code} — ${subject.name}`"></span>
-                                <span class="mt-0.5 block text-xs text-gray-500" x-text="hasSubject(subject.id) ? 'Already on this student’s record' : `${subject.units} ${subject.units === 1 ? 'unit' : 'units'}`"></span>
+                                <span class="mt-0.5 block text-xs"
+                                      :class="hasSubject(subject.id) ? 'font-medium text-amber-700' : 'text-gray-500'"
+                                      x-text="hasSubject(subject.id) ? 'Already enrolled — cannot be enrolled again' : `${subject.units} ${subject.units === 1 ? 'unit' : 'units'}`"></span>
                             </span>
                             <span class="shrink-0 text-sm font-medium text-gray-600" x-text="`${subject.units} units`"></span>
                         </label>
