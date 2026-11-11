@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import re
+from math import atan2, cos, sin
 from pathlib import Path
 from xml.sax.saxutils import escape
 
 import mistune
 from PIL import Image as PILImage
+from pypdf import PdfReader, PdfWriter
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.lib.pagesizes import A4
@@ -54,7 +56,7 @@ class MermaidFlowchart(Flowable):
     def draw(self) -> None:
         canvas = self.canv
         width = self.width
-        box_width = min(330, width - 95)
+        box_width = min(300, width - 190)
         box_height = 38
         center = width / 2
         positions = {
@@ -100,32 +102,39 @@ class MermaidFlowchart(Flowable):
                 canvas.setLineWidth(1.2)
                 canvas.bezier(sx - box_width / 2, sy, x, sy + 8, x, ey - 8, ex - box_width / 2, ey)
                 self._arrowhead(x1=x, y1=ey - 8, x2=ex - box_width / 2, y2=ey)
-                self._edge_label(label or "Failures and corrections", x + 7, (sy + ey) / 2)
+                self._edge_label(label or "Failures and corrections", 2, (sy + ey) / 2, 78)
             elif start == "W" and end == "H":
                 x = width - 35
                 canvas.setStrokeColor(GOLD)
                 canvas.setLineWidth(1.2)
                 canvas.bezier(ex + box_width / 2, ey, x, ey + 6, x, sy - 6, sx + box_width / 2, sy)
                 self._arrowhead(x1=x, y1=sy - 6, x2=sx + box_width / 2, y2=sy)
-                self._edge_label("Human review", x - 76, (sy + ey) / 2)
+                self._edge_label("Human review", width - 80, (sy + ey) / 2, 78)
+            elif start == "H" and end == "P":
+                x = 53
+                canvas.setStrokeColor(GOLD)
+                canvas.setLineWidth(1)
+                canvas.setDash(3, 2)
+                canvas.bezier(sx - box_width / 2, sy, x, sy - 8, x, ey + 8, ex - box_width / 2, ey)
+                canvas.setDash()
+                self._arrowhead(x1=x, y1=ey + 8, x2=ex - box_width / 2, y2=ey)
+                self._edge_label(label or "Scope and approval", 2, (sy + ey) / 2, 78)
             elif start == "H" and end == "D":
-                x = 55
+                x = 35
                 canvas.setStrokeColor(GOLD)
                 canvas.setLineWidth(1)
                 canvas.setDash(3, 2)
                 canvas.bezier(sx - box_width / 2, sy, x, sy - 12, x, ey + 12, ex - box_width / 2, ey)
                 canvas.setDash()
                 self._arrowhead(x1=x, y1=ey + 12, x2=ex - box_width / 2, y2=ey)
-                self._edge_label("Schema approval", x + 3, (sy + ey) / 2)
-            elif start == "H" and end == "P":
-                continue
+                self._edge_label(label or "Approve schema changes", 2, (sy + ey) / 2, 78)
             else:
                 canvas.setStrokeColor(colors.HexColor("#87969C"))
                 canvas.setLineWidth(1)
                 canvas.line(sx, sy - box_height / 2, ex, ey + box_height / 2)
                 self._arrowhead(x1=sx, y1=sy - box_height / 2, x2=ex, y2=ey + box_height / 2)
                 if label:
-                    self._edge_label(label, center + box_width / 2 + 5, (sy + ey) / 2)
+                    self._edge_label(label, width - 80, (sy + ey) / 2, 78)
 
         for node, (x, y) in positions.items():
             label = labels.get(node, node)
@@ -150,10 +159,10 @@ class MermaidFlowchart(Flowable):
 
     def _arrowhead(self, x1: float, y1: float, x2: float, y2: float) -> None:
         canvas = self.canv
-        angle = __import__("math").atan2(y2 - y1, x2 - x1)
+        angle = atan2(y2 - y1, x2 - x1)
         size = 5
-        left = (x2 - size * __import__("math").cos(angle - 0.45), y2 - size * __import__("math").sin(angle - 0.45))
-        right = (x2 - size * __import__("math").cos(angle + 0.45), y2 - size * __import__("math").sin(angle + 0.45))
+        left = (x2 - size * cos(angle - 0.45), y2 - size * sin(angle - 0.45))
+        right = (x2 - size * cos(angle + 0.45), y2 - size * sin(angle + 0.45))
         canvas.setFillColor(GOLD)
         path = canvas.beginPath()
         path.moveTo(x2, y2)
@@ -162,10 +171,14 @@ class MermaidFlowchart(Flowable):
         path.close()
         canvas.drawPath(path, fill=1, stroke=0)
 
-    def _edge_label(self, text: str, x: float, y: float) -> None:
-        self.canv.setFillColor(INK)
-        self.canv.setFont("Helvetica", 6.5)
-        self.canv.drawString(x, y, text[:34])
+    def _edge_label(self, text: str, x: float, y: float, width: float) -> None:
+        style = ParagraphStyle(
+            "DiagramEdgeLabel", fontName="Helvetica", fontSize=6.2,
+            leading=7.2, textColor=INK, alignment=TA_CENTER,
+        )
+        label = Paragraph(escape(text), style)
+        _, height = label.wrap(width, 26)
+        label.drawOn(self.canv, x, y - height / 2)
 
 
 def make_styles() -> dict[str, ParagraphStyle]:
@@ -224,7 +237,7 @@ def inline_markup(node: dict) -> str:
     if kind == "emphasis":
         return f"<i>{children}</i>"
     if kind == "codespan":
-        return f'<font name="Courier" size="8">{children}</font>'
+        return f'<font name="Courier" size="8">{escape(node.get("raw", ""))}</font>'
     if kind == "link":
         url = escape(node.get("attrs", {}).get("url", ""), {'"': "&quot;"})
         return f'<link href="{url}" color="#18736C">{children}</link>'
@@ -356,10 +369,11 @@ def list_flowable(node: dict, width: float, styles: dict[str, ParagraphStyle]) -
             if child.get("type") in {"paragraph", "block_text"}:
                 content.append(Paragraph(paragraph_text(child), styles["body"]))
         items.append(ListItem(content or [Paragraph("", styles["body"])], leftIndent=8))
+    ordered = node.get("attrs", {}).get("ordered", False)
     return ListFlowable(
         items,
-        bulletType="1" if node.get("attrs", {}).get("ordered") else "bullet",
-        start="1",
+        bulletType="1" if ordered else "bullet",
+        start="1" if ordered else None,
         leftIndent=16,
         bulletFontName="Helvetica",
         bulletFontSize=8,
@@ -454,10 +468,37 @@ def render_one(source: Path, filename: str, title: str) -> None:
     document.build(story, onFirstPage=draw_footer, onLaterPages=draw_footer)
 
 
+def render_agent_design_preserving_cover() -> None:
+    destination = OUTPUT / "AGENT_DESIGN.pdf"
+    preserved_cover = None
+    if destination.exists():
+        existing = PdfReader(str(destination))
+        cover_text = existing.pages[0].extract_text() or ""
+        if "[STUDENT INPUT REQUIRED]" not in cover_text:
+            preserved_cover = existing.pages[0]
+
+    generated = OUTPUT / "AGENT_DESIGN_BODY.pdf"
+    original_destination = OUTPUT / "AGENT_DESIGN.pdf"
+    render_one(ROOT / "docs" / "AGENT_DESIGN.md", generated.name, "AI Agent Design")
+    body = PdfReader(str(generated))
+    writer = PdfWriter()
+    if preserved_cover is not None:
+        writer.add_page(preserved_cover)
+        for page in body.pages[1:]:
+            writer.add_page(page)
+    else:
+        for page in body.pages:
+            writer.add_page(page)
+    writer.add_metadata({"/Title": "AI Agent Design - Student Information Management System"})
+    with original_destination.open("wb") as pdf_file:
+        writer.write(pdf_file)
+    generated.unlink()
+
+
 def main() -> None:
     OUTPUT.mkdir(exist_ok=True)
     render_one(ROOT / "docs" / "AI_PORTFOLIO.md", "AI_PORTFOLIO.pdf", "AI Engineering Portfolio")
-    render_one(ROOT / "docs" / "AGENT_DESIGN.md", "AGENT_DESIGN.pdf", "AI Agent Design")
+    render_agent_design_preserving_cover()
     render_one(ROOT / "docs" / "REFLECTION.md", "REFLECTION.pdf", "Personal Reflection")
     print("Rendered draft PDFs:")
     for filename in ("AI_PORTFOLIO.pdf", "AGENT_DESIGN.pdf", "REFLECTION.pdf"):
