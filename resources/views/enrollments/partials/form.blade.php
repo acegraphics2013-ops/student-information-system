@@ -30,8 +30,11 @@
                     .filter((subject) => this.selectedSubjectIds.includes(String(subject.id)))
                     .reduce((total, subject) => total + subject.units, 0);
             },
+            get semesterUnits() {
+                return this.selectedStudent?.units_by_semester?.[this.semester] ?? 0;
+            },
             get totalUnits() {
-                return (this.selectedStudent?.enrolled_units ?? 0) + this.selectedUnits;
+                return this.semesterUnits + this.selectedUnits;
             },
             get displayedUnits() {
                 return this.status === 'enrolled' ? this.totalUnits : this.selectedUnits;
@@ -145,7 +148,7 @@
                     <div>
                         <p class="font-semibold text-gray-900" x-text="selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : ''"></p>
                         <p class="mt-1 text-sm text-gray-600" x-text="selectedStudent ? `${selectedStudent.student_number} · ${selectedStudent.email}` : ''"></p>
-                        <p class="mt-1 text-xs font-medium text-indigo-700" x-text="selectedStudent ? `Current enrolled load: ${selectedStudent.enrolled_units} / 10 units` : ''"></p>
+                        <p class="mt-1 text-xs font-medium text-indigo-700" x-text="selectedStudent ? `Enrolled load in ${semester}: ${semesterUnits} / 10 units` : ''"></p>
                     </div>
                     <button type="button" @click="changeStudent()"
                             class="shrink-0 rounded-md px-3 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -158,7 +161,7 @@
                 <div class="flex flex-wrap items-end justify-between gap-3">
                     <div>
                         <h3 id="subject-select-heading" class="text-base font-semibold text-gray-900">2. Choose subjects</h3>
-                        <p class="mt-1 text-sm text-gray-500">Select multiple subjects, up to 10 units total.</p>
+                        <p class="mt-1 text-sm text-gray-500">Select multiple subjects, up to 10 units per semester. Subjects already on the student’s record cannot be taken again.</p>
                     </div>
                     <p class="rounded-full bg-indigo-50 px-3 py-1 text-sm font-semibold text-indigo-800"
                        aria-live="polite">
@@ -211,7 +214,7 @@
                                 <option value="{{ $value }}">{{ $label }}</option>
                             @endforeach
                         </select>
-                        <p class="mt-1 text-xs text-gray-500">The 10-unit limit applies to active enrolled subjects.</p>
+                        <p class="mt-1 text-xs text-gray-500">The 10-unit limit applies to active enrolled subjects in the selected semester.</p>
                         <x-input-error :messages="$errors->get('status')" class="mt-2" />
                     </div>
                 </div>

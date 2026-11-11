@@ -112,11 +112,12 @@ class EnrollmentController extends Controller
                     ->join('subjects', 'enrollments.subject_id', '=', 'subjects.id')
                     ->where('enrollments.student_id', $student->id)
                     ->where('enrollments.status', 'enrolled')
+                    ->where('enrollments.semester', $validated['semester'])
                     ->sum('subjects.units');
 
                 if ($currentUnits + $selectedUnits > 10) {
                     throw ValidationException::withMessages([
-                        'subject_ids' => 'A student may not exceed 10 enrolled units. This student currently has '.$currentUnits.' units.',
+                        'subject_ids' => 'A student may not exceed 10 enrolled units per semester. This student currently has '.$currentUnits.' units in '.$validated['semester'].'.',
                     ]);
                 }
             }
@@ -166,9 +167,11 @@ class EnrollmentController extends Controller
                     ->join('subjects', 'enrollments.subject_id', '=', 'subjects.id')
                     ->where('enrollments.student_id', $student->id)
                     ->where('enrollments.status', 'enrolled')
+                    ->where('enrollments.semester', $validated['semester'])
                     ->when(
                         (int) $enrollment->student_id === (int) $student->id
-                            && $enrollment->status === 'enrolled',
+                            && $enrollment->status === 'enrolled'
+                            && $enrollment->semester === $validated['semester'],
                         fn ($query) => $query->where('enrollments.id', '!=', $enrollment->id)
                     )
                     ->sum('subjects.units');
@@ -178,7 +181,7 @@ class EnrollmentController extends Controller
 
                 if ($currentUnits + $selectedUnits > 10) {
                     throw ValidationException::withMessages([
-                        'subject_id' => 'A student may not exceed 10 enrolled units. This student currently has '.$currentUnits.' units.',
+                        'subject_id' => 'A student may not exceed 10 enrolled units per semester. This student currently has '.$currentUnits.' units in '.$validated['semester'].'.',
                     ]);
                 }
             }
@@ -214,9 +217,14 @@ class EnrollmentController extends Controller
                 'first_name' => $student->first_name,
                 'last_name' => $student->last_name,
                 'email' => $student->email,
-                'enrolled_units' => $student->enrollments
-                    ->where('status', 'enrolled')
-                    ->sum(fn (Enrollment $enrollment): int => (int) ($enrollment->subject?->units ?? 0)),
+                'units_by_semester' => collect(Enrollment::SEMESTERS)
+                    ->mapWithKeys(fn (string $semester): array => [
+                        $semester => (int) $student->enrollments
+                            ->where('status', 'enrolled')
+                            ->where('semester', $semester)
+                            ->sum(fn (Enrollment $enrollment): int => (int) ($enrollment->subject?->units ?? 0)),
+                    ])
+                    ->all(),
                 'existing_subject_ids' => $student->enrollments
                     ->pluck('subject_id')
                     ->map(fn ($id): string => (string) $id)

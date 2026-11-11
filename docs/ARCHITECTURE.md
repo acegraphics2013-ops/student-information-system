@@ -40,8 +40,9 @@ Student JSON API.
 - `students.course` remains a string for compatibility with existing records;
   new student data is checked against the installed degree-program catalog.
 - Degree programs are not subjects and do not create enrollments.
-- Enrollments connect Students and Subjects; unit-cap checks are enforced by
-  application validation.
+- Enrollments connect Students and Subjects; the 10-unit enrolled-load cap is
+  enforced per semester by application validation, so a student who finished
+  one semester can enroll other subjects in the next semester.
 - The subject catalog seeder contains demonstration data supplied during
   development and is not an authoritative or automatically seeded curriculum.
 - There is no separate audit-event log. Dashboard “recent” lists use record

@@ -45,7 +45,7 @@ class EnrollmentCrudTest extends TestCase
             ->assertOk()
             ->assertSee('Search by student number, name, or email.')
             ->assertSee('Choose subjects')
-            ->assertSee('Select multiple subjects, up to 10 units total.')
+            ->assertSee('Select multiple subjects, up to 10 units per semester.')
             ->assertSee('Enroll in Selected Subjects')
             ->assertSee('type="submit"', false);
     }
@@ -420,6 +420,76 @@ class EnrollmentCrudTest extends TestCase
             ->post(route('enrollments.store'), [
                 'student_id' => $student->id,
                 'subject_ids' => [$firstNewSubject->id, $secondNewSubject->id],
+                'status' => 'enrolled',
+                'semester' => '1st Semester',
+            ])
+            ->assertSessionHasErrors('subject_ids');
+
+        $this->assertDatabaseCount('enrollments', 1);
+    }
+
+    public function test_student_at_unit_cap_can_enroll_other_subjects_next_semester(): void
+    {
+        $student = $this->sampleStudent();
+        $firstSemesterSubject = Subject::create([
+            'subject_code' => 'IT101',
+            'subject_name' => 'Introduction to Computing',
+            'units' => 6,
+        ]);
+        $secondSemesterSubject = Subject::create([
+            'subject_code' => 'IT102',
+            'subject_name' => 'Programming',
+            'units' => 6,
+        ]);
+        Enrollment::create([
+            'student_id' => $student->id,
+            'subject_id' => $firstSemesterSubject->id,
+            'status' => 'enrolled',
+            'semester' => '1st Semester',
+        ]);
+
+        $this->actingAs(User::factory()->create(['role' => 'staff']))
+            ->post(route('enrollments.store'), [
+                'student_id' => $student->id,
+                'subject_ids' => [$secondSemesterSubject->id],
+                'status' => 'enrolled',
+                'semester' => '2nd Semester',
+            ])
+            ->assertRedirect(route('enrollments.index'));
+
+        $this->assertDatabaseCount('enrollments', 2);
+        $this->assertDatabaseHas('enrollments', [
+            'student_id' => $student->id,
+            'subject_id' => $secondSemesterSubject->id,
+            'status' => 'enrolled',
+            'semester' => '2nd Semester',
+        ]);
+    }
+
+    public function test_unit_cap_still_applies_within_the_same_semester(): void
+    {
+        $student = $this->sampleStudent();
+        $firstSubject = Subject::create([
+            'subject_code' => 'IT101',
+            'subject_name' => 'Introduction to Computing',
+            'units' => 6,
+        ]);
+        $secondSubject = Subject::create([
+            'subject_code' => 'IT102',
+            'subject_name' => 'Programming',
+            'units' => 6,
+        ]);
+        Enrollment::create([
+            'student_id' => $student->id,
+            'subject_id' => $firstSubject->id,
+            'status' => 'enrolled',
+            'semester' => '1st Semester',
+        ]);
+
+        $this->actingAs(User::factory()->create(['role' => 'staff']))
+            ->post(route('enrollments.store'), [
+                'student_id' => $student->id,
+                'subject_ids' => [$secondSubject->id],
                 'status' => 'enrolled',
                 'semester' => '1st Semester',
             ])
