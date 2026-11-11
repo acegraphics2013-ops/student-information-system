@@ -24,6 +24,12 @@
     </head>
     <body class="font-sans text-gray-900 antialiased bg-white">
 
+        @php
+            $developerPhoto = file_exists(public_path('images/developerphoto.jpg'))
+                ? 'images/developerphoto.jpg'
+                : (file_exists(public_path('images/developerphoto')) ? 'images/developerphoto' : null);
+        @endphp
+
         <!-- =========================================================
              01. BACKGROUND GRID (10% opacity) — Applied in guest layout
              ========================================================= -->
@@ -33,7 +39,7 @@
             <!-- =========================================================
                  02. NAVIGATION BAR
              ========================================================= -->
-            <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm sticky">
+            <nav x-data="{ sidebarOpen: false }" class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm sticky">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex items-center justify-between h-16 min-h-[72px]">
                         <!-- Brand -->
@@ -48,9 +54,8 @@
                         <!-- Desktop Menu -->
                         <div class="hidden md:flex items-center gap-8 shrink-0">
                             <a href="#home" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Home</a>
-                            <a href="#about" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">About SIMS</a>
-                            <a href="#features" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Features</a>
                             <a href="#training" class="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors whitespace-nowrap font-semibold">Laravel Training</a>
+                            <a href="#features" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Features</a>
                             <a href="#developer" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors whitespace-nowrap">Developer</a>
                             @auth
                                 <a href="{{ route('dashboard') }}" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap">
@@ -80,11 +85,10 @@
                 </div>
 
                 <!-- Mobile Sidebar -->
-                <div class="md:hidden" x-show="sidebarOpen" x-transition class="absolute top-16 left-0 right-0 bg-white border-b border-gray-200 pb-4">
+                <div x-cloak x-show="sidebarOpen" x-transition class="md:hidden absolute top-16 left-0 right-0 bg-white border-b border-gray-200 pb-4">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div class="space-y-2">
                             <a href="#home" @click="sidebarOpen = false" class="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors">Home</a>
-                            <a href="#about" @click="sidebarOpen = false" class="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors">About SIMS</a>
 
                             <a href="#training" @click="sidebarOpen = false" class="block px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 font-semibold rounded-lg transition-colors">Laravel Training</a>
                             <a href="#features" @click="sidebarOpen = false" class="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors">Features</a>
@@ -254,16 +258,21 @@
                             </p>
                         </div>
                         <div class="lg:w-1/2 flex justify-center lg:justify-end">
-                            <div class="relative w-48 h-48 rounded-full overflow-hidden shadow-2xl border-4 border-blue-100 bg-gray-100">
-                                @if (file_exists(public_path('images/developerphoto')))
-                                    <img src="{{ asset('images/developerphoto') }}"
-                                         alt="Ace Raz Cabuga - Developer"
-                                         class="w-full h-full object-cover">
-                                @else
-                                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-600 to-blue-800">
-                                        <span class="text-3xl font-bold text-white">AR</span>
-                                    </div>
-                                @endif
+                            <div class="reveal-on-scroll relative">
+                                <div class="absolute -inset-3 rounded-full bg-gradient-to-tr from-blue-200/60 via-indigo-100/40 to-transparent blur-sm" aria-hidden="true"></div>
+                                <div class="relative h-48 w-48 sm:h-56 sm:w-56 rounded-full overflow-hidden shadow-2xl border-4 border-white ring-1 ring-blue-100 bg-gray-100">
+                                    @if ($developerPhoto)
+                                        <img src="{{ asset($developerPhoto) }}"
+                                             alt="Ace Raz Cabuga - Developer of SIMS"
+                                             width="224" height="224"
+                                             loading="lazy" decoding="async"
+                                             class="h-full w-full object-cover object-top transition-transform duration-700 ease-out hover:scale-105">
+                                    @else
+                                        <div class="h-full w-full flex items-center justify-center bg-gradient-to-br from-blue-600 to-blue-800">
+                                            <span class="text-4xl font-bold text-white">AR</span>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -418,18 +427,23 @@
                         <!-- Developer Photo -->
                         <div class="lg:w-1/2 flex justify-center">
                             <div class="relative">
-                                @if (file_exists(public_path('images/developer-ace-raz-cabuga.jpg')))
-                                    <img src="{{ asset('images/developer-ace-raz-cabuga.jpg') }}"
-                                         alt="Ace Raz Cabuga - Developer of SIMS"
-                                         class="w-48 h-48 rounded-full object-cover shadow-2xl border-4 border-white/20">
-                                @else
-                                    <div class="w-48 h-48 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center text-white shadow-2xl relative overflow-hidden">
-                                        <div class="absolute inset-0 bg-gradient-to-tr from-blue-500 to-indigo-700 opacity-30"></div>
-                                        <span class="text-4xl font-bold relative z-10">
-                                            @php echo substr(auth()->user()->name ?? 'ACE', 0, 1); @endphp
-                                        </span>
-                                    </div>
-                                @endif
+                                <div class="absolute -inset-3 rounded-full bg-gradient-to-tr from-blue-500/30 via-indigo-400/20 to-transparent blur-md" aria-hidden="true"></div>
+                                <div class="relative h-48 w-48 rounded-full overflow-hidden shadow-2xl border-4 border-white/20 bg-blue-900">
+                                    @if ($developerPhoto)
+                                        <img src="{{ asset($developerPhoto) }}"
+                                             alt="Ace Raz Cabuga - Developer of SIMS"
+                                             width="192" height="192"
+                                             loading="lazy" decoding="async"
+                                             class="h-full w-full object-cover object-top transition-transform duration-700 ease-out hover:scale-105">
+                                    @else
+                                        <div class="h-full w-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center text-white relative overflow-hidden">
+                                            <div class="absolute inset-0 bg-gradient-to-tr from-blue-500 to-indigo-700 opacity-30"></div>
+                                            <span class="text-4xl font-bold relative z-10">
+                                                @php echo substr(auth()->user()->name ?? 'ACE', 0, 1); @endphp
+                                            </span>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -458,9 +472,8 @@
                             </div>
                             <div class="flex items-center gap-6 text-sm">
                                 <a href="#home" class="text-gray-600 hover:text-blue-600 transition-colors">Home</a>
-                                <a href="#about" class="text-gray-600 hover:text-blue-600 transition-colors">About SIMS</a>
-                                <a href="#features" class="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
                                 <a href="#training" class="text-gray-600 hover:text-blue-600 transition-colors">Laravel Training</a>
+                                <a href="#features" class="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
                                 <a href="#developer" class="text-gray-600 hover:text-blue-600 transition-colors">Developer</a>
                             </div>
                         </div>
@@ -473,24 +486,48 @@
         <!-- Alpine.js for Mobile Menu & Smooth Scroll -->
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const sidebarOpen = false;
+                const navbar = document.querySelector('nav');
 
                 // Smooth scroll for nav links
                 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                     anchor.addEventListener('click', function (e) {
-                        e.preventDefault();
                         const targetId = this.getAttribute('href').substring(1);
                         const targetElement = document.getElementById(targetId);
-                        if (targetElement) {
-                            const navbarHeight = document.querySelector('nav').offsetHeight;
-                            const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
-                            window.scrollTo({
-                                top: targetPosition,
-                                behavior: 'smooth'
-                            });
+                        if (!targetElement) return;
+
+                        e.preventDefault();
+                        const navbarHeight = navbar ? navbar.offsetHeight : 0;
+                        const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - navbarHeight - 8;
+
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+
+                        if (history.replaceState) {
+                            history.replaceState(null, '', '#' + targetId);
                         }
                     });
                 });
+
+                // Reveal the developer photo as #features scrolls into view
+                const revealElements = document.querySelectorAll('.reveal-on-scroll');
+                if (revealElements.length) {
+                    if ('IntersectionObserver' in window) {
+                        const revealObserver = new IntersectionObserver((entries, observer) => {
+                            entries.forEach(entry => {
+                                if (entry.isIntersecting) {
+                                    entry.target.classList.add('is-visible');
+                                    observer.unobserve(entry.target);
+                                }
+                            });
+                        }, { threshold: 0.2, rootMargin: '0px 0px -40px 0px' });
+
+                        revealElements.forEach(element => revealObserver.observe(element));
+                    } else {
+                        revealElements.forEach(element => element.classList.add('is-visible'));
+                    }
+                }
             });
         </script>
     </body>

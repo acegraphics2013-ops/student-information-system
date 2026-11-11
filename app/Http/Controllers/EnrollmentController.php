@@ -40,6 +40,7 @@ class EnrollmentController extends Controller
                         })
                         ->orWhereHas('enrollments', function ($enrollmentQuery) use ($like): void {
                             $enrollmentQuery->where('status', 'like', $like)
+                                ->orWhere('semester', 'like', $like)
                                 ->orWhereHas('subject', function ($subjectQuery) use ($like): void {
                                     $subjectQuery->where('subject_code', 'like', $like)
                                         ->orWhere('subject_name', 'like', $like);
@@ -77,6 +78,7 @@ class EnrollmentController extends Controller
             'subject_ids' => ['required', 'array', 'min:1'],
             'subject_ids.*' => ['required', 'integer', 'distinct', Rule::exists('subjects', 'id')],
             'status' => ['required', Rule::in(['enrolled', 'completed', 'dropped'])],
+            'semester' => ['required', Rule::in(Enrollment::SEMESTERS)],
         ]);
 
         DB::transaction(function () use ($validated): void {
@@ -124,6 +126,7 @@ class EnrollmentController extends Controller
                     'student_id' => $student->id,
                     'subject_id' => $subjectId,
                     'status' => $validated['status'],
+                    'semester' => $validated['semester'],
                 ]);
             }
         });
@@ -220,6 +223,7 @@ class EnrollmentController extends Controller
                     ->values(),
             ])->values(),
             'subjects' => Subject::orderBy('subject_code')->get(),
+            'semesters' => Enrollment::SEMESTERS,
         ];
     }
 
@@ -241,6 +245,7 @@ class EnrollmentController extends Controller
                 $subjectUnique,
             ],
             'status' => ['required', Rule::in(['enrolled', 'completed', 'dropped'])],
+            'semester' => ['required', Rule::in(Enrollment::SEMESTERS)],
         ], [
             'subject_id.unique' => 'This student is already enrolled in that subject.',
         ]);

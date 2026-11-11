@@ -10,7 +10,14 @@
     <main class="py-10">
         <div class="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
             <section class="rounded-lg bg-white p-6 shadow-sm">
-                <p class="text-gray-700">Browse the catalog by college, department, or degree program. The catalog is for academic programs; it does not define subjects or student enrollments.</p>
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <p class="max-w-3xl text-gray-700">Browse the catalog by college, department, or degree program. The catalog is for academic programs; it does not define subjects or student enrollments.</p>
+                    @if (auth()->user()->role === 'admin')
+                        <a href="{{ route('academic-programs.create') }}" class="inline-flex min-h-11 shrink-0 items-center justify-center rounded-md bg-indigo-700 px-4 text-sm font-semibold text-white shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                            Add program
+                        </a>
+                    @endif
+                </div>
                 <div class="mt-5 grid gap-4 sm:grid-cols-3">
                     @foreach ([
                         ['label' => 'Colleges', 'count' => $collegeCount],
@@ -56,7 +63,19 @@
                                 <h3 class="font-medium text-gray-800">{{ $department->name }}</h3>
                                 <ul class="mt-3 grid gap-2 text-sm text-gray-600 sm:grid-cols-2">
                                     @foreach ($department->programs as $program)
-                                        <li class="rounded-md bg-gray-50 px-3 py-2">{{ $program->name }}</li>
+                                        <li class="flex items-start justify-between gap-3 rounded-md bg-gray-50 px-3 py-2">
+                                            <span class="min-w-0">{{ $program->name }}</span>
+                                            @if (auth()->user()->role === 'admin')
+                                                <div class="flex shrink-0 items-center gap-3 text-xs font-semibold">
+                                                    <a href="{{ route('academic-programs.edit', $program) }}" class="text-indigo-700 hover:text-indigo-900 focus:outline-none focus:underline">Edit</a>
+                                                    <form method="POST" action="{{ route('academic-programs.destroy', $program) }}" onsubmit="return confirm('Delete this academic program?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="text-red-600 hover:text-red-800 focus:outline-none focus:underline">Delete</button>
+                                                    </form>
+                                                </div>
+                                            @endif
+                                        </li>
                                     @endforeach
                                 </ul>
                             </div>

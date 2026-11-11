@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\College;
+use App\Models\Department;
+use App\Models\Program;
 use App\Models\User;
 use Database\Seeders\NemsuAcademicCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;

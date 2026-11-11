@@ -48,6 +48,7 @@
                             <tr>
                                 <th scope="col" class="px-4 py-3 font-semibold">Subject</th>
                                 <th scope="col" class="px-4 py-3 font-semibold">Units</th>
+                                <th scope="col" class="px-4 py-3 font-semibold">Semester</th>
                                 <th scope="col" class="px-4 py-3 font-semibold">Status</th>
                                 <th scope="col" class="px-4 py-3 font-semibold">Actions</th>
                             </tr>
@@ -63,6 +64,9 @@
                                         @endif
                                     </td>
                                     <td class="whitespace-nowrap px-4 py-3 text-gray-700">{{ $enrollment->subject?->units ?? '—' }}</td>
+                                    <td class="whitespace-nowrap px-4 py-3">
+                                        <span class="inline-flex rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">{{ $enrollment->semester }}</span>
+                                    </td>
                                     <td class="whitespace-nowrap px-4 py-3">
                                         <span class="inline-flex rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold capitalize text-gray-700">{{ $enrollment->status }}</span>
                                     </td>

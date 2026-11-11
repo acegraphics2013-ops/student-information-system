@@ -50,6 +50,70 @@ class EnrollmentCrudTest extends TestCase
             ->assertSee('type="submit"', false);
     }
 
+    public function test_enrollment_semester_is_saved_displayed_and_validated(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $student = $this->sampleStudent();
+        $subject = $this->sampleSubject();
+        $this->actingAs($admin);
+
+        $this->get(route('enrollments.create'))
+            ->assertOk()
+            ->assertSee('1st Semester')
+            ->assertSee('2nd Semester')
+            ->assertSee('Summer Semester');
+
+        $this->post(route('enrollments.store'), [
+            'student_id' => $student->id,
+            'subject_ids' => [$subject->id],
+            'status' => 'enrolled',
+            'semester' => 'Summer Semester',
+        ])->assertRedirect(route('enrollments.index'));
+
+        $enrollment = Enrollment::firstOrFail();
+        $this->assertSame('Summer Semester', $enrollment->semester);
+
+        $this->get(route('enrollments.index'))
+            ->assertOk()
+            ->assertSee('Summer Semester');
+
+        $this->get(route('enrollments.show', $enrollment))
+            ->assertOk()
+            ->assertSee('Summer Semester');
+
+        $this->get(route('enrollments.edit', $enrollment))
+            ->assertOk()
+            ->assertSee('Summer Semester');
+
+        $this->put(route('enrollments.update', $enrollment), [
+            'student_id' => $student->id,
+            'subject_id' => $subject->id,
+            'status' => 'enrolled',
+            'semester' => '2nd Semester',
+        ])->assertRedirect(route('enrollments.index'));
+
+        $this->assertDatabaseHas('enrollments', [
+            'id' => $enrollment->id,
+            'semester' => '2nd Semester',
+        ]);
+    }
+
+    public function test_invalid_semester_is_rejected(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $student = $this->sampleStudent();
+        $subject = $this->sampleSubject();
+
+        $this->actingAs($admin)->post(route('enrollments.store'), [
+            'student_id' => $student->id,
+            'subject_ids' => [$subject->id],
+            'status' => 'enrolled',
+            'semester' => 'Invalid Semester',
+        ])->assertSessionHasErrors('semester');
+
+        $this->assertDatabaseCount('enrollments', 0);
+    }
+
     public function test_admin_can_create_update_and_delete_an_enrollment(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -65,6 +129,7 @@ class EnrollmentCrudTest extends TestCase
             'student_id' => $student->id,
             'subject_ids' => [$subject->id],
             'status' => 'enrolled',
+            'semester' => '1st Semester',
         ])->assertRedirect(route('enrollments.index'));
 
         $enrollment = Enrollment::firstOrFail();
@@ -81,11 +146,13 @@ class EnrollmentCrudTest extends TestCase
             'student_id' => $student->id,
             'subject_id' => $subject->id,
             'status' => 'completed',
+            'semester' => '1st Semester',
         ])->assertRedirect(route('enrollments.index'));
 
         $this->assertDatabaseHas('enrollments', [
             'id' => $enrollment->id,
             'status' => 'completed',
+            'semester' => '1st Semester',
         ]);
 
         $this->delete(route('enrollments.destroy', $enrollment))
@@ -108,6 +175,7 @@ class EnrollmentCrudTest extends TestCase
             'student_id' => $student->id,
             'subject_id' => $subject->id,
             'status' => 'enrolled',
+            'semester' => '1st Semester',
         ]);
 
         $this->actingAs($staff);
@@ -127,6 +195,7 @@ class EnrollmentCrudTest extends TestCase
             'student_id' => $student->id,
             'subject_ids' => [$additionalSubject->id],
             'status' => 'dropped',
+            'semester' => '1st Semester',
         ])->assertRedirect(route('enrollments.index'));
         $addedEnrollment = Enrollment::query()
             ->where('status', 'dropped')
@@ -136,10 +205,12 @@ class EnrollmentCrudTest extends TestCase
             'student_id' => $student->id,
             'subject_id' => $subject->id,
             'status' => 'dropped',
+            'semester' => '1st Semester',
         ])->assertRedirect(route('enrollments.index'));
         $this->assertDatabaseHas('enrollments', [
             'id' => $enrollment->id,
             'status' => 'dropped',
+            'semester' => '1st Semester',
         ]);
 
         $this->delete(route('enrollments.destroy', $addedEnrollment))
@@ -156,6 +227,7 @@ class EnrollmentCrudTest extends TestCase
             'student_id' => $student->id,
             'subject_id' => $subject->id,
             'status' => 'completed',
+            'semester' => '1st Semester',
         ]);
 
         $this->actingAs($admin);
@@ -185,11 +257,13 @@ class EnrollmentCrudTest extends TestCase
             'student_id' => $student->id,
             'subject_id' => $firstSubject->id,
             'status' => 'enrolled',
+            'semester' => '1st Semester',
         ]);
         $secondEnrollment = Enrollment::create([
             'student_id' => $student->id,
             'subject_id' => $secondSubject->id,
             'status' => 'completed',
+            'semester' => '1st Semester',
         ]);
 
         $this->actingAs(User::factory()->create(['role' => 'staff']))
@@ -231,12 +305,14 @@ class EnrollmentCrudTest extends TestCase
             'student_id' => $student->id,
             'subject_id' => $subject->id,
             'status' => 'enrolled',
+            'semester' => '1st Semester',
         ]);
 
         $this->actingAs($admin)->post(route('enrollments.store'), [
             'student_id' => $student->id,
             'subject_ids' => [$subject->id],
             'status' => 'enrolled',
+            'semester' => '1st Semester',
         ])->assertSessionHasErrors('subject_ids');
 
         $this->assertDatabaseCount('enrollments', 1);
@@ -262,6 +338,7 @@ class EnrollmentCrudTest extends TestCase
                 'student_id' => $student->id,
                 'subject_ids' => [$firstSubject->id, $secondSubject->id, $thirdSubject->id],
                 'status' => 'enrolled',
+                'semester' => '1st Semester',
             ])
             ->assertRedirect(route('enrollments.index'));
 
@@ -291,6 +368,7 @@ class EnrollmentCrudTest extends TestCase
             'student_id' => $student->id,
             'subject_id' => $existingSubject->id,
             'status' => 'enrolled',
+            'semester' => '1st Semester',
         ]);
 
         $this->actingAs(User::factory()->create(['role' => 'staff']))
@@ -298,6 +376,7 @@ class EnrollmentCrudTest extends TestCase
                 'student_id' => $student->id,
                 'subject_ids' => [$firstNewSubject->id, $secondNewSubject->id],
                 'status' => 'enrolled',
+                'semester' => '1st Semester',
             ])
             ->assertSessionHasErrors('subject_ids');
 
@@ -317,11 +396,13 @@ class EnrollmentCrudTest extends TestCase
             'student_id' => $student->id,
             'subject_id' => $eightUnitSubject->id,
             'status' => 'enrolled',
+            'semester' => '1st Semester',
         ]);
         $enrollmentToActivate = Enrollment::create([
             'student_id' => $student->id,
             'subject_id' => $threeUnitSubject->id,
             'status' => 'dropped',
+            'semester' => '1st Semester',
         ]);
 
         $this->actingAs(User::factory()->create(['role' => 'staff']))
@@ -329,12 +410,14 @@ class EnrollmentCrudTest extends TestCase
                 'student_id' => $student->id,
                 'subject_id' => $threeUnitSubject->id,
                 'status' => 'enrolled',
+                'semester' => '1st Semester',
             ])
             ->assertSessionHasErrors('subject_id');
 
         $this->assertDatabaseHas('enrollments', [
             'id' => $enrollmentToActivate->id,
             'status' => 'dropped',
+            'semester' => '1st Semester',
         ]);
     }
 
@@ -352,11 +435,13 @@ class EnrollmentCrudTest extends TestCase
             'student_id' => $student->id,
             'subject_id' => $firstSubject->id,
             'status' => 'enrolled',
+            'semester' => '1st Semester',
         ]);
         $enrollmentToUpdate = Enrollment::create([
             'student_id' => $student->id,
             'subject_id' => $secondSubject->id,
             'status' => 'enrolled',
+            'semester' => '1st Semester',
         ]);
 
         $this->actingAs($admin)->put(
@@ -365,6 +450,7 @@ class EnrollmentCrudTest extends TestCase
                 'student_id' => $student->id,
                 'subject_id' => $firstSubject->id,
                 'status' => 'completed',
+                'semester' => '1st Semester',
             ]
         )->assertSessionHasErrors('subject_id');
 
@@ -372,6 +458,7 @@ class EnrollmentCrudTest extends TestCase
             'id' => $enrollmentToUpdate->id,
             'subject_id' => $secondSubject->id,
             'status' => 'enrolled',
+            'semester' => '1st Semester',
         ]);
     }
 
@@ -383,6 +470,7 @@ class EnrollmentCrudTest extends TestCase
             'student_id' => 999999,
             'subject_ids' => [999999],
             'status' => 'invalid',
+            'semester' => '1st Semester',
         ])->assertSessionHasErrors(['student_id', 'subject_ids.0', 'status']);
     }
 
@@ -396,6 +484,7 @@ class EnrollmentCrudTest extends TestCase
             'student_id' => 1,
             'subject_id' => 1,
             'status' => 'enrolled',
+            'semester' => '1st Semester',
         ])->assertNotFound();
         $this->delete('/enrollments/999999')->assertNotFound();
     }

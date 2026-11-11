@@ -744,3 +744,40 @@
 .shadow-sm {
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
 }
+
+/* Smooth anchor navigation with space for the fixed navbar */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
+}
+
+section[id] {
+    scroll-margin-top: 5.5rem;
+}
+
+/* Scroll-reveal for the developer photo in the #features section */
+.reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(1.5rem) scale(0.96);
+    transition:
+        opacity 0.8s ease-out,
+        transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    .reveal-on-scroll {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}

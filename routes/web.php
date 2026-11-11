@@ -40,8 +40,12 @@ Route::middleware('auth')->group(function () {
                 ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
         });
 
-    Route::get('/academic-programs', [AcademicProgramController::class, 'index'])
-        ->name('academic-programs.index');
+    Route::resource('academic-programs', AcademicProgramController::class)
+        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
+        ->middlewareFor(
+            ['create', 'store', 'edit', 'update', 'destroy'],
+            'role:admin'
+        );
 
     Route::resource('students', StudentController::class)
         ->middlewareFor(

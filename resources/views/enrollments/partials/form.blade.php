@@ -14,6 +14,7 @@
             selectedStudentId: @js((string) old('student_id', $initialStudentId ?? '')),
             selectedSubjectIds: @js(array_map('strval', is_array(old('subject_ids', [])) ? old('subject_ids', []) : [])),
             status: @js(old('status', 'enrolled')),
+            semester: @js(old('semester', $semesters[0] ?? '1st Semester')),
             get filteredStudents() {
                 const query = this.search.trim().toLowerCase();
                 if (!query) return [];
@@ -190,33 +191,62 @@
                 </div>
                 <x-input-error :messages="$errors->get('subject_ids.*')" class="mt-2" />
 
-                <div>
-                    <x-input-label for="status" value="Status" />
-                    <select id="status" x-model="status" required
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                        @foreach (['enrolled' => 'Enrolled', 'completed' => 'Completed', 'dropped' => 'Dropped'] as $value => $label)
-                            <option value="{{ $value }}">{{ $label }}</option>
-                        @endforeach
-                    </select>
-                    <p class="mt-1 text-xs text-gray-500">The 10-unit limit applies to active enrolled subjects.</p>
-                    <x-input-error :messages="$errors->get('status')" class="mt-2" />
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <x-input-label for="semester" value="Semester" />
+                        <select id="semester" name="semester" x-model="semester" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            @foreach ($semesters as $semester)
+                                <option value="{{ $semester }}">{{ $semester }}</option>
+                            @endforeach
+                        </select>
+                        <x-input-error :messages="$errors->get('semester')" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <x-input-label for="status" value="Status" />
+                        <select id="status" x-model="status" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            @foreach (['enrolled' => 'Enrolled', 'completed' => 'Completed', 'dropped' => 'Dropped'] as $value => $label)
+                                <option value="{{ $value }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500">The 10-unit limit applies to active enrolled subjects.</p>
+                        <x-input-error :messages="$errors->get('status')" class="mt-2" />
+                    </div>
                 </div>
             </section>
         @endif
 
         @if ($enrollment)
-            <div>
-                <x-input-label for="status" value="Status" />
-                <select id="status" name="status" required
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                    @foreach (['enrolled' => 'Enrolled', 'completed' => 'Completed', 'dropped' => 'Dropped'] as $value => $label)
-                        <option value="{{ $value }}"
-                            @selected(old('status', $enrollment->status) === $value)>
-                            {{ $label }}
-                        </option>
-                    @endforeach
-                </select>
-                <x-input-error :messages="$errors->get('status')" class="mt-2" />
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <x-input-label for="semester" value="Semester" />
+                    <select id="semester" name="semester" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        @foreach ($semesters as $semester)
+                            <option value="{{ $semester }}"
+                                @selected(old('semester', $enrollment->semester) === $semester)>
+                                {{ $semester }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <x-input-error :messages="$errors->get('semester')" class="mt-2" />
+                </div>
+
+                <div>
+                    <x-input-label for="status" value="Status" />
+                    <select id="status" name="status" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        @foreach (['enrolled' => 'Enrolled', 'completed' => 'Completed', 'dropped' => 'Dropped'] as $value => $label)
+                            <option value="{{ $value }}"
+                                @selected(old('status', $enrollment->status) === $value)>
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <x-input-error :messages="$errors->get('status')" class="mt-2" />
+                </div>
             </div>
         @endif
 
