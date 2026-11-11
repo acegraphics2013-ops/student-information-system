@@ -332,6 +332,15 @@
     flex-shrink: 0;
 }
 
+/* ===== Welcome Page Background Grid Pattern (5% opacity) ===== */
+.bg-grid-pattern {
+    background-image:
+        linear-gradient(to right, #1e3a8a 1px, transparent 1px),
+        linear-gradient(to bottom, #1e3a8a 1px, transparent 1px);
+    background-size: 44px 44px;
+    opacity: 0.05;
+}
+
 /* ===== Welcome Message ===== */
 .welcome-strip {
     display: flex;

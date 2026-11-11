@@ -31,8 +31,9 @@
         @endphp
 
         <!-- =========================================================
-             01. BACKGROUND GRID (10% opacity) — Applied in guest layout
+             01. BACKGROUND GRID PATTERN (10% opacity)
              ========================================================= -->
+        <div class="bg-grid-pattern pointer-events-none fixed inset-0 z-0" aria-hidden="true"></div>
 
         <div class="relative z-10">
 
@@ -148,7 +149,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                 </svg>
                             </a>
-                            <a href="#features" class="px-8 py-3 border border-gray-200 text-gray-700 rounded-lg text-lg font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all">
+                            <a href="#features" class="px-8 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg text-lg font-semibold shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all">
                                 Explore the Project
                             </a>
                         @endauth

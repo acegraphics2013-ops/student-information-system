@@ -36,7 +36,7 @@
 
                     <div class="brand-accent-line"></div>
 
-                    <p class="brand-subtitle">NEMSU TANDAG CAMPUS</p>
+                    <p class="brand-subtitle">TANDAG CAMPUS</p>
 
                     <p class="brand-system">Student Information Management System</p>
 
