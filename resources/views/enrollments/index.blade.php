@@ -48,7 +48,7 @@
                                     <th scope="col" class="px-4 py-3 font-semibold">Student</th>
                                     <th scope="col" class="px-4 py-3 font-semibold">Semesters Enrolled</th>
                                     <th scope="col" class="px-4 py-3 font-semibold">Subjects Loaded</th>
-                                    <th scope="col" class="px-4 py-3 font-semibold">Enrolled Units</th>
+                                    <th scope="col" class="px-4 py-3 font-semibold">Enrolled Units (per semester)</th>
                                     <th scope="col" class="px-4 py-3 font-semibold">Actions</th>
                                 </tr>
                             </thead>
@@ -78,11 +78,25 @@
                                         <td class="px-4 py-3 text-gray-700">
                                             {{ $student->enrollments->count() }}
                                         </td>
-                                        <td class="whitespace-nowrap px-4 py-3 text-gray-700">
-                                            {{ $student->enrollments
-                                                ->where('status', 'enrolled')
-                                                ->sum(fn ($enrollment) => (int) ($enrollment->subject?->units ?? 0)) }}
-                                            <span class="text-gray-500">/ 10</span>
+                                        <td class="px-4 py-3 text-gray-700">
+                                            @php
+                                                // The 10-unit cap is per semester, so show each
+                                                // semester's active load instead of a cross-semester total.
+                                                $unitsBySemester = $student->enrollments
+                                                    ->where('status', 'enrolled')
+                                                    ->groupBy('semester')
+                                                    ->map(fn ($enrollments) => $enrollments->sum(fn ($enrollment) => (int) ($enrollment->subject?->units ?? 0)));
+                                            @endphp
+
+                                            @forelse ($unitsBySemester as $semester => $units)
+                                                <p class="text-sm">
+                                                    <span class="text-gray-500">{{ $semester }}:</span>
+                                                    <span class="font-semibold {{ $units > 10 ? 'text-red-600' : 'text-gray-900' }}">{{ $units }}</span>
+                                                    <span class="text-gray-500">/ 10</span>
+                                                </p>
+                                            @empty
+                                                <span class="text-gray-400">None</span>
+                                            @endforelse
                                         </td>
                                         <td class="whitespace-nowrap px-4 py-3">
                                             <a href="{{ route('enrollments.show', $student->enrollments->first()) }}" class="font-medium text-indigo-700 hover:text-indigo-900 focus:outline-none focus:underline">View subjects</a>

@@ -14,9 +14,12 @@
                 $totalSubjects = $enrollments->count();
                 $totalUnits = $enrollments->sum(fn ($enrollment) => (int) ($enrollment->subject?->units ?? 0));
                 $semesterOrder = array_flip(\App\Models\Enrollment::SEMESTERS);
-                $bySemester = $enrollments
-                    ->sortBy(fn ($enrollment) => $semesterOrder[$enrollment->semester] ?? 99)
-                    ->groupBy('semester');
+                $byYear = $enrollments
+                    ->sort(function ($a, $b) use ($semesterOrder) {
+                        return [($a->year_level ?? 0), ($semesterOrder[$a->semester] ?? 99)]
+                            <=> [($b->year_level ?? 0), ($semesterOrder[$b->semester] ?? 99)];
+                    })
+                    ->groupBy(fn ($enrollment) => (int) ($enrollment->year_level ?? 0));
                 $statusClasses = [
                     'enrolled' => 'bg-green-100 text-green-800',
                     'completed' => 'bg-blue-100 text-blue-800',
@@ -70,7 +73,7 @@
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900">Enrolled Subjects</h3>
                         <p class="mt-1 text-sm text-gray-500">
-                            All subjects loaded on this student&rsquo;s record, grouped by semester.
+                            All subjects loaded on this student&rsquo;s record, grouped by year level, then semester.
                         </p>
                     </div>
 
@@ -86,18 +89,20 @@
                     @endif
                 </div>
 
-                @forelse ($bySemester as $semester => $semesterEnrollments)
+                @forelse ($byYear as $year => $yearEnrollments)
                     @php
-                        $semesterUnits = $semesterEnrollments->sum(fn ($enrollment) => (int) ($enrollment->subject?->units ?? 0));
+                        $yearUnits = $yearEnrollments->sum(fn ($enrollment) => (int) ($enrollment->subject?->units ?? 0));
                     @endphp
 
                     <section class="mt-6 overflow-hidden rounded-lg border border-gray-200">
                         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 bg-gray-50 px-4 py-3">
-                            <h4 class="font-semibold text-gray-900">{{ $semester }}</h4>
+                            <h4 class="font-semibold text-gray-900">
+                                {{ \App\Models\Enrollment::yearLevelLabel($year ?: null) }}
+                            </h4>
                             <p class="text-sm text-gray-500">
-                                {{ $semesterEnrollments->count() }}
-                                {{ $semesterEnrollments->count() === 1 ? 'subject' : 'subjects' }}
-                                &middot; {{ $semesterUnits }} {{ $semesterUnits === 1 ? 'unit' : 'units' }}
+                                {{ $yearEnrollments->count() }}
+                                {{ $yearEnrollments->count() === 1 ? 'subject' : 'subjects' }}
+                                &middot; {{ $yearUnits }} {{ $yearUnits === 1 ? 'unit' : 'units' }}
                             </p>
                         </div>
 
@@ -107,18 +112,22 @@
                                     <tr>
                                         <th scope="col" class="px-4 py-3 text-left font-semibold">Code</th>
                                         <th scope="col" class="px-4 py-3 text-left font-semibold">Subject</th>
+                                        <th scope="col" class="px-4 py-3 text-left font-semibold">Semester</th>
                                         <th scope="col" class="px-4 py-3 text-left font-semibold">Units</th>
                                         <th scope="col" class="px-4 py-3 text-left font-semibold">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
-                                    @foreach ($semesterEnrollments as $enrollment)
+                                    @foreach ($yearEnrollments as $enrollment)
                                         <tr class="hover:bg-gray-50">
                                             <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-900">
                                                 {{ $enrollment->subject?->subject_code ?? '—' }}
                                             </td>
                                             <td class="px-4 py-3 text-gray-700">
                                                 {{ $enrollment->subject?->subject_name ?? 'Unknown subject' }}
+                                            </td>
+                                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">
+                                                {{ $enrollment->semester }}
                                             </td>
                                             <td class="whitespace-nowrap px-4 py-3 text-gray-600">
                                                 {{ $enrollment->subject?->units ?? '—' }}

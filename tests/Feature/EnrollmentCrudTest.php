@@ -138,6 +138,85 @@ class EnrollmentCrudTest extends TestCase
         $this->assertDatabaseCount('enrollments', 0);
     }
 
+    public function test_enrollment_year_level_is_saved_displayed_and_validated(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $student = $this->sampleStudent();
+        $subject = $this->sampleSubject();
+        $this->actingAs($admin);
+
+        $this->get(route('enrollments.create'))
+            ->assertOk()
+            ->assertSee('Year Level')
+            ->assertSee('Year 1')
+            ->assertSee('Year 5');
+
+        $this->post(route('enrollments.store'), [
+            'student_id' => $student->id,
+            'subject_ids' => [$subject->id],
+            'status' => 'enrolled',
+            'semester' => '1st Semester',
+            'year_level' => 3,
+        ])->assertRedirect(route('enrollments.index'));
+
+        $enrollment = Enrollment::firstOrFail();
+        $this->assertSame(3, (int) $enrollment->year_level);
+
+        $this->get(route('enrollments.edit', $enrollment))
+            ->assertOk()
+            ->assertSee('Year Level');
+
+        $this->get(route('enrollments.show', $enrollment))
+            ->assertOk()
+            ->assertSee('3rd Year');
+
+        $this->put(route('enrollments.update', $enrollment), [
+            'student_id' => $student->id,
+            'subject_id' => $subject->id,
+            'status' => 'enrolled',
+            'semester' => '1st Semester',
+            'year_level' => 4,
+        ])->assertRedirect(route('enrollments.index'));
+
+        $this->assertDatabaseHas('enrollments', [
+            'id' => $enrollment->id,
+            'year_level' => 4,
+        ]);
+    }
+
+    public function test_invalid_enrollment_year_level_is_rejected(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $student = $this->sampleStudent();
+        $subject = $this->sampleSubject();
+
+        $this->actingAs($admin)->post(route('enrollments.store'), [
+            'student_id' => $student->id,
+            'subject_ids' => [$subject->id],
+            'status' => 'enrolled',
+            'semester' => '1st Semester',
+            'year_level' => 9,
+        ])->assertSessionHasErrors('year_level');
+
+        $this->assertDatabaseCount('enrollments', 0);
+    }
+
+    public function test_enrollment_year_level_falls_back_to_student_year_when_omitted(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $student = $this->sampleStudent();
+        $subject = $this->sampleSubject();
+
+        $this->actingAs($admin)->post(route('enrollments.store'), [
+            'student_id' => $student->id,
+            'subject_ids' => [$subject->id],
+            'status' => 'enrolled',
+            'semester' => '1st Semester',
+        ])->assertRedirect(route('enrollments.index'));
+
+        $this->assertSame(2, (int) Enrollment::firstOrFail()->year_level);
+    }
+
     public function test_enrollment_list_counts_distinct_semesters_per_student(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -177,6 +256,44 @@ class EnrollmentCrudTest extends TestCase
             ->get(route('enrollments.show', $student->enrollments->first()))
             ->assertOk()
             ->assertSee('2 semesters');
+    }
+
+    public function test_enrollment_list_shows_units_per_semester_not_a_cross_semester_total(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $student = $this->sampleStudent();
+        $firstSemesterSubject = Subject::create([
+            'subject_code' => 'IT101',
+            'subject_name' => 'Introduction to Computing',
+            'units' => 6,
+        ]);
+        $secondSemesterSubject = Subject::create([
+            'subject_code' => 'IT102',
+            'subject_name' => 'Programming',
+            'units' => 6,
+        ]);
+        Enrollment::create([
+            'student_id' => $student->id,
+            'subject_id' => $firstSemesterSubject->id,
+            'status' => 'enrolled',
+            'semester' => '1st Semester',
+        ]);
+        Enrollment::create([
+            'student_id' => $student->id,
+            'subject_id' => $secondSemesterSubject->id,
+            'status' => 'enrolled',
+            'semester' => '2nd Semester',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('enrollments.index'))
+            ->assertOk()
+            ->assertSee('Enrolled Units (per semester)')
+            ->assertSee('1st Semester:')
+            ->assertSee('2nd Semester:')
+            // The cap is 10 per semester, so each semester shows 6 — never a 12 total.
+            ->assertSee('<span class="font-semibold text-gray-900">6</span>', false)
+            ->assertDontSee('<span class="font-semibold text-gray-900">12</span>', false);
     }
 
     public function test_admin_can_create_update_and_delete_an_enrollment(): void

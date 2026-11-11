@@ -10,9 +10,10 @@
     </x-slot>
 
     @php
-        $enrolledUnits = $student->enrollments
+        $unitsBySemester = $student->enrollments
             ->where('status', 'enrolled')
-            ->sum(fn ($enrollment) => (int) ($enrollment->subject?->units ?? 0));
+            ->groupBy('semester')
+            ->map(fn ($enrollments) => $enrollments->sum(fn ($enrollment) => (int) ($enrollment->subject?->units ?? 0)));
         $semesters = $student->enrollments->pluck('semester')->filter()->unique()->values();
         $semesterCount = $semesters->count();
     @endphp
@@ -32,8 +33,14 @@
                             <p class="mt-1 text-2xl font-bold text-indigo-900">{{ $semesterCount }} {{ $semesterCount === 1 ? 'semester' : 'semesters' }}</p>
                         </div>
                         <div class="rounded-lg bg-indigo-50 px-4 py-3 text-right">
-                            <p class="text-xs font-medium uppercase tracking-wide text-indigo-700">Current enrolled load</p>
-                            <p class="mt-1 text-2xl font-bold text-indigo-900">{{ $enrolledUnits }} <span class="text-sm font-medium">/ 10 units</span></p>
+                            <p class="text-xs font-medium uppercase tracking-wide text-indigo-700">Enrolled units / semester</p>
+                            @forelse ($unitsBySemester as $semester => $units)
+                                <p class="mt-1 text-sm font-semibold text-indigo-900">
+                                    {{ $semester }}: {{ $units }} <span class="font-medium">/ 10</span>
+                                </p>
+                            @empty
+                                <p class="mt-1 text-sm font-semibold text-indigo-900">0 <span class="font-medium">/ 10</span></p>
+                            @endforelse
                         </div>
                     </div>
                 </div>
@@ -57,6 +64,7 @@
                                 <th scope="col" class="px-4 py-3 font-semibold">Subject</th>
                                 <th scope="col" class="px-4 py-3 font-semibold">Units</th>
                                 <th scope="col" class="px-4 py-3 font-semibold">Semester</th>
+                                <th scope="col" class="px-4 py-3 font-semibold">Year</th>
                                 <th scope="col" class="px-4 py-3 font-semibold">Status</th>
                                 <th scope="col" class="px-4 py-3 font-semibold">Actions</th>
                             </tr>
@@ -74,6 +82,9 @@
                                     <td class="whitespace-nowrap px-4 py-3 text-gray-700">{{ $enrollment->subject?->units ?? '—' }}</td>
                                     <td class="whitespace-nowrap px-4 py-3">
                                         <span class="inline-flex rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">{{ $enrollment->semester }}</span>
+                                    </td>
+                                    <td class="whitespace-nowrap px-4 py-3 text-gray-700">
+                                        {{ \App\Models\Enrollment::yearLevelLabel($enrollment->year_level ? (int) $enrollment->year_level : null) }}
                                     </td>
                                     <td class="whitespace-nowrap px-4 py-3">
                                         <span class="inline-flex rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold capitalize text-gray-700">{{ $enrollment->status }}</span>

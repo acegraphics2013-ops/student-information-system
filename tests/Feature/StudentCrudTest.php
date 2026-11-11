@@ -395,6 +395,52 @@ class StudentCrudTest extends TestCase
                 && $students->first()->enrollments->sum(fn ($enrollment) => $enrollment->subject->units) === 3);
     }
 
+    public function test_student_detail_page_groups_subjects_by_year_level(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
+
+        $student = Student::create($this->studentRecordData([
+            'student_number' => 'SIMS-YEAR-01',
+            'email' => 'year.grouping@example.com',
+        ]));
+
+        $firstYearSubject = Subject::create([
+            'subject_code' => 'GE101',
+            'subject_name' => 'Understanding the Self',
+            'units' => 3,
+        ]);
+        $thirdYearSubject = Subject::create([
+            'subject_code' => 'IT301',
+            'subject_name' => 'Software Engineering',
+            'units' => 3,
+        ]);
+
+        Enrollment::create([
+            'student_id' => $student->id,
+            'subject_id' => $firstYearSubject->id,
+            'status' => 'completed',
+            'semester' => '1st Semester',
+            'year_level' => 1,
+        ]);
+        Enrollment::create([
+            'student_id' => $student->id,
+            'subject_id' => $thirdYearSubject->id,
+            'status' => 'enrolled',
+            'semester' => '2nd Semester',
+            'year_level' => 3,
+        ]);
+
+        $this->get(route('students.show', $student))
+            ->assertOk()
+            ->assertSee('1st Year')
+            ->assertSee('3rd Year')
+            ->assertSee('GE101')
+            ->assertSee('IT301')
+            ->assertSee('Semester')
+            ->assertSee('2 subjects')
+            ->assertSee('6 total units');
+    }
+
     public function test_missing_student_pages_return_not_found(): void
     {
         $this->actingAs(User::factory()->create(['role' => 'admin']));

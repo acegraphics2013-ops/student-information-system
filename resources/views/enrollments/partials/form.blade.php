@@ -15,6 +15,8 @@
             selectedSubjectIds: @js(array_map('strval', is_array(old('subject_ids', [])) ? old('subject_ids', []) : [])),
             status: @js(old('status', 'enrolled')),
             semester: @js(old('semester', $semesters[0] ?? '1st Semester')),
+            yearLevel: @js((string) old('year_level', $yearLevels[0] ?? 1)),
+            step: @js(filled($initialStudentId ?? '') ? 2 : 1),
             notice: '',
             noticeTimer: null,
             get filteredStudents() {
@@ -46,6 +48,14 @@
                 return this.subjects
                     .filter((subject) => existingIds.includes(String(subject.id)))
                     .map((subject) => subject.code);
+            },
+            get selectedSubjectCodes() {
+                return this.subjects
+                    .filter((subject) => this.selectedSubjectIds.includes(String(subject.id)))
+                    .map((subject) => subject.code);
+            },
+            get statusLabel() {
+                return { enrolled: 'Enrolled', completed: 'Completed', dropped: 'Dropped' }[this.status] ?? this.status;
             },
             hasSubject(subjectId) {
                 return this.selectedStudent?.existing_subject_ids.includes(String(subjectId)) ?? false;
@@ -80,6 +90,7 @@
                 this.selectedSubjectIds = [];
                 this.search = '';
                 this.notice = '';
+                this.step = 1;
             }
         }"
     @endif
@@ -121,7 +132,43 @@
                 <x-input-error :messages="$errors->get('subject_id')" class="mt-2" />
             </div>
         @else
-            <section class="space-y-4" aria-labelledby="student-search-heading">
+            {{-- =========================================================
+                 FULL ENROLLMENT PROCESS — 4 step wizard
+                 1. Student -> 2. Subjects -> 3. Details -> 4. Review
+                 ========================================================= --}}
+            <input type="hidden" name="student_id" x-model="selectedStudentId">
+            <input type="hidden" name="status" x-model="status">
+
+            @if ($students->isEmpty() || $subjects->isEmpty())
+                <p class="rounded bg-amber-50 p-3 text-amber-800">
+                    Add at least one student and one subject before creating an enrollment.
+                </p>
+            @endif
+
+            <!-- Step progress -->
+            <ol x-cloak class="flex flex-wrap items-center gap-2 text-xs font-medium sm:text-sm" aria-label="Enrollment steps">
+                @foreach (['Student', 'Subjects', 'Details', 'Review'] as $i => $label)
+                    @php($n = $i + 1)
+                    <li class="flex items-center gap-2">
+                        <button type="button"
+                                @click="if (step > {{ $n }}) step = {{ $n }}"
+                                class="flex items-center gap-2 rounded-full px-3 py-1 transition"
+                                :class="step === {{ $n }}
+                                    ? 'bg-indigo-600 text-white'
+                                    : (step > {{ $n }} ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-500')">
+                            <span class="flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold"
+                                  :class="step === {{ $n }} ? 'bg-white/25' : 'bg-white/70'">{{ $n }}</span>
+                            {{ $label }}
+                        </button>
+                        @if (! $loop->last)
+                            <span class="h-px w-4 bg-gray-300 sm:w-6" aria-hidden="true"></span>
+                        @endif
+                    </li>
+                @endforeach
+            </ol>
+
+            <!-- STEP 1: Find a student -->
+            <section x-cloak x-show="step === 1" class="space-y-4" aria-labelledby="student-search-heading">
                 <div>
                     <h3 id="student-search-heading" class="text-base font-semibold text-gray-900">1. Find a student</h3>
                     <p class="mt-1 text-sm text-gray-500">Search by student number, name, or email.</p>
@@ -154,7 +201,6 @@
                             No students match your search.
                         </p>
                     </div>
-                    <input type="hidden" name="student_id" x-model="selectedStudentId">
                     <x-input-error :messages="$errors->get('student_id')" class="mt-2" />
                 </div>
 
@@ -173,9 +219,17 @@
                         Change
                     </button>
                 </div>
+
+                <div class="flex items-center justify-end gap-3 pt-1">
+                    <button type="button" @click="step = 2" :disabled="!selectedStudent"
+                            class="inline-flex min-h-11 items-center justify-center rounded-md bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                        Next: Choose subjects
+                    </button>
+                </div>
             </section>
 
-            <section x-cloak x-show="selectedStudent" class="space-y-4" aria-labelledby="subject-select-heading">
+            <!-- STEP 2: Choose subjects -->
+            <section x-cloak x-show="step === 2" class="space-y-4" aria-labelledby="subject-select-heading">
                 <div class="flex flex-wrap items-end justify-between gap-3">
                     <div>
                         <h3 id="subject-select-heading" class="text-base font-semibold text-gray-900">2. Choose subjects</h3>
@@ -186,7 +240,6 @@
                         <span x-text="displayedUnits"></span> / 10 units
                     </p>
                 </div>
-                <input type="hidden" name="status" x-model="status">
                 <x-input-error :messages="$errors->get('subject_ids')" class="mt-2" />
 
                 <!-- Already-enrolled notification -->
@@ -248,7 +301,38 @@
                 </div>
                 <x-input-error :messages="$errors->get('subject_ids.*')" class="mt-2" />
 
-                <div class="grid gap-4 sm:grid-cols-2">
+                <div class="flex items-center justify-between gap-3 pt-1">
+                    <button type="button" @click="step = 1"
+                            class="inline-flex min-h-11 items-center justify-center rounded-md border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        Back
+                    </button>
+                    <button type="button" @click="step = 3" :disabled="selectedSubjectIds.length === 0"
+                            class="inline-flex min-h-11 items-center justify-center rounded-md bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                        Next: Enrollment details
+                    </button>
+                </div>
+            </section>
+
+            <!-- STEP 3: Enrollment details -->
+            <section x-cloak x-show="step === 3" class="space-y-4" aria-labelledby="details-heading">
+                <div>
+                    <h3 id="details-heading" class="text-base font-semibold text-gray-900">3. Enrollment details</h3>
+                    <p class="mt-1 text-sm text-gray-500">Set the year, semester, and status for this enrollment.</p>
+                </div>
+
+                <div class="grid gap-4 sm:grid-cols-3">
+                    <div>
+                        <x-input-label for="year_level" value="Year Level" />
+                        <select id="year_level" name="year_level" x-model="yearLevel" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            @foreach ($yearLevels as $year)
+                                <option value="{{ $year }}">Year {{ $year }}</option>
+                            @endforeach
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500">The year the student is enrolling for (starts at 1st year).</p>
+                        <x-input-error :messages="$errors->get('year_level')" class="mt-2" />
+                    </div>
+
                     <div>
                         <x-input-label for="semester" value="Semester" />
                         <select id="semester" name="semester" x-model="semester" required
@@ -272,11 +356,95 @@
                         <x-input-error :messages="$errors->get('status')" class="mt-2" />
                     </div>
                 </div>
+
+                <div class="flex items-center justify-between gap-3 pt-1">
+                    <button type="button" @click="step = 2"
+                            class="inline-flex min-h-11 items-center justify-center rounded-md border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        Back
+                    </button>
+                    <button type="button" @click="step = 4"
+                            class="inline-flex min-h-11 items-center justify-center rounded-md bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        Next: Review
+                    </button>
+                </div>
+            </section>
+
+            <!-- STEP 4: Review & confirm -->
+            <section x-cloak x-show="step === 4" class="space-y-4" aria-labelledby="review-heading">
+                <div>
+                    <h3 id="review-heading" class="text-base font-semibold text-gray-900">4. Review &amp; confirm</h3>
+                    <p class="mt-1 text-sm text-gray-500">Check the details below, then enroll the student.</p>
+                </div>
+
+                <dl class="grid gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:grid-cols-2">
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-gray-500">Student</dt>
+                        <dd class="mt-1 text-sm font-medium text-gray-900"
+                            x-text="selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : '—'"></dd>
+                        <dd class="text-xs text-gray-500"
+                            x-text="selectedStudent ? `${selectedStudent.student_number} · ${selectedStudent.email}` : ''"></dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-gray-500">Subjects</dt>
+                        <dd class="mt-1 text-sm font-medium text-gray-900"
+                            x-text="selectedSubjectCodes.length ? selectedSubjectCodes.join(', ') : '—'"></dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-gray-500">Year Level</dt>
+                        <dd class="mt-1 text-sm font-medium text-gray-900" x-text="'Year ' + yearLevel"></dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-gray-500">Semester</dt>
+                        <dd class="mt-1 text-sm font-medium text-gray-900" x-text="semester"></dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-gray-500">Status</dt>
+                        <dd class="mt-1 text-sm font-medium text-gray-900" x-text="statusLabel"></dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-gray-500">Total units</dt>
+                        <dd class="mt-1 text-sm font-medium text-gray-900">
+                            <span x-text="displayedUnits"></span> / 10
+                        </dd>
+                    </div>
+                </dl>
+
+                <x-input-error :messages="$errors->get('subject_ids')" class="mt-2" />
+
+                <div class="flex items-center justify-between gap-3 pt-1">
+                    <button type="button" @click="step = 3"
+                            class="inline-flex min-h-11 items-center justify-center rounded-md border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        Back
+                    </button>
+                    <div class="flex items-center gap-4">
+                        <a href="{{ route('enrollments.index') }}" class="text-sm text-gray-600">Cancel</a>
+                        <button type="submit"
+                                x-bind:disabled="!selectedStudent || selectedSubjectIds.length === 0 || selectedUnits > 10 || (status === 'enrolled' && totalUnits > 10)"
+                                class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-indigo-700 focus:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                            Enroll in Selected Subjects
+                        </button>
+                    </div>
+                </div>
             </section>
         @endif
 
         @if ($enrollment)
-            <div class="grid gap-4 sm:grid-cols-2">
+            <div class="grid gap-4 sm:grid-cols-3">
+                <div>
+                    <x-input-label for="year_level" value="Year Level" />
+                    <select id="year_level" name="year_level" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        @foreach ($yearLevels as $year)
+                            <option value="{{ $year }}"
+                                @selected((int) old('year_level', $enrollment->year_level) === $year)>
+                                Year {{ $year }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500">The year the student was enrolled.</p>
+                    <x-input-error :messages="$errors->get('year_level')" class="mt-2" />
+                </div>
+
                 <div>
                     <x-input-label for="semester" value="Semester" />
                     <select id="semester" name="semester" required
@@ -307,23 +475,21 @@
             </div>
         @endif
 
-        @if ($students->isEmpty() || $subjects->isEmpty())
-            <p class="rounded bg-amber-50 p-3 text-amber-800">
-                Add at least one student and one subject before creating an enrollment.
-            </p>
-        @endif
+        @if ($enrollment)
+            @if ($students->isEmpty() || $subjects->isEmpty())
+                <p class="rounded bg-amber-50 p-3 text-amber-800">
+                    Add at least one student and one subject before creating an enrollment.
+                </p>
+            @endif
 
-        <div class="flex items-center gap-4 pt-2">
-            <button type="submit"
-                    @if ($enrollment)
+            <div class="flex items-center gap-4 pt-2">
+                <button type="submit"
                         @disabled($students->isEmpty() || $subjects->isEmpty())
-                    @else
-                        x-bind:disabled="!selectedStudent || selectedSubjectIds.length === 0 || selectedUnits > 10 || (status === 'enrolled' && totalUnits > 10)"
-                    @endif
-                    class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-indigo-700 focus:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
-                {{ $enrollment ? 'Update Enrollment' : 'Enroll in Selected Subjects' }}
-            </button>
-            <a href="{{ route('enrollments.index') }}" class="text-sm text-gray-600">Cancel</a>
-        </div>
+                        class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-indigo-700 focus:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                    Update Enrollment
+                </button>
+                <a href="{{ route('enrollments.index') }}" class="text-sm text-gray-600">Cancel</a>
+            </div>
+        @endif
     </div>
 </form>

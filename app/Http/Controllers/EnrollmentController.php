@@ -79,6 +79,7 @@ class EnrollmentController extends Controller
             'subject_ids.*' => ['required', 'integer', 'distinct', Rule::exists('subjects', 'id')],
             'status' => ['required', Rule::in(['enrolled', 'completed', 'dropped'])],
             'semester' => ['required', Rule::in(Enrollment::SEMESTERS)],
+            'year_level' => ['nullable', 'integer', 'between:1,5'],
         ]);
 
         DB::transaction(function () use ($validated): void {
@@ -128,6 +129,7 @@ class EnrollmentController extends Controller
                     'subject_id' => $subjectId,
                     'status' => $validated['status'],
                     'semester' => $validated['semester'],
+                    'year_level' => $validated['year_level'] ?? $student->year_level,
                 ]);
             }
         });
@@ -186,6 +188,9 @@ class EnrollmentController extends Controller
                 }
             }
 
+            // Keep the existing year when the form leaves it blank.
+            $validated['year_level'] ??= $student->year_level;
+
             $enrollment->update($validated);
         });
 
@@ -217,6 +222,7 @@ class EnrollmentController extends Controller
                 'first_name' => $student->first_name,
                 'last_name' => $student->last_name,
                 'email' => $student->email,
+                'year_level' => $student->year_level,
                 'units_by_semester' => collect(Enrollment::SEMESTERS)
                     ->mapWithKeys(fn (string $semester): array => [
                         $semester => (int) $student->enrollments
@@ -232,6 +238,7 @@ class EnrollmentController extends Controller
             ])->values(),
             'subjects' => Subject::orderBy('subject_code')->get(),
             'semesters' => Enrollment::SEMESTERS,
+            'yearLevels' => Enrollment::YEAR_LEVELS,
         ];
     }
 
@@ -254,6 +261,7 @@ class EnrollmentController extends Controller
             ],
             'status' => ['required', Rule::in(['enrolled', 'completed', 'dropped'])],
             'semester' => ['required', Rule::in(Enrollment::SEMESTERS)],
+            'year_level' => ['nullable', 'integer', 'between:1,5'],
         ], [
             'subject_id.unique' => 'This student is already enrolled in that subject.',
         ]);
