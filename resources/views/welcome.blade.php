@@ -248,33 +248,13 @@
              ========================================================= -->
             <section id="features" class="py-20 lg:pt-32 lg:pb-32 border-t border-gray-200 bg-white">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <!-- Developer Photo Header -->
-                    <div class="flex flex-col lg:flex-row items-center justify-between gap-8 mb-16">
-                        <div class="lg:w-1/2 text-center lg:text-left">
-                            <h2 class="text-3xl sm:text-4xl font-bold text-navy-900 mb-4">From Laravel Concepts<br>to a Functional Application</h2>
-                            <p class="text-lg text-gray-600 max-w-lg lg:max-w-none leading-relaxed">
-                                SIMS demonstrates how important Laravel web development concepts can be applied
-                                in a working academic information system.
-                            </p>
-                        </div>
-                        <div class="lg:w-1/2 flex justify-center lg:justify-end">
-                            <div class="reveal-on-scroll relative">
-                                <div class="absolute -inset-3 rounded-full bg-gradient-to-tr from-blue-200/60 via-indigo-100/40 to-transparent blur-sm" aria-hidden="true"></div>
-                                <div class="relative h-48 w-48 sm:h-56 sm:w-56 rounded-full overflow-hidden shadow-2xl border-4 border-white ring-1 ring-blue-100 bg-gray-100">
-                                    @if ($developerPhoto)
-                                        <img src="{{ asset($developerPhoto) }}"
-                                             alt="Ace Raz Cabuga - Developer of SIMS"
-                                             width="224" height="224"
-                                             loading="lazy" decoding="async"
-                                             class="h-full w-full object-cover object-top transition-transform duration-700 ease-out hover:scale-105">
-                                    @else
-                                        <div class="h-full w-full flex items-center justify-center bg-gradient-to-br from-blue-600 to-blue-800">
-                                            <span class="text-4xl font-bold text-white">AR</span>
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Section Header -->
+                    <div class="mb-16">
+                        <h2 class="text-3xl sm:text-4xl font-bold text-navy-900 mb-4">From Laravel Concepts<br>to a Functional Application</h2>
+                        <p class="text-lg text-gray-600 max-w-2xl leading-relaxed">
+                            SIMS demonstrates how important Laravel web development concepts can be applied
+                            in a working academic information system.
+                        </p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -509,25 +489,6 @@
                         }
                     });
                 });
-
-                // Reveal the developer photo as #features scrolls into view
-                const revealElements = document.querySelectorAll('.reveal-on-scroll');
-                if (revealElements.length) {
-                    if ('IntersectionObserver' in window) {
-                        const revealObserver = new IntersectionObserver((entries, observer) => {
-                            entries.forEach(entry => {
-                                if (entry.isIntersecting) {
-                                    entry.target.classList.add('is-visible');
-                                    observer.unobserve(entry.target);
-                                }
-                            });
-                        }, { threshold: 0.2, rootMargin: '0px 0px -40px 0px' });
-
-                        revealElements.forEach(element => revealObserver.observe(element));
-                    } else {
-                        revealElements.forEach(element => element.classList.add('is-visible'));
-                    }
-                }
             });
         </script>
     </body>
