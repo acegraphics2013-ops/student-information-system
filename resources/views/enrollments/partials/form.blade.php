@@ -15,6 +15,8 @@
             selectedSubjectIds: @js(array_map('strval', is_array(old('subject_ids', [])) ? old('subject_ids', []) : [])),
             status: @js(old('status', 'enrolled')),
             semester: @js(old('semester', $semesters[0] ?? '1st Semester')),
+            notice: '',
+            noticeTimer: null,
             get filteredStudents() {
                 const query = this.search.trim().toLowerCase();
                 if (!query) return [];
