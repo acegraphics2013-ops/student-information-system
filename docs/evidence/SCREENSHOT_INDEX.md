@@ -4,187 +4,49 @@
 **Source folder:** `screenshots/`  
 **Count:** 20 images
 
-- **What it shows:** Browser view of the public GitHub repository, including account/profile UI.
-timestamps. The screenshots are genuine files from the workspace. They show
-- **Rubric:** B3 project structure, Git evidence.
-- **Recommended placement:** Not recommended; the visible account UI is unnecessary for the technical portfolio.
-- **Package:** Omitted to avoid including unrelated account/profile details.
+The listed dates are filesystem modification dates, not independently verified
+capture timestamps. All screenshots are authentic files in the workspace.
+They show development/setup activity; none shows a live SIMS page or an
+API-client request and response. Four development captures are selected for
+the draft Portfolio PDF and DRAFT ZIP. Other images are omitted where they
+show unrelated accounts, older results, or project setup outside this repo.
 
-## Inventory
+| Filename | What it shows | Date | Rubric relevance | Recommended use / package status |
+|---|---|---|---|---|
+| `1. Open your Laravel project.JPG` | VS Code with an older PHPUnit run showing 34 tests and 101 assertions. | 2026-11-09 | D1 testing | Historical only; omit from package because it is not the current result. |
+| `11092026423PM.JPG` | VS Code project with an older PHPUnit run showing 34 tests and 101 assertions. | 2026-11-09 | D1 testing | Historical only; omit from package. |
+| `11092026440PM.JPG` | PHP namespace declaration failure and the related test-file correction. | 2026-11-09 | C1 prompt case 1; D1 debugging | Portfolio Case 1. Include as `screenshots/11092026440PM.JPG`. |
+| `11092026450PM.JPG` | Public GitHub repository page with account/profile controls visible. | 2026-11-09 | B3 structure; Git | Omit; account UI is unnecessary. |
+| `11092026501PM.JPG` | Subject routes and a targeted Subject test run: 3 passed, 17 assertions. | 2026-11-09 | A3 CRUD; D1 testing | Historical module evidence; omit. |
+| `11092026512PM.JPG` | Enrollment routes and targeted Enrollment test run: 4 passed, 22 assertions. | 2026-11-09 | A3 CRUD; D1 testing | Historical module evidence; omit. |
+| `11092026514PM.JPG` | Enrollment feature diff, targeted tests, Git status and commit commands. | 2026-11-09 | A3 CRUD; B2 review; Git | Historical development evidence; omit. |
+| `11092026518PM.JPG` | Enrollment Blade diff with Enrollment route listing. | 2026-11-09 | A3 CRUD; B2 review | Historical development evidence; omit. |
+| `11092026720PM.JPG` | Historical Laravel route list showing 51 routes, including Student API routes. | 2026-11-09 | A5 API; D1 route review | Older route count; omit. |
+| `11092026730PM.JPG` | Verbose Student API routes with Sanctum authentication and Administrator middleware on writes. | 2026-11-09 | A2 authorization; A5 API | Portfolio API case study. Include as `screenshots/11092026730PM.JPG`. |
+| `11092026731PM.JPG` | Partial PHPUnit output with passing test groups; final summary is not visible. | 2026-11-09 | D1 testing | Process evidence only; omit. |
+| `11092026732PM.JPG` | Historical Vite production build and Composer validation output. | 2026-11-09 | B2 quality checks | Historical build evidence; omit. |
+| `111020260251PM.JPG` | Partial PHPUnit output in VS Code; final summary is not visible. | 2026-11-10 | D1 testing; D2 verification | Portfolio verification case. Include as `screenshots/111020260251PM.JPG`. |
+| `111020260252PM.JPG` | Historical Vite warning, Pint output, and a Git count of 41. | 2026-11-10 | B2 checks; Git | Portfolio verification case; label 41 as historical. Include as `screenshots/111020260252PM.JPG`. |
+| `111020260253PM.JPG` | VS Code Source Control showing staged/unstaged file names and an in-progress commit message. | 2026-11-10 | Git; B3 structure | Historical status, not proof of final state; omit. |
+| `111020261049AM.JPG` | VS Code request log and route-list output; no rendered application page is visible. | 2026-11-10 | A5 API/routes; D1 runtime | Not live-UI evidence; omit. |
+| `2. Install Laravel Breeze using Composer.JPG` | Composer package discovery and Breeze's interactive stack selection. | 2026-11-09 | A1 setup; B3 structure | Setup activity does not prove installation completed; omit. |
+| `7. Save your Git progress.JPG` | Enrollment migration/model code and the initial schema commit. | 2026-11-09 | A4 database/Eloquent; Git | Historical schema work; omit. |
+| `Step 1 - Prepare your development environment.JPG` | PHP/Composer/Node/npm/Git versions in a terminal path named `student_system_cabuga`, not this repo. | 2026-11-09 | Not verified for this repository | Do not use as current environment evidence; omit. |
+| `Step 2 - Create the Laravel project.JPG` | `composer create-project` attempt in the separate `student_system_cabuga` path, ending with a disk-space warning. | 2026-11-09 | Not relevant to existing-project work | Do not imply this SIMS was rebuilt; omit. |
 
-- **What it shows:** Subject CRUD route listing and a targeted test run showing 3 passed and 17 assertions.
+## Screenshots Still Needed
 
-- **What it shows:** VS Code with a historical test run showing 34 passing tests and 101 assertions; not the current test result.
-- **Recommended placement:** Historical Subject CRUD case study.
-- **Rubric:** D1 validation/testing, D2 output verification.
-- **Recommended placement:** Historical testing notes only; do not use as current sign-off.
-- **Package:** Omitted; selected current verification should be captured separately.
+Capture authentic, current screenshots if the instructor requires visual
+evidence:
 
-- **What it shows:** Enrollment route listing and a targeted Enrollment test run showing 4 passed and 22 assertions.
-
-- **Rubric:** A3 CRUD, D1 testing.
-- **Recommended placement:** Historical Enrollment CRUD case study.
-- **Rubric:** D1 validation/testing.
-- **Recommended placement:** Historical test-result notes; do not cite as current.
-- **Package:** Omitted; selected captures are more relevant.
-
-- **What it shows:** Enrollment feature diff, targeted tests (4 passed, 22 assertions), and the Git commit command/output.
-
-- **What it shows:** PHP namespace declaration failure and the related test-file correction in VS Code.
-- **Recommended placement:** AI Portfolio discussion of iterative review and commits.
-- **Rubric:** C1 prompt case 1, D1 debugging.
-- **Recommended placement:** AI Portfolio case study on namespace debugging.
-- **Package:** Included as `docs/evidence/images/11092026440PM.JPG`.
-
-- **What it shows:** Enrollment view diff and route listing for the Enrollment module.
-
-- **Rubric:** A3 CRUD, B2 code review.
-- **Recommended placement:** Historical Enrollment implementation workflow.
-- **Package:** Omitted; no live application page is visible.
-- **Recommended placement:** Not recommended; the visible account UI is unnecessary for the technical portfolio.
-- **Package:** Omitted to avoid including unrelated account/profile details.
-
-- **What it shows:** Historical full Laravel route listing, showing 51 routes including Student API paths.
-
-- **Rubric:** A5 API, D1 route verification.
-- **Recommended placement:** Historical route inspection; the count is not current.
-- **Package:** Omitted; the more specific API middleware capture is included.
-- **Recommended placement:** Historical Subject CRUD case study.
-- **Package:** Omitted; the current full suite is documented separately.
-
-- **What it shows:** Verbose Student API route listing, including Sanctum authentication and Administrator middleware on write actions.
-
-- **Rubric:** A2 authorization, A5 API.
-- **Recommended placement:** AI Portfolio API/security case study; label as historical.
-- **Package:** Included as `docs/evidence/images/11092026730PM.JPG`.
-- **Recommended placement:** Historical Enrollment CRUD case study.
-- **Package:** Omitted; other selected evidence is more directly relevant.
-
-- **What it shows:** Partial PHPUnit output with passing test groups; no final summary is visible.
-
-- **Rubric:** D1 testing.
-- **Recommended placement:** Historical test process only.
-- **Package:** Omitted; no final count is visible.
-- **Recommended placement:** AI Portfolio discussion of iterative review and commits.
-- **Package:** Omitted; other selected evidence is more directly relevant.
-
-- **What it shows:** Historical Vite production build and Composer validation output.
-
-- **What it shows:** Historical full Laravel route list with 51 routes.
-- **Recommended placement:** Historical build verification; Vite's image warning is visible in the capture.
-- **Package:** Omitted; a later build/Pint capture is selected.
-- **Recommended placement:** Historical route inspection; the route count is not current.
-- **Package:** Omitted; the more specific API middleware capture is included.
-
-### 9. `11092026720PM.JPG`
-
-- **What it shows:** Migration status and all five Student API operations, including Sanctum and Administrator middleware.
-- **Date:** 2026-11-09 (file modified; capture time unverified).
-- **Rubric:** A2 authorization, A4 database, A5 API.
-- **Recommended placement:** AI Portfolio API/security case study; label as historical.
-- **Package:** Included as `docs/evidence/images/11092026720PM.JPG`.
-
-### 10. `11092026730PM.JPG`
-
-- **What it shows:** Partial PHPUnit output with passing test groups; no final summary is visible.
-- **Date:** 2026-11-09 (file modified; capture time unverified).
-- **Rubric:** D1 testing.
-- **Recommended placement:** Historical test process only.
-- **Package:** Omitted; no final count is visible.
-
-### 11. `11092026731PM.JPG`
-
-- **What it shows:** Historical Vite build, Pint check over 90 files, and a Git count of 41.
-- **Date:** 2026-11-09 (file modified; capture time unverified).
-- **Rubric:** B2 quality checks, Git history.
-- **Recommended placement:** Historical verification with the 41-commit count labeled as a prior snapshot.
-- **Package:** Omitted; a later build/Pint capture is selected.
-
-### 12. `11092026732PM.JPG`
-
-- **What it shows:** Historical Vite build and Composer validation output.
-- **Date:** 2026-11-09 (file modified; capture time unverified).
-- **Rubric:** B2 quality checks.
-- **Recommended placement:** Historical build verification.
-- **Package:** Omitted; the later build/Pint capture is selected.
-
-### 13. `111020260251PM.JPG`
-
-- **What it shows:** Partial Laravel test output in VS Code; the final summary is not in the visible area.
-- **Date:** 2026-11-10 (file modified; capture time unverified).
-- **Rubric:** D1 testing, D2 verification.
-- **Recommended placement:** AI Portfolio verification evidence with a clear historical/partial caption.
-- **Package:** Included as `docs/evidence/images/111020260251PM.JPG`.
-
-### 14. `111020260252PM.JPG`
-
-- **What it shows:** Historical Vite build warning, Pint output, and a Git count of 41.
-- **Date:** 2026-11-10 (file modified; capture time unverified).
-- **Rubric:** B2 quality checks, D2 verification, Git history.
-- **Recommended placement:** AI Portfolio verification case; state that the visible commit count is historical.
-- **Package:** Included as `docs/evidence/images/111020260252PM.JPG`.
-
-### 15. `111020260253PM.JPG`
-
-- **What it shows:** VS Code Source Control view with staged/unstaged file names and an in-progress commit message.
-- **Date:** 2026-11-10 (file modified; capture time unverified).
-- **Rubric:** Git process, B3 project structure.
-- **Recommended placement:** Historical Git workflow, not proof of final repository status.
-- **Package:** Omitted; it exposes broad working-tree filenames without adding verification value.
-
-### 16. `111020261049AM.JPG`
-
-- **What it shows:** VS Code with a Laravel server request log and route-list output; no rendered application page is visible.
-- **Date:** 2026-11-10 (file modified; capture time unverified).
-- **Rubric:** A5 API/routes, D1 runtime verification.
-- **Recommended placement:** Historical server/route activity only.
-- **Package:** Omitted; it is not a screenshot of the running UI.
-
-### 17. `2. Install Laravel Breeze using Composer.JPG`
-
-- **What it shows:** Composer package discovery and the interactive Breeze stack selection screen.
-- **Date:** 2026-11-09 (file modified; capture time unverified).
-- **Rubric:** A1 authentication setup, B3 project structure.
-- **Recommended placement:** Historical setup section, with a note that the image does not prove installation completion.
-- **Package:** Omitted; setup activity is not a current functional test.
-
-### 18. `7. Save your Git progress.JPG`
-
-- **What it shows:** Enrollment migration/model code and a commit creating Student, Subject, and Enrollment schema files.
-- **Date:** 2026-11-09 (file modified; capture time unverified).
-- **Rubric:** A4 database/Eloquent, Git process.
-- **Recommended placement:** Historical schema-development case study.
-- **Package:** Omitted; the current migration record and schema docs are more useful.
-
-### 19. `Step 1 — Prepare your development environment.JPG`
-
-- **What it shows:** PHP, Composer, Node, npm, and Git versions in a terminal whose path is `student_system_cabuga`, not this repository path.
-- **Date:** 2026-11-09 (file modified; capture time unverified).
-- **Rubric:** None for the current SIMS without further provenance.
-- **Recommended placement:** Do not use as evidence for this repository's environment.
-- **Package:** Omitted as unrelated/unverified.
-
-### 20. `Step 2 — Create the Laravel project.JPG`
-
-- **What it shows:** A `composer create-project` attempt in the `student_system_cabuga` path, ending with a disk-space warning.
-- **Date:** 2026-11-09 (file modified; capture time unverified).
-- **Rubric:** None for the current existing-project implementation.
-- **Recommended placement:** Do not use; the project must not be described as rebuilt.
-- **Package:** Omitted as unrelated and nonrepresentative.
-
-## Screenshots still needed
-
-Capture authentic, current screenshots from the actual local application if
-the assessment requires visual evidence:
-
-- Login and registration screens, with no passwords or tokens visible.
+- Login and registration screens, with passwords and personal data hidden.
 - Administrator dashboard and user-management role restrictions.
-- Student list, create/edit form, and a successful validation error state.
+- Student list, create/edit workflow, and a validation error state.
 - Subject list and create/edit workflow.
 - Enrollment list and create/update workflow.
-- Academic catalog page with College, Department, and Program content.
-- Sanctum API client showing Admin success and Staff `403` for a write, with tokens redacted.
-- Fresh `php artisan test` final summary and the current `npm run build` result.
+- Academic catalog showing Colleges, Departments, and Programs.
+- Sanctum API Admin success and Staff `403` response, with tokens redacted.
+- A fresh test summary and current production-build output.
 
-Do not use the generated visual login mockup or historical route/test screenshots
-as proof that these pages or requests were running in the current application.
+Do not treat a generated mockup, a historical terminal capture, or a route list
+as proof that the corresponding application page or API exchange was running.

@@ -716,3 +716,31 @@
         text-align: right;
     }
 }
+
+/* =========================================
+   NEMSU SIMS Homepage Custom Styles
+   ========================================= */
+
+.text-navy-900 {
+    color: #0B2349 !important;
+}
+
+.bg-navy-900 {
+    background-color: #0B2349 !important;
+}
+
+.text-blue-600 {
+    color: #1455B8 !important;
+}
+
+.bg-blue-600 {
+    background-color: #1455B8 !important;
+}
+
+.hover\:bg-blue-700:hover {
+    background-color: #0F459C !important;
+}
+
+.shadow-sm {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+}
