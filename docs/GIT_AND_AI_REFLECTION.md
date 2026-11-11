@@ -8,9 +8,10 @@ claiming a PDF review.
 ## Verifiable workflow facts
 
 - The repository has an incremental history. `git rev-list --count HEAD`
-  reported **46 commits** on November 10, 2026. Recheck before final submission.
-- The current rubric-driven code and documentation changes are uncommitted.
-  No commit, push, or deployment was made for this work.
+  reported **56 commits** at the latest November 10, 2026 check. Recheck before
+  final submission; the history advanced during review.
+- Recent documentation commits are present in Git history. Check `git status`
+  before submission. No push or deployment command was issued in this session.
 - GitHub Copilot in VS Code is the assistant documented in this current
   workflow. The exact model/version was not exposed. Historical screenshots
   show other AI interfaces, but a visible browser tab alone does not establish

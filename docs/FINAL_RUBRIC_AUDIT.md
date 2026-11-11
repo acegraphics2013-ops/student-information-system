@@ -32,7 +32,7 @@ workspace. It is not an instructor grade or grade prediction.
 
 - The handbook and rubric PDFs were unavailable, so their contents and any additional requirements could not be checked directly.
 - Twenty screenshot files exist. They show development tools and terminal/Git evidence; no genuine running-app screen or API-client exchange was found.
-- The repository is at 46 commits at the time of this audit. No commit or push was made for this work.
+- The repository is at 56 commits at the latest check. The history advanced during review; no push or deployment command was issued in this session.
 - The local database contains student, subject and enrollment rows. Only aggregate counts were read; the database and profile uploads are excluded from the submission package.
 - The existing PDFs at the project root were left untouched. New draft exports are prepared separately under `submission/`.
 

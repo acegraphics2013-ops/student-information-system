@@ -39,7 +39,7 @@ project brief. They are evidence summaries, not a score or grade prediction.
 - Build: Vite production build passed. `/images/bg-login.jpg` exists under `public/images`; actual browser rendering remains unverified.
 - Formatting/configuration: `vendor\bin\pint --test` and `composer validate --no-check-publish` passed.
 - Authorization review: registration assigns Staff; API writes require Admin; last-Administrator deletion/demotion safeguards are present and tested.
-- Git: 46 commits at verification time. No commit, push, deployment, or destructive database operation was made for this work.
+- Git: 56 commits at the latest check. The history advanced during review; no push, deployment, or destructive database operation was performed in this session.
 - Academic disclaimer: the login footer contains the requested unofficial-project disclaimer.
 
 ## Documents and Package

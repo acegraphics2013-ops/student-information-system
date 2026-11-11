@@ -15,7 +15,7 @@
 
 ## Current evidence snapshot - November 10, 2026
 
-The repository has 46 commits and 20 screenshot files. A fresh local test run
+The repository has 56 commits and 20 screenshot files. A fresh local test run
 passed 93 tests with 633 assertions and no failures or skips. The current
 verification record also documents 61 routes, 13 applied migrations, passing
 SQLite integrity/foreign-key checks, a passing production build, Composer

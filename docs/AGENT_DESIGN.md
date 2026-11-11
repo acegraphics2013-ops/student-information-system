@@ -102,7 +102,7 @@ These steps are supported by project documentation and prior reviews. They do **
 | Academic catalog | 7 colleges, 13 departments, 22 programs | Aggregate counts only; no personal record values read |
 | Frontend build | Production build passed with a `/images/bg-login.jpg` runtime-resolution warning | The referenced file exists under `public/images`; browser rendering was not checked |
 | Composer and Pint | Both checks passed | `git diff --check` passed after fixing an audit-document whitespace issue; Git warned about CRLF normalization |
-| Git history and screenshots | 46 commits; 20 screenshot files | Commit count is a point-in-time value; screenshots are development evidence, not live-app proof |
+| Git history and screenshots | 56 commits; 20 screenshot files | Commit count is a point-in-time value; screenshots are development evidence, not live-app proof |
 
 Earlier phases of development reported different test totals; use the latest actual local results for the final PDF and identify older numbers as historical snapshots.
 
