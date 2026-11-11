@@ -296,6 +296,34 @@ class EnrollmentCrudTest extends TestCase
             ->assertDontSee('<span class="font-semibold text-gray-900">12</span>', false);
     }
 
+    public function test_enrollment_create_page_shows_the_full_step_by_step_process(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $student = $this->sampleStudent();
+        $this->sampleSubject();
+
+        $this->actingAs($admin)
+            ->get(route('enrollments.create'))
+            ->assertOk()
+            ->assertSee('Enrollment steps')
+            ->assertSee('1. Find a student')
+            ->assertSee('2. Choose subjects')
+            ->assertSee('3. Enrollment details')
+            ->assertSee('4. Review & confirm')
+            ->assertSee('Next: Choose subjects')
+            ->assertSee('Next: Enrollment details')
+            ->assertSee('Next: Review')
+            ->assertSee('Back')
+            // The wizard starts on step 1 when no student is preselected.
+            ->assertSee('step: 1', false);
+
+        // A preselected student jumps straight to the subjects step.
+        $this->actingAs($admin)
+            ->get(route('enrollments.create', ['student_id' => $student->id]))
+            ->assertOk()
+            ->assertSee('step: 2', false);
+    }
+
     public function test_admin_can_create_update_and_delete_an_enrollment(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
