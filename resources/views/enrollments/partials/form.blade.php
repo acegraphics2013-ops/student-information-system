@@ -29,6 +29,16 @@
             get selectedStudent() {
                 return this.students.find((student) => String(student.id) === String(this.selectedStudentId));
             },
+            get enrolledStudents() {
+                return this.students.filter((student) => (student.existing_subject_ids ?? []).length > 0);
+            },
+            get filteredEnrolledStudents() {
+                const query = this.search.trim().toLowerCase();
+                if (!query) return this.enrolledStudents;
+                return this.enrolledStudents.filter((student) =>
+                    `${student.student_number} ${student.first_name} ${student.last_name} ${student.email} ${student.course}`.toLowerCase().includes(query)
+                );
+            },
             get selectedUnits() {
                 return this.subjects
                     .filter((subject) => this.selectedSubjectIds.includes(String(subject.id)))
@@ -218,6 +228,82 @@
                             class="shrink-0 rounded-md px-3 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         Change
                     </button>
+                </div>
+
+                <!-- Table of students already on record -->
+                <div class="space-y-2 pt-2">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-900">Enrolled students</h4>
+                            <p class="mt-0.5 text-xs text-gray-500">Students who already have subjects on record — select one to add more.</p>
+                        </div>
+                        <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-700">
+                            <span x-text="filteredEnrolledStudents.length"></span>
+                            <span x-text="filteredEnrolledStudents.length === 1 ? 'student' : 'students'"></span>
+                        </span>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-lg border border-gray-200">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
+                                <tr>
+                                    <th scope="col" class="px-3 py-2 font-semibold">Student</th>
+                                    <th scope="col" class="px-3 py-2 font-semibold">Program</th>
+                                    <th scope="col" class="px-3 py-2 font-semibold">Year</th>
+                                    <th scope="col" class="px-3 py-2 font-semibold">Semesters</th>
+                                    <th scope="col" class="px-3 py-2 font-semibold">Subjects</th>
+                                    <th scope="col" class="px-3 py-2 font-semibold">Units / semester</th>
+                                    <th scope="col" class="px-3 py-2 font-semibold">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <template x-for="student in filteredEnrolledStudents" :key="student.id">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-3 py-2">
+                                            <span class="block font-medium text-gray-900"
+                                                  x-text="`${student.first_name} ${student.last_name}`"></span>
+                                            <span class="block text-xs text-gray-500"
+                                                  x-text="`${student.student_number} · ${student.email}`"></span>
+                                        </td>
+                                        <td class="px-3 py-2 text-gray-700" x-text="student.course"></td>
+                                        <td class="whitespace-nowrap px-3 py-2 text-gray-700"
+                                            x-text="`Year ${student.year_level}`"></td>
+                                        <td class="px-3 py-2">
+                                            <div class="flex flex-wrap gap-1">
+                                                <template x-for="semester in student.semesters" :key="semester">
+                                                    <span class="inline-flex rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-700"
+                                                          x-text="semester"></span>
+                                                </template>
+                                            </div>
+                                        </td>
+                                        <td class="whitespace-nowrap px-3 py-2 text-gray-700"
+                                            x-text="student.subject_count"></td>
+                                        <td class="px-3 py-2 text-gray-700">
+                                            <template x-for="(units, semester) in student.units_by_semester" :key="semester">
+                                                <span class="block whitespace-nowrap text-xs"
+                                                      x-show="units > 0"
+                                                      x-text="`${semester}: ${units} / 10`"></span>
+                                            </template>
+                                            <span class="text-xs text-gray-400"
+                                                  x-show="!Object.values(student.units_by_semester).some((value) => value > 0)">—</span>
+                                        </td>
+                                        <td class="whitespace-nowrap px-3 py-2">
+                                            <button type="button"
+                                                    @click="selectStudent(student); step = 2"
+                                                    class="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                                Select
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <tr x-show="filteredEnrolledStudents.length === 0">
+                                    <td colspan="7" class="px-3 py-6 text-center text-sm text-gray-500">
+                                        No enrolled students match the current search.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-1">

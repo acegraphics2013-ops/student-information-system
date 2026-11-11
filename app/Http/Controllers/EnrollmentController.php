@@ -223,6 +223,14 @@ class EnrollmentController extends Controller
                 'last_name' => $student->last_name,
                 'email' => $student->email,
                 'year_level' => $student->year_level,
+                'course' => $student->course,
+                'semesters' => $student->enrollments
+                    ->pluck('semester')
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->all(),
+                'subject_count' => $student->enrollments->count(),
                 'units_by_semester' => collect(Enrollment::SEMESTERS)
                     ->mapWithKeys(fn (string $semester): array => [
                         $semester => (int) $student->enrollments

@@ -324,6 +324,36 @@ class EnrollmentCrudTest extends TestCase
             ->assertSee('step: 2', false);
     }
 
+    public function test_enrollment_create_page_shows_a_table_of_enrolled_students(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $student = $this->sampleStudent();
+        $subject = $this->sampleSubject();
+        Enrollment::create([
+            'student_id' => $student->id,
+            'subject_id' => $subject->id,
+            'status' => 'enrolled',
+            'semester' => '1st Semester',
+            'year_level' => 2,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('enrollments.create'))
+            ->assertOk()
+            ->assertSee('Enrolled students')
+            ->assertSee('Students who already have subjects on record')
+            ->assertSee('Units / semester')
+            ->assertSee('Select')
+            ->assertViewHas('enrollmentStudents', function ($students): bool {
+                $student = $students->first();
+
+                return $student['course'] === 'BSIT'
+                    && $student['subject_count'] === 1
+                    && $student['semesters'] === ['1st Semester']
+                    && $student['units_by_semester']['1st Semester'] === 3;
+            });
+    }
+
     public function test_admin_can_create_update_and_delete_an_enrollment(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
