@@ -75,11 +75,15 @@ class EnrollmentCrudTest extends TestCase
 
         $this->get(route('enrollments.index'))
             ->assertOk()
-            ->assertSee('Summer Semester');
+            ->assertSee('Summer Semester')
+            ->assertSee('1 semester')
+            ->assertSee('Semesters Enrolled');
 
         $this->get(route('enrollments.show', $enrollment))
             ->assertOk()
-            ->assertSee('Summer Semester');
+            ->assertSee('Summer Semester')
+            ->assertSee('Semesters enrolled')
+            ->assertSee('1 semester');
 
         $this->get(route('enrollments.edit', $enrollment))
             ->assertOk()
@@ -112,6 +116,47 @@ class EnrollmentCrudTest extends TestCase
         ])->assertSessionHasErrors('semester');
 
         $this->assertDatabaseCount('enrollments', 0);
+    }
+
+    public function test_enrollment_list_counts_distinct_semesters_per_student(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $student = $this->sampleStudent();
+        $firstSubject = Subject::create([
+            'subject_code' => 'IT101',
+            'subject_name' => 'Introduction to Computing',
+            'units' => 3,
+        ]);
+        $secondSubject = Subject::create([
+            'subject_code' => 'IT102',
+            'subject_name' => 'Programming 1',
+            'units' => 3,
+        ]);
+
+        Enrollment::create([
+            'student_id' => $student->id,
+            'subject_id' => $firstSubject->id,
+            'status' => 'enrolled',
+            'semester' => '1st Semester',
+        ]);
+        Enrollment::create([
+            'student_id' => $student->id,
+            'subject_id' => $secondSubject->id,
+            'status' => 'enrolled',
+            'semester' => '2nd Semester',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('enrollments.index'))
+            ->assertOk()
+            ->assertSee('2 semesters')
+            ->assertSee('1st Semester')
+            ->assertSee('2nd Semester');
+
+        $this->actingAs($admin)
+            ->get(route('enrollments.show', $student->enrollments->first()))
+            ->assertOk()
+            ->assertSee('2 semesters');
     }
 
     public function test_admin_can_create_update_and_delete_an_enrollment(): void

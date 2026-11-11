@@ -46,7 +46,7 @@
                             <thead class="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
                                 <tr>
                                     <th scope="col" class="px-4 py-3 font-semibold">Student</th>
-                                    <th scope="col" class="px-4 py-3 font-semibold">Semester</th>
+                                    <th scope="col" class="px-4 py-3 font-semibold">Semesters Enrolled</th>
                                     <th scope="col" class="px-4 py-3 font-semibold">Subjects Loaded</th>
                                     <th scope="col" class="px-4 py-3 font-semibold">Enrolled Units</th>
                                     <th scope="col" class="px-4 py-3 font-semibold">Actions</th>
@@ -61,8 +61,16 @@
                                             {{ $student->first_name }} {{ $student->last_name }}
                                         </td>
                                         <td class="px-4 py-3">
-                                            <div class="flex flex-wrap gap-1.5">
-                                                @foreach ($student->enrollments->pluck('semester')->filter()->unique()->values() as $semester)
+                                            @php
+                                                $semesters = $student->enrollments->pluck('semester')->filter()->unique()->values();
+                                                $semesterCount = $semesters->count();
+                                            @endphp
+                                            <p class="text-sm font-semibold text-gray-900">
+                                                {{ $semesterCount }} {{ $semesterCount === 1 ? 'semester' : 'semesters' }}
+                                                <span class="font-normal text-gray-500">enrolled</span>
+                                            </p>
+                                            <div class="mt-1.5 flex flex-wrap gap-1.5">
+                                                @foreach ($semesters as $semester)
                                                     <span class="inline-flex rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">{{ $semester }}</span>
                                                 @endforeach
                                             </div>

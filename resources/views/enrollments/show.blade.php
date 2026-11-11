@@ -13,6 +13,8 @@
         $enrolledUnits = $student->enrollments
             ->where('status', 'enrolled')
             ->sum(fn ($enrollment) => (int) ($enrollment->subject?->units ?? 0));
+        $semesters = $student->enrollments->pluck('semester')->filter()->unique()->values();
+        $semesterCount = $semesters->count();
     @endphp
 
     <main class="py-10">
@@ -24,9 +26,15 @@
                         <p class="mt-1 font-semibold text-gray-900">{{ $student->student_number }}</p>
                         <p class="mt-1 text-sm text-gray-600">{{ $student->email }}</p>
                     </div>
-                    <div class="rounded-lg bg-indigo-50 px-4 py-3 text-right">
-                        <p class="text-xs font-medium uppercase tracking-wide text-indigo-700">Current enrolled load</p>
-                        <p class="mt-1 text-2xl font-bold text-indigo-900">{{ $enrolledUnits }} <span class="text-sm font-medium">/ 10 units</span></p>
+                    <div class="flex flex-wrap items-center gap-4 sm:justify-end">
+                        <div class="rounded-lg bg-indigo-50 px-4 py-3 text-right">
+                            <p class="text-xs font-medium uppercase tracking-wide text-indigo-700">Semesters enrolled</p>
+                            <p class="mt-1 text-2xl font-bold text-indigo-900">{{ $semesterCount }} {{ $semesterCount === 1 ? 'semester' : 'semesters' }}</p>
+                        </div>
+                        <div class="rounded-lg bg-indigo-50 px-4 py-3 text-right">
+                            <p class="text-xs font-medium uppercase tracking-wide text-indigo-700">Current enrolled load</p>
+                            <p class="mt-1 text-2xl font-bold text-indigo-900">{{ $enrolledUnits }} <span class="text-sm font-medium">/ 10 units</span></p>
+                        </div>
                     </div>
                 </div>
             </section>
