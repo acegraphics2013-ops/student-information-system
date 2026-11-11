@@ -4,8 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\College;
 use App\Models\Department;
+use App\Models\Enrollment;
 use App\Models\Program;
 use App\Models\Student;
+use App\Models\Subject;
 use App\Models\User;
 use Database\Seeders\NemsuAcademicCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -301,6 +303,96 @@ class StudentCrudTest extends TestCase
             'course' => 'Legacy degree name',
             'first_name' => 'Updated',
         ]);
+    }
+
+    public function test_student_detail_page_lists_enrolled_subjects_grouped_by_semester(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
+
+        $student = Student::create($this->studentRecordData([
+            'student_number' => 'SIMS-ENROLL-01',
+            'email' => 'enrolled.student@example.com',
+        ]));
+
+        $firstSemesterSubject = Subject::create([
+            'subject_code' => 'IT101',
+            'subject_name' => 'Introduction to Computing',
+            'units' => 3,
+        ]);
+        $secondSemesterSubject = Subject::create([
+            'subject_code' => 'IT102',
+            'subject_name' => 'Computer Programming 1',
+            'units' => 3,
+        ]);
+
+        Enrollment::create([
+            'student_id' => $student->id,
+            'subject_id' => $firstSemesterSubject->id,
+            'status' => 'enrolled',
+            'semester' => '1st Semester',
+        ]);
+        Enrollment::create([
+            'student_id' => $student->id,
+            'subject_id' => $secondSemesterSubject->id,
+            'status' => 'completed',
+            'semester' => '2nd Semester',
+        ]);
+
+        $this->get(route('students.show', $student))
+            ->assertOk()
+            ->assertSee('Enrolled Subjects')
+            ->assertSee('1st Semester')
+            ->assertSee('2nd Semester')
+            ->assertSee('IT101')
+            ->assertSee('Introduction to Computing')
+            ->assertSee('IT102')
+            ->assertSee('Computer Programming 1')
+            ->assertSee('2 subjects')
+            ->assertSee('6 total units');
+    }
+
+    public function test_student_detail_page_shows_empty_state_without_enrollments(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
+
+        $student = Student::create($this->studentRecordData([
+            'student_number' => 'SIMS-ENROLL-03',
+            'email' => 'no.enrollments@example.com',
+        ]));
+
+        $this->get(route('students.show', $student))
+            ->assertOk()
+            ->assertSee('No subjects enrolled yet');
+    }
+
+    public function test_student_list_shows_enrollment_subject_count_and_units(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
+
+        $student = Student::create($this->studentRecordData([
+            'student_number' => 'SIMS-ENROLL-02',
+            'email' => 'list.student@example.com',
+        ]));
+
+        $subject = Subject::create([
+            'subject_code' => 'IT201',
+            'subject_name' => 'Data Structures',
+            'units' => 3,
+        ]);
+
+        Enrollment::create([
+            'student_id' => $student->id,
+            'subject_id' => $subject->id,
+            'status' => 'enrolled',
+            'semester' => '1st Semester',
+        ]);
+
+        $this->get(route('students.index'))
+            ->assertOk()
+            ->assertSee('Enrolled')
+            ->assertSee('3 units')
+            ->assertViewHas('students', fn ($students): bool => $students->first()->enrollments->count() === 1
+                && $students->first()->enrollments->sum(fn ($enrollment) => $enrollment->subject->units) === 3);
     }
 
     public function test_missing_student_pages_return_not_found(): void

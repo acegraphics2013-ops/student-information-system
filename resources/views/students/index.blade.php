@@ -66,6 +66,7 @@
                                 <th scope="col" class="px-4 py-3 text-left font-semibold">Name</th>
                                 <th scope="col" class="px-4 py-3 text-left font-semibold">Degree Program</th>
                                 <th scope="col" class="px-4 py-3 text-left font-semibold">Year</th>
+                                <th scope="col" class="px-4 py-3 text-left font-semibold">Enrolled</th>
                                 <th scope="col" class="px-4 py-3 text-left font-semibold">Actions</th>
                             </tr>
                         </thead>
@@ -88,6 +89,22 @@
 
                                     <td class="whitespace-nowrap px-4 py-3 text-gray-600">
                                         {{ $student->year_level }}
+                                    </td>
+
+                                    <td class="whitespace-nowrap px-4 py-3">
+                                        @php
+                                            $enrolledCount = $student->enrollments->count();
+                                            $enrolledUnits = $student->enrollments->sum(fn ($enrollment) => (int) ($enrollment->subject?->units ?? 0));
+                                        @endphp
+
+                                        @if ($enrolledCount > 0)
+                                            <span class="font-medium text-gray-900">{{ $enrolledCount }}</span>
+                                            <span class="text-gray-500">
+                                                {{ $enrolledCount === 1 ? 'subject' : 'subjects' }} &middot; {{ $enrolledUnits }} units
+                                            </span>
+                                        @else
+                                            <span class="text-gray-400">None</span>
+                                        @endif
                                     </td>
 
                                     <td class="whitespace-nowrap px-4 py-3">
@@ -120,7 +137,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-4 py-12 text-center">
+                                    <td colspan="6" class="px-4 py-12 text-center">
                                         <p class="font-semibold text-gray-900">{{ $search !== '' ? 'No matching students' : 'No student records yet' }}</p>
                                         <p class="mt-1 text-sm text-gray-500">
                                             {{ $search !== '' ? 'Try another search term or clear your search.' : 'Student records will appear here after they are added.' }}

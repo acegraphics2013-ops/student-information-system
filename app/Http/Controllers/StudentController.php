@@ -45,10 +45,15 @@ class StudentController extends Controller
         $students = $studentsQuery
             ->orderBy('last_name')
             ->orderBy('first_name')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
+
+        // Eager load enrollments + subjects so the list can show each student's load
+        // without triggering a query per row.
+        $students->getCollection()->load('enrollments.subject');
 
         return view('students.index', [
-            'students' => $students->withQueryString(),
+            'students' => $students,
             'search' => $search,
         ]);
     }
@@ -74,6 +79,10 @@ class StudentController extends Controller
     // Display one student
     public function show(Student $student): View
     {
+        $student->load([
+            'enrollments' => fn ($query) => $query->with('subject')->orderBy('semester'),
+        ]);
+
         return view('students.show', compact('student'));
     }
 
